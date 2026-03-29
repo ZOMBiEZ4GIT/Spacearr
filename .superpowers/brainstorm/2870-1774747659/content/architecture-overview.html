@@ -1,0 +1,108 @@
+<h2>Spacearr — Architecture Overview</h2>
+<p class="subtitle">A storage visualization & optimization tool for the ARR stack</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">System Architecture</div>
+    <div class="mockup-body" style="padding: 24px; font-family: system-ui;">
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+
+        <!-- Spacearr Core -->
+        <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border: 2px solid #0f3460; border-radius: 12px; padding: 20px; width: 280px; text-align: center;">
+          <div style="font-size: 20px; font-weight: bold; color: #e94560; margin-bottom: 12px;">Spacearr</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="background: #0f3460; border-radius: 6px; padding: 8px; font-size: 13px; color: #a8b2d1;">
+              <strong style="color: #64ffda;">.NET 8 Backend</strong><br>
+              API + Background Services
+            </div>
+            <div style="background: #0f3460; border-radius: 6px; padding: 8px; font-size: 13px; color: #a8b2d1;">
+              <strong style="color: #64ffda;">React Frontend</strong><br>
+              Treemap + Table + Actions
+            </div>
+            <div style="background: #0f3460; border-radius: 6px; padding: 8px; font-size: 13px; color: #a8b2d1;">
+              <strong style="color: #64ffda;">SQLite Database</strong><br>
+              Scan cache, history, config
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrows -->
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 20px; color: #a8b2d1; font-size: 24px;">
+          <div style="text-align: center;">
+            <div>&#8596;</div>
+            <div style="font-size: 11px;">API</div>
+          </div>
+          <div style="text-align: center;">
+            <div>&#8596;</div>
+            <div style="font-size: 11px;">API</div>
+          </div>
+          <div style="text-align: center;">
+            <div>&#8592;</div>
+            <div style="font-size: 11px;">Filesystem</div>
+          </div>
+        </div>
+
+        <!-- External Services -->
+        <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+          <div style="background: #1a1a2e; border: 2px solid #e94560; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 160px;">
+            <div style="color: #e94560; font-weight: bold;">Sonarr</div>
+            <div style="color: #a8b2d1; font-size: 12px;">TV Series</div>
+          </div>
+          <div style="background: #1a1a2e; border: 2px solid #f5a623; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 160px;">
+            <div style="color: #f5a623; font-weight: bold;">Radarr</div>
+            <div style="color: #a8b2d1; font-size: 12px;">Movies</div>
+          </div>
+          <div style="background: #1a1a2e; border: 2px solid #64ffda; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 160px;">
+            <div style="color: #64ffda; font-weight: bold;">Media Library</div>
+            <div style="color: #a8b2d1; font-size: 12px;">/movies, /tv</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Flow -->
+      <div style="margin-top: 24px; background: #0d1117; border-radius: 8px; padding: 16px;">
+        <div style="color: #64ffda; font-weight: bold; margin-bottom: 8px; font-size: 14px;">Data Flow</div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+          <div style="background: #161b22; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a8b2d1; flex: 1; min-width: 180px;">
+            <strong style="color: #f0883e;">1. Scan</strong><br>
+            Filesystem scan for file sizes, codecs, bitrates via MediaInfo
+          </div>
+          <div style="background: #161b22; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a8b2d1; flex: 1; min-width: 180px;">
+            <strong style="color: #f0883e;">2. Enrich</strong><br>
+            Match files to Sonarr/Radarr items for metadata & quality profiles
+          </div>
+          <div style="background: #161b22; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a8b2d1; flex: 1; min-width: 180px;">
+            <strong style="color: #f0883e;">3. Visualize</strong><br>
+            Treemap + table with bitrate heatmap, filterable & sortable
+          </div>
+          <div style="background: #161b22; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #a8b2d1; flex: 1; min-width: 180px;">
+            <strong style="color: #f0883e;">4. Act</strong><br>
+            Delete, re-search, quality swap, bulk operations via ARR APIs
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 20px;">
+  <h3>Key Design Decisions</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.2); border-radius: 8px; padding: 14px;">
+      <div style="color: #64ffda; font-weight: bold; font-size: 13px; margin-bottom: 4px;">Stack</div>
+      <div style="font-size: 13px;">.NET 8 + React + SQLite — same as Sonarr/Radarr</div>
+    </div>
+    <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.2); border-radius: 8px; padding: 14px;">
+      <div style="color: #64ffda; font-weight: bold; font-size: 13px; margin-bottom: 4px;">Heatmap</div>
+      <div style="font-size: 13px;">Bitrate as default color, switchable to quality/codec/resolution</div>
+    </div>
+    <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.2); border-radius: 8px; padding: 14px;">
+      <div style="color: #64ffda; font-weight: bold; font-size: 13px; margin-bottom: 4px;">Discovery</div>
+      <div style="font-size: 13px;">Hybrid: filesystem scan + Sonarr/Radarr API enrichment</div>
+    </div>
+    <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.2); border-radius: 8px; padding: 14px;">
+      <div style="color: #64ffda; font-weight: bold; font-size: 13px; margin-bottom: 4px;">Service Model</div>
+      <div style="font-size: 13px;">Full standalone — own port, own DB, background scanning</div>
+    </div>
+  </div>
+</div>

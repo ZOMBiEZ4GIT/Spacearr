@@ -1,0 +1,275 @@
+<h2>Spacearr — UI Layout</h2>
+<p class="subtitle">Three-panel layout inspired by WinDirStat, styled like the ARR apps</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">Main Dashboard</div>
+    <div class="mockup-body" style="padding: 0; background: #1a1d23; min-height: 500px; font-family: system-ui; font-size: 13px; color: #ccc;">
+
+      <!-- Top Nav Bar -->
+      <div style="background: #0b0c0f; padding: 10px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #2a2d35;">
+        <div style="font-size: 18px; font-weight: bold; color: #e94560; letter-spacing: 1px;">SPACEARR</div>
+        <div style="display: flex; gap: 2px;">
+          <div style="background: #e94560; color: white; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600;">Library</div>
+          <div style="color: #888; padding: 6px 14px; border-radius: 4px; font-size: 12px;">Recommendations</div>
+          <div style="color: #888; padding: 6px 14px; border-radius: 4px; font-size: 12px;">Duplicates</div>
+          <div style="color: #888; padding: 6px 14px; border-radius: 4px; font-size: 12px;">History</div>
+          <div style="color: #888; padding: 6px 14px; border-radius: 4px; font-size: 12px;">Settings</div>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+          <div style="color: #64ffda; font-size: 12px;">Last scan: 2 min ago</div>
+          <div style="background: #2a2d35; padding: 5px 10px; border-radius: 4px; font-size: 11px; color: #888;">&#x1F50D; Search...</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div style="background: #12141a; padding: 8px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2d35;">
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <span style="font-size: 11px; color: #888;">Source:</span>
+          <span style="background: #e94560; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">All</span>
+          <span style="background: #2a2d35; color: #888; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Radarr</span>
+          <span style="background: #2a2d35; color: #888; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Sonarr</span>
+        </div>
+        <div style="width: 1px; height: 20px; background: #2a2d35;"></div>
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <span style="font-size: 11px; color: #888;">Color by:</span>
+          <span style="background: #e94560; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Bitrate</span>
+          <span style="background: #2a2d35; color: #888; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Quality</span>
+          <span style="background: #2a2d35; color: #888; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Codec</span>
+          <span style="background: #2a2d35; color: #888; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Resolution</span>
+        </div>
+        <div style="width: 1px; height: 20px; background: #2a2d35;"></div>
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <span style="font-size: 11px; color: #888;">Min size:</span>
+          <span style="background: #2a2d35; color: #ccc; padding: 2px 8px; border-radius: 3px; font-size: 11px;">1 GB</span>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 6px;">
+          <div style="background: #2a6e4e; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">&#9654; Scan Now</div>
+          <div style="background: #2a2d35; color: #ccc; padding: 4px 12px; border-radius: 4px; font-size: 11px;">Bulk Actions &#x25BC;</div>
+        </div>
+      </div>
+
+      <!-- Main Content: 3-panel -->
+      <div style="display: flex; height: 420px;">
+
+        <!-- Left Panel: Table -->
+        <div style="flex: 1; overflow: auto; border-right: 1px solid #2a2d35;">
+          <!-- Table Header -->
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 6px 12px; background: #12141a; border-bottom: 1px solid #2a2d35; font-size: 11px; color: #888; font-weight: 600; position: sticky; top: 0;">
+            <div>&#9744;</div>
+            <div>Title</div>
+            <div>Size</div>
+            <div>Bitrate</div>
+            <div>Quality</div>
+            <div>Source</div>
+          </div>
+
+          <!-- Rows -->
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center; background: rgba(233,69,96,0.08);">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">Dune: Part Two (2024)</div>
+              <div style="font-size: 10px; color: #888;">Remux-2160p • x265 • /movies/Dune Part Two/</div>
+            </div>
+            <div style="font-weight: 600; color: #e94560;">78.4 GB</div>
+            <div><span style="background: #e94560; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px;">82 Mbps</span></div>
+            <div style="font-size: 11px;">Remux-2160p</div>
+            <div><span style="color: #f5a623; font-size: 11px;">Radarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">Oppenheimer (2023)</div>
+              <div style="font-size: 10px; color: #888;">Remux-2160p • x265 • /movies/Oppenheimer/</div>
+            </div>
+            <div style="font-weight: 600; color: #f5a623;">65.2 GB</div>
+            <div><span style="background: #f5a623; color: black; padding: 1px 6px; border-radius: 3px; font-size: 10px;">58 Mbps</span></div>
+            <div style="font-size: 11px;">Remux-2160p</div>
+            <div><span style="color: #f5a623; font-size: 11px;">Radarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">Breaking Bad (S01-S05)</div>
+              <div style="font-size: 10px; color: #888;">Bluray-1080p • x264 • /tv/Breaking Bad/</div>
+            </div>
+            <div style="font-weight: 600; color: #f5a623;">52.1 GB</div>
+            <div><span style="background: #6e8b3d; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px;">12 Mbps</span></div>
+            <div style="font-size: 11px;">Bluray-1080p</div>
+            <div><span style="color: #17a2b8; font-size: 11px;">Sonarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">The Batman (2022)</div>
+              <div style="font-size: 10px; color: #888;">Bluray-2160p • x265 • /movies/The Batman/</div>
+            </div>
+            <div style="font-weight: 600;">42.8 GB</div>
+            <div><span style="background: #c4a43e; color: black; padding: 1px 6px; border-radius: 3px; font-size: 10px;">38 Mbps</span></div>
+            <div style="font-size: 11px;">Bluray-2160p</div>
+            <div><span style="color: #f5a623; font-size: 11px;">Radarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">Succession (S01-S04)</div>
+              <div style="font-size: 10px; color: #888;">WEB-1080p • x264 • /tv/Succession/</div>
+            </div>
+            <div style="font-weight: 600;">38.6 GB</div>
+            <div><span style="background: #6e8b3d; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px;">8 Mbps</span></div>
+            <div style="font-size: 11px;">WEB-1080p</div>
+            <div><span style="color: #17a2b8; font-size: 11px;">Sonarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">Interstellar (2014)</div>
+              <div style="font-size: 10px; color: #888;">Remux-1080p • x264 • /movies/Interstellar/</div>
+            </div>
+            <div style="font-weight: 600;">35.2 GB</div>
+            <div><span style="background: #c4a43e; color: black; padding: 1px 6px; border-radius: 3px; font-size: 10px;">28 Mbps</span></div>
+            <div style="font-size: 11px;">Remux-1080p</div>
+            <div><span style="color: #f5a623; font-size: 11px;">Radarr</span></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 30px 1fr 80px 70px 70px 60px; padding: 5px 12px; border-bottom: 1px solid #1e2028; align-items: center;">
+            <div style="font-size: 11px;">&#9744;</div>
+            <div>
+              <div style="font-weight: 600; font-size: 12px;">The Office (S01-S09)</div>
+              <div style="font-size: 10px; color: #888;">WEB-720p • x264 • /tv/The Office/</div>
+            </div>
+            <div style="font-weight: 600;">28.4 GB</div>
+            <div><span style="background: #2d8a4e; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px;">4 Mbps</span></div>
+            <div style="font-size: 11px;">WEB-720p</div>
+            <div><span style="color: #17a2b8; font-size: 11px;">Sonarr</span></div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Legend + Stats -->
+        <div style="width: 220px; background: #12141a; padding: 12px; overflow: auto;">
+          <!-- Summary -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Library Summary</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e94560;">4.2 TB</div>
+            <div style="font-size: 11px; color: #888;">1,247 files • 342 movies • 89 series</div>
+          </div>
+
+          <!-- Bitrate Legend -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Bitrate Heat</div>
+            <div style="display: flex; height: 12px; border-radius: 3px; overflow: hidden; margin-bottom: 4px;">
+              <div style="flex:1; background: #2d8a4e;"></div>
+              <div style="flex:1; background: #6e8b3d;"></div>
+              <div style="flex:1; background: #c4a43e;"></div>
+              <div style="flex:1; background: #f5a623;"></div>
+              <div style="flex:1; background: #e94560;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888;">
+              <span>Low</span>
+              <span>High</span>
+            </div>
+          </div>
+
+          <!-- Breakdown -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">By Quality</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>Remux-2160p</span>
+                <span style="color: #e94560; font-weight: 600;">1.8 TB</span>
+              </div>
+              <div style="background: #2a2d35; border-radius: 2px; height: 4px;"><div style="background: #e94560; height: 100%; width: 43%; border-radius: 2px;"></div></div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>Bluray-1080p</span>
+                <span style="color: #f5a623; font-weight: 600;">1.1 TB</span>
+              </div>
+              <div style="background: #2a2d35; border-radius: 2px; height: 4px;"><div style="background: #f5a623; height: 100%; width: 26%; border-radius: 2px;"></div></div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>WEB-1080p</span>
+                <span style="color: #c4a43e; font-weight: 600;">0.8 TB</span>
+              </div>
+              <div style="background: #2a2d35; border-radius: 2px; height: 4px;"><div style="background: #c4a43e; height: 100%; width: 19%; border-radius: 2px;"></div></div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>WEB-720p</span>
+                <span style="color: #6e8b3d; font-weight: 600;">0.3 TB</span>
+              </div>
+              <div style="background: #2a2d35; border-radius: 2px; height: 4px;"><div style="background: #6e8b3d; height: 100%; width: 7%; border-radius: 2px;"></div></div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                <span>Other</span>
+                <span style="color: #2d8a4e; font-weight: 600;">0.2 TB</span>
+              </div>
+              <div style="background: #2a2d35; border-radius: 2px; height: 4px;"><div style="background: #2d8a4e; height: 100%; width: 5%; border-radius: 2px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Top Space Savers -->
+          <div>
+            <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Quick Wins</div>
+            <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.15); border-radius: 6px; padding: 8px; font-size: 11px; margin-bottom: 6px;">
+              <div style="color: #64ffda; font-weight: 600;">Save ~50 GB</div>
+              <div style="color: #888;">Swap Dune Remux → Bluray-2160p</div>
+            </div>
+            <div style="background: rgba(100,255,218,0.05); border: 1px solid rgba(100,255,218,0.15); border-radius: 6px; padding: 8px; font-size: 11px;">
+              <div style="color: #64ffda; font-weight: 600;">Save ~40 GB</div>
+              <div style="color: #888;">Swap Oppenheimer Remux → Bluray-2160p</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Treemap -->
+      <div style="border-top: 2px solid #2a2d35; height: 160px; display: flex; overflow: hidden;">
+        <!-- Treemap visualization -->
+        <div style="flex: 3; background: #e94560; display: flex; position: relative; border-right: 1px solid #1a1d23;">
+          <div style="position: absolute; top: 4px; left: 6px; font-size: 10px; color: rgba(255,255,255,0.8); font-weight: 600;">Dune: Part Two — 78.4 GB</div>
+        </div>
+        <div style="flex: 2.5; background: #d4543f; display: flex; flex-direction: column; border-right: 1px solid #1a1d23;">
+          <div style="position: relative; flex: 1; padding: 4px 6px;">
+            <div style="font-size: 10px; color: rgba(255,255,255,0.8); font-weight: 600;">Oppenheimer — 65.2 GB</div>
+          </div>
+        </div>
+        <div style="flex: 2; display: flex; flex-direction: column;">
+          <div style="flex: 1; background: #6e8b3d; position: relative; border-bottom: 1px solid #1a1d23; border-right: 1px solid #1a1d23;">
+            <div style="position: absolute; top: 4px; left: 6px; font-size: 9px; color: rgba(255,255,255,0.8); font-weight: 600;">Breaking Bad — 52.1 GB</div>
+          </div>
+          <div style="flex: 0.8; display: flex;">
+            <div style="flex: 1; background: #c4a43e; position: relative; border-right: 1px solid #1a1d23;">
+              <div style="position: absolute; top: 4px; left: 4px; font-size: 8px; color: rgba(0,0,0,0.7); font-weight: 600;">The Batman</div>
+            </div>
+            <div style="flex: 0.8; background: #6e8b3d; position: relative; border-right: 1px solid #1a1d23;">
+              <div style="position: absolute; top: 4px; left: 4px; font-size: 8px; color: rgba(255,255,255,0.8); font-weight: 600;">Succession</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1.2; display: flex; flex-direction: column;">
+          <div style="flex: 1; background: #c4a43e; position: relative; border-bottom: 1px solid #1a1d23;">
+            <div style="position: absolute; top: 4px; left: 4px; font-size: 8px; color: rgba(0,0,0,0.7); font-weight: 600;">Interstellar</div>
+          </div>
+          <div style="flex: 0.7; display: flex;">
+            <div style="flex: 1; background: #2d8a4e; position: relative; border-right: 1px solid #1a1d23;">
+              <div style="position: absolute; top: 3px; left: 3px; font-size: 7px; color: rgba(255,255,255,0.7);">The Office</div>
+            </div>
+            <div style="flex: 0.5; display: flex; flex-direction: column;">
+              <div style="flex: 1; background: #3d7a5e; border-bottom: 1px solid #1a1d23;"></div>
+              <div style="flex: 0.6; background: #4a8f6a;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 0.5; display: flex; flex-direction: column;">
+          <div style="flex: 1; background: #5a9a5e;"></div>
+          <div style="flex: 0.8; background: #3d6e4e; border-top: 1px solid #1a1d23;"></div>
+          <div style="flex: 0.5; background: #2d5a3e; border-top: 1px solid #1a1d23;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
