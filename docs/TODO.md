@@ -39,15 +39,15 @@
 - [ ] T3.7: Hook enrichment into scan pipeline (deferred — will wire in Phase 7)
 - [ ] T3.8: Settings UI for ARR connections (deferred — Phase 5)
 
-## Phase 4: API Layer
-- [ ] T4.1: LibraryController
-- [ ] T4.2: TreemapController
-- [ ] T4.3: ScanController
-- [ ] T4.4: ActionController
-- [ ] T4.5: RecommendationController
-- [ ] T4.6: DuplicateController
-- [ ] T4.7: HistoryController
-- [ ] T4.8: RuleController
+## Phase 4: API Layer ✓
+- [x] T4.1: LibraryController (paginated, filtered, sorted + stats)
+- [x] T4.2: TreemapController (colorBy, source, minSize params)
+- [x] T4.3: ScanController (trigger, status, history)
+- [x] T4.4: ActionController (delete, search, qualityswap)
+- [x] T4.5: RecommendationController (list, accept, dismiss, bulkdismiss)
+- [x] T4.6: DuplicateController (list groups, keep action)
+- [x] T4.7: HistoryController (paginated + stats)
+- [x] T4.8: RuleController (full CRUD + evaluate)
 
 ## Phase 5: Frontend — Table & Stats
 - [ ] T5.1: Navigation + routing (AppRoutes, nav bar)
