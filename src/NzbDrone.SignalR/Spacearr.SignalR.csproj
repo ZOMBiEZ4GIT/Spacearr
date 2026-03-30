@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NzbDrone.Core\Spacearr.Core.csproj" />
+    <ProjectReference Include="..\NzbDrone.Common\Spacearr.Common.csproj" />
+  </ItemGroup>
+</Project>

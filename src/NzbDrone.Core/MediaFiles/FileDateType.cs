@@ -1,4 +1,4 @@
-﻿namespace NzbDrone.Core.MediaFiles
+namespace NzbDrone.Core.MediaFiles
 {
     public enum FileDateType
     {

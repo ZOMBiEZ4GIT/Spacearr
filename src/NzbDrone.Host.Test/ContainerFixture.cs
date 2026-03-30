@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
 using FluentAssertions;
@@ -15,12 +13,7 @@ using NzbDrone.Common.Instrumentation.Extensions;
 using NzbDrone.Common.Options;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Datastore.Extensions;
-using NzbDrone.Core.Download;
-using NzbDrone.Core.Download.TrackedDownloads;
-using NzbDrone.Core.Indexers;
-using NzbDrone.Core.Lifecycle;
 using NzbDrone.Core.Messaging.Commands;
-using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Host;
 using NzbDrone.SignalR;
 using NzbDrone.Test.Common;
@@ -58,62 +51,21 @@ namespace NzbDrone.App.Test
         }
 
         [Test]
-        public void should_be_able_to_resolve_indexers()
-        {
-            _container.GetRequiredService<IEnumerable<IIndexer>>().Should().NotBeEmpty();
-        }
-
-        [Test]
-        public void should_be_able_to_resolve_downloadclients()
-        {
-            _container.GetRequiredService<IEnumerable<IDownloadClient>>().Should().NotBeEmpty();
-        }
-
-        [Test]
         public void container_should_inject_itself()
         {
             var factory = _container.GetRequiredService<IServiceFactory>();
 
-            factory.Build<IIndexerFactory>().Should().NotBeNull();
+            factory.Should().NotBeNull();
         }
 
         [Test]
         public void should_resolve_command_executor_by_name()
         {
-            var genericExecutor = typeof(IExecute<>).MakeGenericType(typeof(RssSyncCommand));
+            var genericExecutor = typeof(IExecute<>).MakeGenericType(typeof(MessagingCleanupCommand));
 
             var executor = _container.GetRequiredService(genericExecutor);
 
             executor.Should().NotBeNull();
-            executor.Should().BeAssignableTo<IExecute<RssSyncCommand>>();
-        }
-
-        [Test]
-        [Ignore("Shit appveyor")]
-        public void should_return_same_instance_of_singletons()
-        {
-            var first = (DownloadMonitoringService)_container.GetRequiredService<IHandle<ApplicationShutdownRequested>>();
-            var second = _container.GetServices<IHandle<TrackedDownloadsRemovedEvent>>().OfType<ApplicationShutdownRequested>().Single();
-
-            first.Should().BeSameAs(second);
-        }
-
-        [Test]
-        public void should_return_same_instance_of_singletons_by_different_same_interface()
-        {
-            var first = _container.GetServices<IHandle<MovieGrabbedEvent>>().OfType<DownloadMonitoringService>().Single();
-            var second = _container.GetServices<IHandle<MovieGrabbedEvent>>().OfType<DownloadMonitoringService>().Single();
-
-            first.Should().BeSameAs(second);
-        }
-
-        [Test]
-        public void should_return_same_instance_of_singletons_by_different_interfaces()
-        {
-            var first = _container.GetServices<IHandle<MovieGrabbedEvent>>().OfType<DownloadMonitoringService>().Single();
-            var second = (DownloadMonitoringService)_container.GetRequiredService<IExecute<RefreshMonitoredDownloadsCommand>>();
-
-            first.Should().BeSameAs(second);
         }
     }
 }

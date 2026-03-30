@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NLog;
 using NzbDrone.Common.Disk;
-using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Movies;
 using NzbDrone.Core.RootFolders;
 
 namespace NzbDrone.Core.DiskSpace
@@ -18,16 +16,14 @@ namespace NzbDrone.Core.DiskSpace
 
     public class DiskSpaceService : IDiskSpaceService
     {
-        private readonly IMovieService _movieService;
         private readonly IRootFolderService _rootFolderService;
         private readonly IDiskProvider _diskProvider;
         private readonly Logger _logger;
 
         private static readonly Regex _regexSpecialDrive = new Regex(@"^/var/lib/(docker|rancher|kubelet)(/|$)|^/(boot|etc)(/|$)|/docker(/var)?/aufs(/|$)|/\.timemachine", RegexOptions.Compiled);
 
-        public DiskSpaceService(IMovieService movieService, IRootFolderService rootFolderService, IDiskProvider diskProvider, Logger logger)
+        public DiskSpaceService(IRootFolderService rootFolderService, IDiskProvider diskProvider, Logger logger)
         {
-            _movieService = movieService;
             _rootFolderService = rootFolderService;
             _diskProvider = diskProvider;
             _logger = logger;
@@ -35,7 +31,7 @@ namespace NzbDrone.Core.DiskSpace
 
         public List<DiskSpace> GetFreeSpace()
         {
-            var importantRootFolders = GetMoviesRootPaths().Distinct().ToList();
+            var importantRootFolders = GetRootFolderPaths().Distinct().ToList();
 
             var optionalRootFolders = GetFixedDisksRootPaths().Except(importantRootFolders).Distinct().ToList();
 
@@ -47,14 +43,10 @@ namespace NzbDrone.Core.DiskSpace
             return diskSpace;
         }
 
-        private IEnumerable<string> GetMoviesRootPaths()
+        private IEnumerable<string> GetRootFolderPaths()
         {
-            // Get all movie paths and find the correct root folder for each. For each unique root folder path,
-            // ensure the path exists and get its path root and return all unique path roots.
-
-            return _movieService.AllMoviePaths()
-                .Where(s => s.Value.IsPathValid(PathValidationType.CurrentOs))
-                .Select(s => _rootFolderService.GetBestRootFolderPath(s.Value))
+            return _rootFolderService.All()
+                .Select(r => r.Path)
                 .Distinct()
                 .Where(r => _diskProvider.FolderExists(r))
                 .Select(r => _diskProvider.GetPathRoot(r))

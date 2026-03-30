@@ -24,7 +24,7 @@ function UpdateChanges(props: UpdateChangesProps) {
           const checkChange = change.replace(
             /#\d{4,5}\b/g,
             (match) =>
-              `[${match}](https://github.com/Radarr/Radarr/issues/${match.substring(
+              `[${match}](https://github.com/Spacearr/Spacearr/issues/${match.substring(
                 1
               )})`
           );

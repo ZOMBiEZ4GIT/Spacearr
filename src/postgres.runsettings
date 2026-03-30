@@ -2,10 +2,10 @@
 <RunSettings>
     <RunConfiguration>
         <EnvironmentVariables>
-            <Radarr__Postgres__Host>192.168.100.5</Radarr__Postgres__Host>
-			<Radarr__Postgres__Port>5432</Radarr__Postgres__Port>
-			<Radarr__Postgres__User>abc</Radarr__Postgres__User>
-			<Radarr__Postgres__Password>abc</Radarr__Postgres__Password>
+            <Spacearr__Postgres__Host>192.168.100.5</Spacearr__Postgres__Host>
+			<Spacearr__Postgres__Port>5432</Spacearr__Postgres__Port>
+			<Spacearr__Postgres__User>abc</Spacearr__Postgres__User>
+			<Spacearr__Postgres__Password>abc</Spacearr__Postgres__Password>
         </EnvironmentVariables>
     </RunConfiguration>
 </RunSettings>

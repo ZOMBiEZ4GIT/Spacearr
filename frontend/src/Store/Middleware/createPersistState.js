@@ -96,13 +96,13 @@ function merge(initialState, persistedState) {
   return computedState;
 }
 
-const KEY = 'radarr';
+const KEY = 'spacearr';
 
 const config = {
   slicer,
   serialize,
   merge,
-  key: window.Radarr.instanceName.toLowerCase().replace(/ /g, '_') || KEY
+  key: window.Spacearr.instanceName.toLowerCase().replace(/ /g, '_') || KEY
 };
 
 export default function createPersistState() {

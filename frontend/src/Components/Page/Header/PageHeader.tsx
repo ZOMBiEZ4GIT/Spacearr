@@ -57,10 +57,10 @@ function PageHeader({ isSmallScreen }: PageHeaderProps) {
             className={isSmallScreen ? styles.logo : styles.logoFull}
             src={
               isSmallScreen
-                ? `${window.Radarr.urlBase}/Content/Images/logo.png`
-                : `${window.Radarr.urlBase}/Content/Images/logo-full.png`
+                ? `${window.Spacearr.urlBase}/Content/Images/logo.png`
+                : `${window.Spacearr.urlBase}/Content/Images/logo-full.png`
             }
-            alt="Radarr Logo"
+            alt="Spacearr Logo"
           />
         </Link>
       </div>
@@ -80,7 +80,7 @@ function PageHeader({ isSmallScreen }: PageHeaderProps) {
           className={styles.donate}
           name={icons.HEART}
           aria-label={translate('Donate')}
-          to="https://radarr.video/donate"
+          to="https://spacearr.video/donate"
           size={14}
           title={translate('Donate')}
         />
@@ -89,7 +89,7 @@ function PageHeader({ isSmallScreen }: PageHeaderProps) {
           className={styles.translate}
           title={translate('SuggestTranslationChange')}
           name={icons.TRANSLATE}
-          to="https://translate.servarr.com/projects/radarr/radarr/"
+          to="https://translate.servarr.com/projects/spacearr/spacearr/"
           size={24}
         />
 

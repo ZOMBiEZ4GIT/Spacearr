@@ -35,29 +35,29 @@ namespace NzbDrone.Core.Datastore.Migration
 
         protected override void MainDbUpgrade()
         {
-            Execute.WithConnection(FixRadarrLists);
+            Execute.WithConnection(FixSpacearrLists);
             Execute.WithConnection(FixStevenLuLists);
         }
 
-        private void FixRadarrLists(IDbConnection conn, IDbTransaction tran)
+        private void FixSpacearrLists(IDbConnection conn, IDbTransaction tran)
         {
-            var rows = conn.Query<NetImportDefinition178>($"SELECT * FROM \"NetImport\" WHERE \"ConfigContract\" = 'RadarrListSettings'");
+            var rows = conn.Query<NetImportDefinition178>($"SELECT * FROM \"NetImport\" WHERE \"ConfigContract\" = 'SpacearrListSettings'");
 
-            var radarrUrls = new List<string>
+            var spacearrUrls = new List<string>
             {
-                "https://api.radarr.video/v2",
-                "https://staging.api.radarr.video"
+                "https://api.spacearr.video/v2",
+                "https://staging.api.spacearr.video"
             };
 
             foreach (var row in rows)
             {
-                var settings = JsonSerializer.Deserialize<RadarrListSettings177>(row.Settings, _serializerSettings);
+                var settings = JsonSerializer.Deserialize<SpacearrListSettings177>(row.Settings, _serializerSettings);
                 object newSettings;
 
-                if (!radarrUrls.Contains(settings.APIURL.TrimEnd('/')))
+                if (!spacearrUrls.Contains(settings.APIURL.TrimEnd('/')))
                 {
                     // Combine root and path in new settings
-                    newSettings = new RadarrListSettings178
+                    newSettings = new SpacearrListSettings178
                     {
                         Url = settings.APIURL.TrimEnd('/') + '/' + settings.Path.TrimStart('/')
                     };
@@ -97,7 +97,7 @@ namespace NzbDrone.Core.Datastore.Migration
                         }
                         else
                         {
-                            newSettings = new RadarrListSettings178
+                            newSettings = new SpacearrListSettings178
                             {
                                 Url = settings.APIURL.TrimEnd('/') + '/' + settings.Path.TrimStart('/')
                             };
@@ -182,13 +182,13 @@ namespace NzbDrone.Core.Datastore.Migration
             public string Tags { get; set; }
         }
 
-        public class RadarrListSettings177
+        public class SpacearrListSettings177
         {
             public string APIURL { get; set; }
             public string Path { get; set; }
         }
 
-        public class RadarrListSettings178
+        public class SpacearrListSettings178
         {
             public string Url { get; set; }
         }

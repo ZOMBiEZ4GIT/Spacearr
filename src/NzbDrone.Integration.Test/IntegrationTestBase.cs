@@ -17,17 +17,17 @@ using NzbDrone.Core.Qualities;
 using NzbDrone.Integration.Test.Client;
 using NzbDrone.SignalR;
 using NzbDrone.Test.Common.Categories;
-using Radarr.Api.V3.AutoTagging;
-using Radarr.Api.V3.Blocklist;
-using Radarr.Api.V3.Config;
-using Radarr.Api.V3.DownloadClient;
-using Radarr.Api.V3.History;
-using Radarr.Api.V3.MovieFiles;
-using Radarr.Api.V3.Movies;
-using Radarr.Api.V3.Profiles.Quality;
-using Radarr.Api.V3.RootFolders;
-using Radarr.Api.V3.System.Tasks;
-using Radarr.Api.V3.Tags;
+using Spacearr.Api.V1.AutoTagging;
+using Spacearr.Api.V1.Blocklist;
+using Spacearr.Api.V1.Config;
+using Spacearr.Api.V1.DownloadClient;
+using Spacearr.Api.V1.History;
+using Spacearr.Api.V1.MovieFiles;
+using Spacearr.Api.V1.Movies;
+using Spacearr.Api.V1.Profiles.Quality;
+using Spacearr.Api.V1.RootFolders;
+using Spacearr.Api.V1.System.Tasks;
+using Spacearr.Api.V1.Tags;
 using RestSharp;
 
 namespace NzbDrone.Integration.Test
@@ -172,7 +172,7 @@ namespace NzbDrone.Integration.Test
         protected async Task ConnectSignalR()
         {
             _signalRReceived = new List<SignalRMessage>();
-            _signalrConnection = new HubConnectionBuilder().WithUrl("http://localhost:7878/signalr/messages").Build();
+            _signalrConnection = new HubConnectionBuilder().WithUrl("http://localhost:8787/signalr/messages").Build();
 
             var cts = new CancellationTokenSource();
 

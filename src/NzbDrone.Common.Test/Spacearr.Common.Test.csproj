@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NzbDrone.Host\Spacearr.Host.csproj" />
+    <ProjectReference Include="..\NzbDrone.Test.Common\Spacearr.Test.Common.csproj" />
+    <ProjectReference Include="..\NzbDrone.Test.Dummy\Spacearr.Test.Dummy.csproj" />
+  </ItemGroup>
+</Project>

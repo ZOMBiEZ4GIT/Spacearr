@@ -315,14 +315,14 @@ namespace NzbDrone.Common.Test.Http
         public async Task should_follow_redirects_to_https()
         {
             var request = new HttpRequestBuilder($"https://{_httpBinHost}/redirect-to")
-                .AddQueryParam("url", $"https://radarr.video/")
+                .AddQueryParam("url", $"https://spacearr.video/")
                 .Build();
             request.AllowAutoRedirect = true;
 
             var response = await Subject.GetAsync(request);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.Should().Contain("Radarr");
+            response.Content.Should().Contain("Spacearr");
 
             ExceptionVerification.ExpectedErrors(0);
         }
@@ -349,7 +349,7 @@ namespace NzbDrone.Common.Test.Http
 
             var userAgent = response.Resource.Headers["User-Agent"].ToString();
 
-            userAgent.Should().Contain("Radarr");
+            userAgent.Should().Contain("Spacearr");
         }
 
         [TestCase("Accept", "text/xml, text/rss+xml, application/rss+xml")]
@@ -368,7 +368,7 @@ namespace NzbDrone.Common.Test.Http
         {
             var file = GetTempFilePath();
 
-            var url = "https://radarr.video/img/slider/moviedetails.png";
+            var url = "https://spacearr.video/img/slider/moviedetails.png";
 
             await Subject.DownloadFileAsync(url, file);
 
@@ -383,7 +383,7 @@ namespace NzbDrone.Common.Test.Http
             var file = GetTempFilePath();
 
             var request = new HttpRequestBuilder($"https://{_httpBinHost}/redirect-to")
-                .AddQueryParam("url", $"https://radarr.video/img/slider/moviedetails.png")
+                .AddQueryParam("url", $"https://spacearr.video/img/slider/moviedetails.png")
                 .Build();
 
             await Subject.DownloadFileAsync(request.Url.FullUri, file);

@@ -4,16 +4,13 @@ using System.Linq;
 using System.Text;
 using FluentValidation.Results;
 using NLog;
-using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Localization;
-using NzbDrone.Core.MediaCover;
-using NzbDrone.Core.Movies;
 
 namespace NzbDrone.Core.Notifications.Gotify
 {
     public class Gotify : NotificationBase<GotifySettings>
     {
-        private const string RadarrImageUrl = "https://raw.githubusercontent.com/Radarr/Radarr/develop/Logo/128.png";
+        private const string SpacearrImageUrl = "https://raw.githubusercontent.com/Spacearr/Spacearr/develop/Logo/128.png";
 
         private readonly IGotifyProxy _proxy;
         private readonly ILocalizationService _localizationService;
@@ -27,51 +24,19 @@ namespace NzbDrone.Core.Notifications.Gotify
         }
 
         public override string Name => "Gotify";
-        public override string Link => "https://gotify.net/";
-
-        public override void OnGrab(GrabMessage message)
+        public override string Link => "https://gotify.net/";        public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
         {
-            SendNotification(MOVIE_GRABBED_TITLE, message.Message, message.Movie);
-        }
-
-        public override void OnDownload(DownloadMessage message)
-        {
-            SendNotification(MOVIE_DOWNLOADED_TITLE, message.Message, message.Movie);
-        }
-
-        public override void OnMovieAdded(Movie movie)
-        {
-            SendNotification(MOVIE_ADDED_TITLE, $"{movie.Title} added to library", movie);
-        }
-
-        public override void OnMovieFileDelete(MovieFileDeleteMessage deleteMessage)
-        {
-            SendNotification(MOVIE_FILE_DELETED_TITLE, deleteMessage.Message, deleteMessage.Movie);
-        }
-
-        public override void OnMovieDelete(MovieDeleteMessage deleteMessage)
-        {
-            SendNotification(MOVIE_DELETED_TITLE, deleteMessage.Message, deleteMessage.Movie);
-        }
-
-        public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
-        {
-            SendNotification(HEALTH_ISSUE_TITLE, healthCheck.Message, null);
+            SendNotification(HEALTH_ISSUE_TITLE, healthCheck.Message);
         }
 
         public override void OnHealthRestored(HealthCheck.HealthCheck previousCheck)
         {
-            SendNotification(HEALTH_RESTORED_TITLE, $"The following issue is now resolved: {previousCheck.Message}", null);
+            SendNotification(HEALTH_RESTORED_TITLE, $"The following issue is now resolved: {previousCheck.Message}");
         }
 
         public override void OnApplicationUpdate(ApplicationUpdateMessage message)
         {
-            SendNotification(APPLICATION_UPDATE_TITLE, message.Message, null);
-        }
-
-        public override void OnManualInteractionRequired(ManualInteractionRequiredMessage message)
-        {
-            SendNotification(MANUAL_INTERACTION_REQUIRED_TITLE, message.Message, message.Movie);
+            SendNotification(APPLICATION_UPDATE_TITLE, message.Message);
         }
 
         public override ValidationResult Test()
@@ -84,7 +49,7 @@ namespace NzbDrone.Core.Notifications.Gotify
                 const string title = "Test Notification";
 
                 var sb = new StringBuilder();
-                sb.AppendLine("This is a test message from Radarr");
+                sb.AppendLine("This is a test message from Spacearr");
 
                 var payload = new GotifyMessage
                 {
@@ -96,8 +61,8 @@ namespace NzbDrone.Core.Notifications.Gotify
                 {
                     isMarkdown = true;
 
-                    sb.AppendLine($"\r![]({RadarrImageUrl})");
-                    payload.SetImage(RadarrImageUrl);
+                    sb.AppendLine($"\r![]({SpacearrImageUrl})");
+                    payload.SetImage(SpacearrImageUrl);
                 }
 
                 if (Settings.MetadataLinks.Any())
@@ -105,8 +70,8 @@ namespace NzbDrone.Core.Notifications.Gotify
                     isMarkdown = true;
 
                     sb.AppendLine("");
-                    sb.AppendLine("[Radarr.video](https://radarr.video)");
-                    payload.SetClickUrl("https://radarr.video");
+                    sb.AppendLine("[Spacearr.video](https://spacearr.video)");
+                    payload.SetClickUrl("https://spacearr.video");
                 }
 
                 payload.Message = sb.ToString();
@@ -123,9 +88,8 @@ namespace NzbDrone.Core.Notifications.Gotify
             return new ValidationResult(failures);
         }
 
-        private void SendNotification(string title, string message, Movie movie)
+        private void SendNotification(string title, string message)
         {
-            var isMarkdown = false;
             var sb = new StringBuilder();
 
             sb.AppendLine(message);
@@ -136,61 +100,8 @@ namespace NzbDrone.Core.Notifications.Gotify
                 Priority = Settings.Priority
             };
 
-            if (movie != null)
-            {
-                if (Settings.IncludeMoviePoster)
-                {
-                    var poster = movie.MovieMetadata.Value.Images.FirstOrDefault(x => x.CoverType == MediaCoverTypes.Poster)?.RemoteUrl;
-
-                    if (poster != null)
-                    {
-                        isMarkdown = true;
-                        sb.AppendLine($"\r![]({poster})");
-                        payload.SetImage(poster);
-                    }
-                }
-
-                if (Settings.MetadataLinks.Any())
-                {
-                    isMarkdown = true;
-                    sb.AppendLine("");
-
-                    foreach (var link in Settings.MetadataLinks)
-                    {
-                        var linkType = (MetadataLinkType)link;
-                        var linkText = "";
-                        var linkUrl = "";
-
-                        if (linkType == MetadataLinkType.Tmdb && movie.TmdbId > 0)
-                        {
-                            linkText = "TMDb";
-                            linkUrl = $"https://www.themoviedb.org/movie/{movie.TmdbId}";
-                        }
-
-                        if (linkType == MetadataLinkType.Imdb && movie.ImdbId.IsNotNullOrWhiteSpace())
-                        {
-                            linkText = "IMDb";
-                            linkUrl = $"https://www.imdb.com/title/{movie.ImdbId}";
-                        }
-
-                        if (linkType == MetadataLinkType.Trakt && movie.TmdbId > 0)
-                        {
-                            linkText = "Trakt";
-                            linkUrl = $"https://trakt.tv/search/tmdb/{movie.TmdbId}?id_type=movie";
-                        }
-
-                        sb.AppendLine($"[{linkText}]({linkUrl})");
-
-                        if (link == Settings.PreferredMetadataLink)
-                        {
-                            payload.SetClickUrl(linkUrl);
-                        }
-                    }
-                }
-            }
-
             payload.Message = sb.ToString();
-            payload.SetContentType(isMarkdown);
+            payload.SetContentType(false);
 
             _proxy.SendNotification(payload, Settings);
         }

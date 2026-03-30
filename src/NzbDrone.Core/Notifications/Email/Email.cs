@@ -9,7 +9,6 @@ using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http.Dispatchers;
 using NzbDrone.Core.Localization;
-using NzbDrone.Core.Movies;
 
 namespace NzbDrone.Core.Notifications.Email
 {
@@ -28,44 +27,7 @@ namespace NzbDrone.Core.Notifications.Email
             _logger = logger;
         }
 
-        public override string Link => null;
-
-        public override void OnGrab(GrabMessage grabMessage)
-        {
-            var body = $"{grabMessage.Message} sent to queue.";
-
-            SendEmail(Settings, MOVIE_GRABBED_TITLE_BRANDED, body);
-        }
-
-        public override void OnDownload(DownloadMessage message)
-        {
-            var body = $"{message.Message} Downloaded and sorted.";
-
-            SendEmail(Settings, MOVIE_DOWNLOADED_TITLE_BRANDED, body);
-        }
-
-        public override void OnMovieAdded(Movie movie)
-        {
-            var body = $"{movie.Title} added to library.";
-
-            SendEmail(Settings, MOVIE_ADDED_TITLE_BRANDED, body);
-        }
-
-        public override void OnMovieFileDelete(MovieFileDeleteMessage deleteMessage)
-        {
-            var body = $"{deleteMessage.Message} deleted.";
-
-            SendEmail(Settings, MOVIE_FILE_DELETED_TITLE_BRANDED, body);
-        }
-
-        public override void OnMovieDelete(MovieDeleteMessage deleteMessage)
-        {
-            var body = $"{deleteMessage.Message}";
-
-            SendEmail(Settings, MOVIE_DELETED_TITLE_BRANDED, body);
-        }
-
-        public override void OnHealthIssue(HealthCheck.HealthCheck message)
+        public override string Link => null;        public override void OnHealthIssue(HealthCheck.HealthCheck message)
         {
             SendEmail(Settings, HEALTH_ISSUE_TITLE_BRANDED, message.Message);
         }
@@ -80,13 +42,6 @@ namespace NzbDrone.Core.Notifications.Email
             var body = $"{updateMessage.Message}";
 
             SendEmail(Settings, APPLICATION_UPDATE_TITLE_BRANDED, body);
-        }
-
-        public override void OnManualInteractionRequired(ManualInteractionRequiredMessage message)
-        {
-            var body = $"{message.Message} requires manual interaction.";
-
-            SendEmail(Settings, MANUAL_INTERACTION_REQUIRED_TITLE_BRANDED, body);
         }
 
         public override ValidationResult Test()
@@ -176,7 +131,7 @@ namespace NzbDrone.Core.Notifications.Email
 
             try
             {
-                SendEmail(settings, "Radarr - Test Notification", body);
+                SendEmail(settings, "Spacearr - Test Notification", body);
             }
             catch (Exception ex)
             {

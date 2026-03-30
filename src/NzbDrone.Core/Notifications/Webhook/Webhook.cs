@@ -3,10 +3,6 @@ using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Localization;
-using NzbDrone.Core.MediaCover;
-using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.Movies;
-using NzbDrone.Core.Tags;
 using NzbDrone.Core.Validation;
 
 namespace NzbDrone.Core.Notifications.Webhook
@@ -15,43 +11,14 @@ namespace NzbDrone.Core.Notifications.Webhook
     {
         private readonly IWebhookProxy _proxy;
 
-        public Webhook(IWebhookProxy proxy, IConfigFileProvider configFileProvider, IConfigService configService, ILocalizationService localizationService, ITagRepository tagRepository, IMapCoversToLocal mediaCoverService)
-            : base(configFileProvider, configService, localizationService, tagRepository, mediaCoverService)
+        public Webhook(IWebhookProxy proxy, IConfigFileProvider configFileProvider, IConfigService configService, ILocalizationService localizationService)
+            : base(configFileProvider, configService, localizationService)
         {
             _proxy = proxy;
         }
 
-        public override string Link => "https://wiki.servarr.com/radarr/settings#connect";
-
-        public override void OnGrab(GrabMessage message)
-        {
-            _proxy.SendWebhook(BuildOnGrabPayload(message), Settings);
-        }
-
-        public override void OnDownload(DownloadMessage message)
-        {
-            _proxy.SendWebhook(BuildOnDownloadPayload(message), Settings);
-        }
-
-        public override void OnMovieRename(Movie movie, List<RenamedMovieFile> renamedFiles)
-        {
-            _proxy.SendWebhook(BuildOnRenamePayload(movie, renamedFiles), Settings);
-        }
-
-        public override void OnMovieAdded(Movie movie)
-        {
-            _proxy.SendWebhook(BuildOnMovieAdded(movie), Settings);
-        }
-
-        public override void OnMovieFileDelete(MovieFileDeleteMessage deleteMessage)
-        {
-            _proxy.SendWebhook(BuildOnMovieFileDelete(deleteMessage), Settings);
-        }
-
-        public override void OnMovieDelete(MovieDeleteMessage deleteMessage)
-        {
-            _proxy.SendWebhook(BuildOnMovieDelete(deleteMessage), Settings);
-        }
+        public override string Link => "https://wiki.servarr.com/spacearr/settings#connect";
+        public override string Name => "Webhook";
 
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
         {
@@ -67,13 +34,6 @@ namespace NzbDrone.Core.Notifications.Webhook
         {
             _proxy.SendWebhook(BuildApplicationUpdatePayload(updateMessage), Settings);
         }
-
-        public override void OnManualInteractionRequired(ManualInteractionRequiredMessage message)
-        {
-            _proxy.SendWebhook(BuildManualInteractionRequiredPayload(message), Settings);
-        }
-
-        public override string Name => "Webhook";
 
         public override ValidationResult Test()
         {

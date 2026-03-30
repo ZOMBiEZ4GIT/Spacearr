@@ -1,14 +1,14 @@
-# Radarr
+# Spacearr
 
-[![Build Status](https://dev.azure.com/Radarr/Radarr/_apis/build/status/Radarr.Radarr?branchName=develop)](https://dev.azure.com/Radarr/Radarr/_build/latest?definitionId=1&branchName=develop)
-[![Translation status](https://translate.servarr.com/widget/servarr/radarr/svg-badge.svg)](https://translate.servarr.com/engage/servarr/?utm_source=widget)
-[![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/radarr.svg)](https://wiki.servarr.com/radarr/installation/docker)
-![Github Downloads](https://img.shields.io/github/downloads/Radarr/Radarr/total.svg)
-[![Backers on Open Collective](https://opencollective.com/Radarr/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/Radarr/sponsors/badge.svg)](#sponsors)
-[![Mega Sponsors on Open Collective](https://opencollective.com/Radarr/megasponsors/badge.svg)](#mega-sponsors)
+[![Build Status](https://dev.azure.com/Spacearr/Spacearr/_apis/build/status/Spacearr.Spacearr?branchName=develop)](https://dev.azure.com/Spacearr/Spacearr/_build/latest?definitionId=1&branchName=develop)
+[![Translation status](https://translate.servarr.com/widget/servarr/spacearr/svg-badge.svg)](https://translate.servarr.com/engage/servarr/?utm_source=widget)
+[![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/spacearr.svg)](https://wiki.servarr.com/spacearr/installation/docker)
+![Github Downloads](https://img.shields.io/github/downloads/Spacearr/Spacearr/total.svg)
+[![Backers on Open Collective](https://opencollective.com/Spacearr/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/Spacearr/sponsors/badge.svg)](#sponsors)
+[![Mega Sponsors on Open Collective](https://opencollective.com/Spacearr/megasponsors/badge.svg)](#mega-sponsors)
 
-Radarr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will interface with clients and indexers to grab, sort, and rename them. It can also be configured to automatically upgrade the quality of existing files in the library when a better quality format becomes available.
+Spacearr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will interface with clients and indexers to grab, sort, and rename them. It can also be configured to automatically upgrade the quality of existing files in the library when a better quality format becomes available.
 Note that only one type of a given movie is supported. If you want both a 4k version and 1080p version of a given movie you will need multiple instances.
 
 ## Major Features Include
@@ -28,43 +28,43 @@ Note that only one type of a given movie is supported. If you want both a 4k ver
 * Full integration with Kodi and Plex (notifications, library updates)
 * Importing Metadata such as trailers or subtitles
 * Adding metadata such as posters and information for Kodi and others to use
-* Advanced customization for profiles, such that Radarr will always download the copy you want
+* Advanced customization for profiles, such that Spacearr will always download the copy you want
 * A beautiful UI
 
 ## Support
 
-[![Wiki](https://img.shields.io/badge/servarr-wiki-181717.svg?maxAge=60)](https://wiki.servarr.com/radarr)
-[![Discord](https://img.shields.io/badge/discord-chat-7289DA.svg?maxAge=60)](https://radarr.video/discord)
+[![Wiki](https://img.shields.io/badge/servarr-wiki-181717.svg?maxAge=60)](https://wiki.servarr.com/spacearr)
+[![Discord](https://img.shields.io/badge/discord-chat-7289DA.svg?maxAge=60)](https://spacearr.video/discord)
 
 Note: GitHub Issues are for Bugs and Feature Requests Only
 
-[![GitHub - Bugs and Feature Requests Only](https://img.shields.io/badge/github-issues-red.svg?maxAge=60)](https://github.com/Radarr/Radarr/issues)
+[![GitHub - Bugs and Feature Requests Only](https://img.shields.io/badge/github-issues-red.svg?maxAge=60)](https://github.com/Spacearr/Spacearr/issues)
 
 ## Contributors & Developers
 
-[API Documentation](https://radarr.video/docs/api/)
+[API Documentation](https://spacearr.video/docs/api/)
 
 This project exists thanks to all the people who contribute.
 - [Contribute (GitHub)](CONTRIBUTING.md)
-- [Contribution (Wiki Article)](https://wiki.servarr.com/radarr/contributing)
+- [Contribution (Wiki Article)](https://wiki.servarr.com/spacearr/contributing)
 
-[![Contributors List](https://opencollective.com/Radarr/contributors.svg?width=890&button=false)](https://github.com/Radarr/Radarr/graphs/contributors)
+[![Contributors List](https://opencollective.com/Spacearr/contributors.svg?width=890&button=false)](https://github.com/Spacearr/Spacearr/graphs/contributors)
 
 ## Backers
 
-Thank you to all our backers! 🙏 [Become a backer](https://opencollective.com/Radarr#backer)
+Thank you to all our backers! 🙏 [Become a backer](https://opencollective.com/Spacearr#backer)
 
-[![Backers List](https://opencollective.com/Radarr/backers.svg?width=890)](https://opencollective.com/Radarr#backer)
+[![Backers List](https://opencollective.com/Spacearr/backers.svg?width=890)](https://opencollective.com/Spacearr#backer)
 
 ## Sponsors
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/Radarr#sponsor)
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/Spacearr#sponsor)
 
-[![Sponsors List](https://opencollective.com/Radarr/sponsors.svg?width=890)](https://opencollective.com/Radarr#sponsor)
+[![Sponsors List](https://opencollective.com/Spacearr/sponsors.svg?width=890)](https://opencollective.com/Spacearr#sponsor)
 
 ## Mega Sponsors
 
-[![Mega Sponsors List](https://opencollective.com/Radarr/tiers/mega-sponsor.svg?width=890)](https://opencollective.com/Radarr#mega-sponsor)
+[![Mega Sponsors List](https://opencollective.com/Spacearr/tiers/mega-sponsor.svg?width=890)](https://opencollective.com/Spacearr#mega-sponsor)
 
 ## JetBrains
 

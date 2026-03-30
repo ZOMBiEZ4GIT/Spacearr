@@ -3,8 +3,6 @@ using System.Data;
 using System.Linq;
 using Dapper;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.AutoTagging;
-using NzbDrone.Core.AutoTagging.Specifications;
 using NzbDrone.Core.Datastore;
 
 namespace NzbDrone.Core.Housekeeping.Housekeepers
@@ -12,24 +10,17 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
     public class CleanupUnusedTags : IHousekeepingTask
     {
         private readonly IMainDatabase _database;
-        private readonly IAutoTaggingRepository _autoTaggingRepository;
 
-        public CleanupUnusedTags(IMainDatabase database, IAutoTaggingRepository autoTaggingRepository)
+        public CleanupUnusedTags(IMainDatabase database)
         {
             _database = database;
-            _autoTaggingRepository = autoTaggingRepository;
         }
 
         public void Clean()
         {
             using var mapper = _database.OpenConnection();
-            var usedTags = new[]
-                {
-                    "Movies", "Notifications", "DelayProfiles", "ReleaseProfiles", "ImportLists", "Indexers",
-                    "AutoTagging", "DownloadClients"
-                }
+            var usedTags = new[] { "Notifications" }
                 .SelectMany(v => GetUsedTags(v, mapper))
-                .Concat(GetAutoTaggingTagSpecificationTags(mapper))
                 .Distinct()
                 .ToList();
 
@@ -60,25 +51,6 @@ namespace NzbDrone.Core.Housekeeping.Housekeepers
                 .SelectMany(x => x)
                 .Distinct()
                 .ToArray();
-        }
-
-        private List<int> GetAutoTaggingTagSpecificationTags(IDbConnection mapper)
-        {
-            var tags = new List<int>();
-            var autoTags = _autoTaggingRepository.All();
-
-            foreach (var autoTag in autoTags)
-            {
-                foreach (var specification in autoTag.Specifications)
-                {
-                    if (specification is TagSpecification tagSpec)
-                    {
-                        tags.Add(tagSpec.Value);
-                    }
-                }
-            }
-
-            return tags;
         }
     }
 }

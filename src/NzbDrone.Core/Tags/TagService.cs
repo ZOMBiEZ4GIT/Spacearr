@@ -1,16 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Core.AutoTagging;
-using NzbDrone.Core.AutoTagging.Specifications;
 using NzbDrone.Core.Datastore;
-using NzbDrone.Core.Download;
-using NzbDrone.Core.ImportLists;
-using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Messaging.Events;
-using NzbDrone.Core.Movies;
 using NzbDrone.Core.Notifications;
-using NzbDrone.Core.Profiles.Delay;
-using NzbDrone.Core.Profiles.Releases;
 
 namespace NzbDrone.Core.Tags
 {
@@ -31,36 +23,15 @@ namespace NzbDrone.Core.Tags
     {
         private readonly ITagRepository _repo;
         private readonly IEventAggregator _eventAggregator;
-        private readonly IDelayProfileService _delayProfileService;
-        private readonly IImportListFactory _importListFactory;
         private readonly INotificationFactory _notificationFactory;
-        private readonly IReleaseProfileService _releaseProfileService;
-        private readonly IMovieService _movieService;
-        private readonly IIndexerFactory _indexerService;
-        private readonly IAutoTaggingService _autoTaggingService;
-        private readonly IDownloadClientFactory _downloadClientFactory;
 
         public TagService(ITagRepository repo,
                           IEventAggregator eventAggregator,
-                          IDelayProfileService delayProfileService,
-                          IImportListFactory importListFactory,
-                          INotificationFactory notificationFactory,
-                          IReleaseProfileService releaseProfileService,
-                          IMovieService movieService,
-                          IIndexerFactory indexerService,
-                          IAutoTaggingService autoTaggingService,
-                          IDownloadClientFactory downloadClientFactory)
+                          INotificationFactory notificationFactory)
         {
             _repo = repo;
             _eventAggregator = eventAggregator;
-            _delayProfileService = delayProfileService;
-            _importListFactory = importListFactory;
             _notificationFactory = notificationFactory;
-            _releaseProfileService = releaseProfileService;
-            _movieService = movieService;
-            _indexerService = indexerService;
-            _autoTaggingService = autoTaggingService;
-            _downloadClientFactory = downloadClientFactory;
         }
 
         public Tag GetTag(int tagId)
@@ -88,41 +59,27 @@ namespace NzbDrone.Core.Tags
         public TagDetails Details(int tagId)
         {
             var tag = GetTag(tagId);
-            var delayProfiles = _delayProfileService.AllForTag(tagId);
-            var importLists = _importListFactory.AllForTag(tagId);
             var notifications = _notificationFactory.AllForTag(tagId);
-            var releaseProfiles = _releaseProfileService.AllForTag(tagId);
-            var movies = _movieService.AllMovieTags().Where(x => x.Value.Contains(tagId)).Select(x => x.Key).ToList();
-            var indexers = _indexerService.AllForTag(tagId);
-            var autoTags = _autoTaggingService.AllForTag(tagId);
-            var downloadClients = _downloadClientFactory.AllForTag(tagId);
 
             return new TagDetails
             {
                 Id = tagId,
                 Label = tag.Label,
-                DelayProfileIds = delayProfiles.Select(c => c.Id).ToList(),
-                ImportListIds = importLists.Select(c => c.Id).ToList(),
+                DelayProfileIds = new List<int>(),
+                ImportListIds = new List<int>(),
                 NotificationIds = notifications.Select(c => c.Id).ToList(),
-                ReleaseProfileIds = releaseProfiles.Select(c => c.Id).ToList(),
-                MovieIds = movies,
-                IndexerIds = indexers.Select(c => c.Id).ToList(),
-                AutoTagIds = autoTags.Select(c => c.Id).ToList(),
-                DownloadClientIds = downloadClients.Select(c => c.Id).ToList()
+                ReleaseProfileIds = new List<int>(),
+                MovieIds = new List<int>(),
+                IndexerIds = new List<int>(),
+                AutoTagIds = new List<int>(),
+                DownloadClientIds = new List<int>()
             };
         }
 
         public List<TagDetails> Details()
         {
             var tags = All();
-            var delayProfiles = _delayProfileService.All();
-            var importLists = _importListFactory.All();
             var notifications = _notificationFactory.All();
-            var releaseProfiles = _releaseProfileService.All();
-            var movies = _movieService.AllMovieTags();
-            var indexers = _indexerService.All();
-            var autoTags = _autoTaggingService.All();
-            var downloadClients = _downloadClientFactory.All();
 
             var details = new List<TagDetails>();
 
@@ -132,14 +89,14 @@ namespace NzbDrone.Core.Tags
                 {
                     Id = tag.Id,
                     Label = tag.Label,
-                    DelayProfileIds = delayProfiles.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
-                    ImportListIds = importLists.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
+                    DelayProfileIds = new List<int>(),
+                    ImportListIds = new List<int>(),
                     NotificationIds = notifications.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
-                    ReleaseProfileIds = releaseProfiles.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
-                    MovieIds = movies.Where(c => c.Value.Contains(tag.Id)).Select(c => c.Key).ToList(),
-                    IndexerIds = indexers.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
-                    AutoTagIds = GetAutoTagIds(tag, autoTags),
-                    DownloadClientIds = downloadClients.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList(),
+                    ReleaseProfileIds = new List<int>(),
+                    MovieIds = new List<int>(),
+                    IndexerIds = new List<int>(),
+                    AutoTagIds = new List<int>(),
+                    DownloadClientIds = new List<int>(),
                 });
             }
 
@@ -188,24 +145,6 @@ namespace NzbDrone.Core.Tags
 
             _repo.Delete(tagId);
             _eventAggregator.PublishEvent(new TagsUpdatedEvent());
-        }
-
-        private List<int> GetAutoTagIds(Tag tag, List<AutoTag> autoTags)
-        {
-            var autoTagIds = autoTags.Where(c => c.Tags.Contains(tag.Id)).Select(c => c.Id).ToList();
-
-            foreach (var autoTag in autoTags)
-            {
-                foreach (var specification in autoTag.Specifications)
-                {
-                    if (specification is TagSpecification tagSpecification && tagSpecification.Value == tag.Id)
-                    {
-                        autoTagIds.Add(autoTag.Id);
-                    }
-                }
-            }
-
-            return autoTagIds.Distinct().ToList();
         }
     }
 }

@@ -214,7 +214,7 @@ function EditImportListModalContent({
                 type={inputTypes.AVAILABILITY_SELECT}
                 name="minimumAvailability"
                 {...minimumAvailability}
-                helpLink="https://wiki.servarr.com/radarr/faq#what-is-minimum-availability"
+                helpLink="https://wiki.servarr.com/spacearr/faq#what-is-minimum-availability"
                 onChange={handleInputChange}
               />
             </FormGroup>
@@ -245,7 +245,7 @@ function EditImportListModalContent({
             </FormGroup>
 
             <FormGroup>
-              <FormLabel>{translate('RadarrTags')}</FormLabel>
+              <FormLabel>{translate('SpacearrTags')}</FormLabel>
 
               <FormInputGroup
                 type={inputTypes.TAG}

@@ -12,8 +12,6 @@ using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Configuration.Events;
 using NzbDrone.Core.Languages;
 using NzbDrone.Core.Messaging.Events;
-using NzbDrone.Core.Parser;
-
 namespace NzbDrone.Core.Localization
 {
     public interface ILocalizationService
@@ -99,7 +97,7 @@ namespace NzbDrone.Core.Localization
 
         private string ReplaceTokens(string input, Dictionary<string, object> tokens)
         {
-            tokens.TryAdd("appName", "Radarr");
+            tokens.TryAdd("appName", "Spacearr");
 
             return TokenRegex.Replace(input, (match) =>
             {

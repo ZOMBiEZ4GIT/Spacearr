@@ -300,7 +300,7 @@
     "RemoveQueueItemConfirmation": "Jeste li sigurni da želite izbrisati stavku {0} iz reda?",
     "Lists": "Lista",
     "AddListExclusion": "Dodaj na Listu Isključenja",
-    "RestartRadarr": "Resetiraj {appName}",
+    "RestartSpacearr": "Resetiraj {appName}",
     "DeleteQualityProfileMessageText": "Jeste li sigurni da želite obrisati ovaj profil odgode?",
     "Label": "Oznaka",
     "Yes": "Da",

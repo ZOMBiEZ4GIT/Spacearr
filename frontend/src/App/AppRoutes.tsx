@@ -48,7 +48,7 @@ function AppRoutes() {
 
       <Route exact={true} path="/" component={MovieIndex} />
 
-      {window.Radarr.urlBase && (
+      {window.Spacearr.urlBase && (
         <Route
           exact={true}
           path="/"

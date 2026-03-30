@@ -1,5 +1,5 @@
-const radarrYellow = '#ffc230';
-const radarrAlternateYellow = '#2193b5';
+const spacearrYellow = '#ffc230';
+const spacearrAlternateYellow = '#2193b5';
 const darkGray = '#888';
 const mediumGray = '#999';
 const gray = '#adadad';
@@ -27,7 +27,7 @@ module.exports = {
   queueColor: '#7a43b6',
   purple,
   pink,
-  radarrYellow,
+  spacearrYellow,
   helpTextColor: '#909293',
   darkGray,
   gray,
@@ -36,8 +36,8 @@ module.exports = {
 
   // Theme Colors
 
-  themeBlue: radarrYellow,
-  themeAlternateYellow: radarrAlternateYellow,
+  themeBlue: spacearrYellow,
+  themeAlternateYellow: spacearrAlternateYellow,
   themeRed: '#c4273c',
   themeDarkColor: '#494949',
   themeLightColor: '#595959',
@@ -134,7 +134,7 @@ module.exports = {
   //
   // Menu
   menuItemColor: '#e1e2e3',
-  menuItemHoverColor: radarrYellow,
+  menuItemHoverColor: spacearrYellow,
   menuItemHoverBackgroundColor: '#606060',
 
   //

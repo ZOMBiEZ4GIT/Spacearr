@@ -34,18 +34,18 @@ namespace NzbDrone.Host
 
         public static readonly List<string> ASSEMBLIES = new List<string>
         {
-            "Radarr.Host",
-            "Radarr.Core",
-            "Radarr.SignalR",
-            "Radarr.Api.V3",
-            "Radarr.Http"
+            "Spacearr.Host",
+            "Spacearr.Core",
+            "Spacearr.SignalR",
+            "Spacearr.Api.V1",
+            "Spacearr.Http"
         };
 
         public static void Start(string[] args, Action<IHostBuilder> trayCallback = null)
         {
             try
             {
-                Logger.Info("Starting Radarr - {0} - Version {1}",
+                Logger.Info("Starting Spacearr - {0} - Version {1}",
                             Environment.ProcessPath,
                             Assembly.GetExecutingAssembly().GetName().Version);
 
@@ -105,12 +105,12 @@ namespace NzbDrone.Host
                             })
                             .ConfigureServices(services =>
                             {
-                                services.Configure<PostgresOptions>(config.GetSection("Radarr:Postgres"));
-                                services.Configure<AppOptions>(config.GetSection("Radarr:App"));
-                                services.Configure<AuthOptions>(config.GetSection("Radarr:Auth"));
-                                services.Configure<ServerOptions>(config.GetSection("Radarr:Server"));
-                                services.Configure<LogOptions>(config.GetSection("Radarr:Log"));
-                                services.Configure<UpdateOptions>(config.GetSection("Radarr:Update"));
+                                services.Configure<PostgresOptions>(config.GetSection("Spacearr:Postgres"));
+                                services.Configure<AppOptions>(config.GetSection("Spacearr:App"));
+                                services.Configure<AuthOptions>(config.GetSection("Spacearr:Auth"));
+                                services.Configure<ServerOptions>(config.GetSection("Spacearr:Server"));
+                                services.Configure<LogOptions>(config.GetSection("Spacearr:Log"));
+                                services.Configure<UpdateOptions>(config.GetSection("Spacearr:Update"));
                             }).Build();
 
                         break;
@@ -119,7 +119,7 @@ namespace NzbDrone.Host
             }
             catch (InvalidConfigFileException ex)
             {
-                throw new RadarrStartupException(ex);
+                throw new SpacearrStartupException(ex);
             }
             catch (TerminateApplicationException e)
             {
@@ -138,13 +138,13 @@ namespace NzbDrone.Host
         {
             var config = GetConfiguration(context);
 
-            var bindAddress = config.GetValue<string>($"Radarr:Server:{nameof(ServerOptions.BindAddress)}") ?? config.GetValue(nameof(ConfigFileProvider.BindAddress), "*");
-            var port = config.GetValue<int?>($"Radarr:Server:{nameof(ServerOptions.Port)}") ?? config.GetValue(nameof(ConfigFileProvider.Port), 7878);
-            var sslPort = config.GetValue<int?>($"Radarr:Server:{nameof(ServerOptions.SslPort)}") ?? config.GetValue(nameof(ConfigFileProvider.SslPort), 8787);
-            var enableSsl = config.GetValue<bool?>($"Radarr:Server:{nameof(ServerOptions.EnableSsl)}") ?? config.GetValue(nameof(ConfigFileProvider.EnableSsl), false);
-            var sslCertPath = config.GetValue<string>($"Radarr:Server:{nameof(ServerOptions.SslCertPath)}") ?? config.GetValue<string>(nameof(ConfigFileProvider.SslCertPath));
-            var sslCertPassword = config.GetValue<string>($"Radarr:Server:{nameof(ServerOptions.SslCertPassword)}") ?? config.GetValue<string>(nameof(ConfigFileProvider.SslCertPassword));
-            var logDbEnabled = config.GetValue<bool?>($"Radarr:Log:{nameof(LogOptions.DbEnabled)}") ?? config.GetValue(nameof(ConfigFileProvider.LogDbEnabled), true);
+            var bindAddress = config.GetValue<string>($"Spacearr:Server:{nameof(ServerOptions.BindAddress)}") ?? config.GetValue(nameof(ConfigFileProvider.BindAddress), "*");
+            var port = config.GetValue<int?>($"Spacearr:Server:{nameof(ServerOptions.Port)}") ?? config.GetValue(nameof(ConfigFileProvider.Port), 8787);
+            var sslPort = config.GetValue<int?>($"Spacearr:Server:{nameof(ServerOptions.SslPort)}") ?? config.GetValue(nameof(ConfigFileProvider.SslPort), 8787);
+            var enableSsl = config.GetValue<bool?>($"Spacearr:Server:{nameof(ServerOptions.EnableSsl)}") ?? config.GetValue(nameof(ConfigFileProvider.EnableSsl), false);
+            var sslCertPath = config.GetValue<string>($"Spacearr:Server:{nameof(ServerOptions.SslCertPath)}") ?? config.GetValue<string>(nameof(ConfigFileProvider.SslCertPath));
+            var sslCertPassword = config.GetValue<string>($"Spacearr:Server:{nameof(ServerOptions.SslCertPassword)}") ?? config.GetValue<string>(nameof(ConfigFileProvider.SslCertPassword));
+            var logDbEnabled = config.GetValue<bool?>($"Spacearr:Log:{nameof(LogOptions.DbEnabled)}") ?? config.GetValue(nameof(ConfigFileProvider.LogDbEnabled), true);
 
             var urls = new List<string> { BuildUrl("http", bindAddress, port) };
 
@@ -174,13 +174,13 @@ namespace NzbDrone.Host
                 })
                 .ConfigureServices(services =>
                 {
-                    services.Configure<PostgresOptions>(config.GetSection("Radarr:Postgres"));
-                    services.Configure<PostgresOptions>(config.GetSection("Radarr:Postgres"));
-                    services.Configure<AppOptions>(config.GetSection("Radarr:App"));
-                    services.Configure<AuthOptions>(config.GetSection("Radarr:Auth"));
-                    services.Configure<ServerOptions>(config.GetSection("Radarr:Server"));
-                    services.Configure<LogOptions>(config.GetSection("Radarr:Log"));
-                    services.Configure<UpdateOptions>(config.GetSection("Radarr:Update"));
+                    services.Configure<PostgresOptions>(config.GetSection("Spacearr:Postgres"));
+                    services.Configure<PostgresOptions>(config.GetSection("Spacearr:Postgres"));
+                    services.Configure<AppOptions>(config.GetSection("Spacearr:App"));
+                    services.Configure<AuthOptions>(config.GetSection("Spacearr:Auth"));
+                    services.Configure<ServerOptions>(config.GetSection("Spacearr:Server"));
+                    services.Configure<LogOptions>(config.GetSection("Spacearr:Log"));
+                    services.Configure<UpdateOptions>(config.GetSection("Spacearr:Update"));
                 })
                 .ConfigureWebHost(builder =>
                 {
@@ -263,7 +263,7 @@ namespace NzbDrone.Host
             {
                 Logger.Error(ex, ex.Message);
 
-                throw new InvalidConfigFileException($"{configPath} is corrupt or invalid. Please delete the config file and Radarr will recreate it.", ex);
+                throw new InvalidConfigFileException($"{configPath} is corrupt or invalid. Please delete the config file and Spacearr will recreate it.", ex);
             }
         }
 
@@ -284,11 +284,11 @@ namespace NzbDrone.Host
             {
                 if (ex.HResult == 0x2 || ex.HResult == 0x2006D080)
                 {
-                    throw new RadarrStartupException(ex,
+                    throw new SpacearrStartupException(ex,
                         $"The SSL certificate file {cert} does not exist");
                 }
 
-                throw new RadarrStartupException(ex);
+                throw new SpacearrStartupException(ex);
             }
 
             return certificate;

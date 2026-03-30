@@ -303,7 +303,7 @@ function MovieSearchInput() {
       if (!suggestions.length || highlightedSectionIndex) {
         dispatch(
           push(
-            `${window.Radarr.urlBase}/add/new?term=${encodeURIComponent(value)}`
+            `${window.Spacearr.urlBase}/add/new?term=${encodeURIComponent(value)}`
           )
         );
 
@@ -323,7 +323,7 @@ function MovieSearchInput() {
 
       dispatch(
         push(
-          `${window.Radarr.urlBase}/movie/${selectedSuggestion.item.titleSlug}`
+          `${window.Spacearr.urlBase}/movie/${selectedSuggestion.item.titleSlug}`
         )
       );
 
@@ -359,13 +359,13 @@ function MovieSearchInput() {
       if ('type' in suggestion) {
         dispatch(
           push(
-            `${window.Radarr.urlBase}/add/new?term=${encodeURIComponent(value)}`
+            `${window.Spacearr.urlBase}/add/new?term=${encodeURIComponent(value)}`
           )
         );
       } else {
         setValue('');
         dispatch(
-          push(`${window.Radarr.urlBase}/movie/${suggestion.item.titleSlug}`)
+          push(`${window.Spacearr.urlBase}/movie/${suggestion.item.titleSlug}`)
         );
       }
     },

@@ -6,8 +6,6 @@ using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Download;
-
 namespace NzbDrone.Core.RemotePathMappings
 {
     public interface IRemotePathMappingService
@@ -30,8 +28,7 @@ namespace NzbDrone.Core.RemotePathMappings
 
         private readonly ICached<List<RemotePathMapping>> _cache;
 
-        public RemotePathMappingService(IDownloadClientRepository downloadClientRepository,
-                                        IRemotePathMappingRepository remotePathMappingRepository,
+        public RemotePathMappingService(IRemotePathMappingRepository remotePathMappingRepository,
                                         IDiskProvider diskProvider,
                                         ICacheManager cacheManager,
                                         Logger logger)

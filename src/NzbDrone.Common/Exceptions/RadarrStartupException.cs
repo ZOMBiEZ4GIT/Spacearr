@@ -2,35 +2,35 @@ using System;
 
 namespace NzbDrone.Common.Exceptions
 {
-    public class RadarrStartupException : NzbDroneException
+    public class SpacearrStartupException : NzbDroneException
     {
-        public RadarrStartupException(string message, params object[] args)
-            : base("Radarr failed to start: " + string.Format(message, args))
+        public SpacearrStartupException(string message, params object[] args)
+            : base("Spacearr failed to start: " + string.Format(message, args))
         {
         }
 
-        public RadarrStartupException(string message)
-            : base("Radarr failed to start: " + message)
+        public SpacearrStartupException(string message)
+            : base("Spacearr failed to start: " + message)
         {
         }
 
-        public RadarrStartupException()
-            : base("Radarr failed to start")
+        public SpacearrStartupException()
+            : base("Spacearr failed to start")
         {
         }
 
-        public RadarrStartupException(Exception innerException, string message, params object[] args)
-            : base("Radarr failed to start: " + string.Format(message, args), innerException)
+        public SpacearrStartupException(Exception innerException, string message, params object[] args)
+            : base("Spacearr failed to start: " + string.Format(message, args), innerException)
         {
         }
 
-        public RadarrStartupException(Exception innerException, string message)
-            : base("Radarr failed to start: " + message, innerException)
+        public SpacearrStartupException(Exception innerException, string message)
+            : base("Spacearr failed to start: " + message, innerException)
         {
         }
 
-        public RadarrStartupException(Exception innerException)
-            : base("Radarr failed to start: " + innerException.Message)
+        public SpacearrStartupException(Exception innerException)
+            : base("Spacearr failed to start: " + innerException.Message)
         {
         }
     }

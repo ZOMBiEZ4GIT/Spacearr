@@ -2,18 +2,38 @@ namespace NzbDrone.Core.MetadataSource.SkyHook.Resource
 {
     public enum TMDbCountryCode
     {
-        AU, // Australia
-        BR, // Brazil
-        CA, // Canada
-        FR, // France
-        DE, // Germany
-        GB, // Great Britain
-        IN, // India
-        IE, // Ireland
-        IT, // Italy
-        NZ, // New Zealand
-        RO, // Romania
-        ES, // Spain
-        US, // United States
+        US,
+        GB,
+        DE,
+        FR,
+        ES,
+        IT,
+        JP,
+        KR,
+        CN,
+        AU,
+        CA,
+        BR,
+        IN,
+        RU,
+        NL,
+        SE,
+        NO,
+        DK,
+        FI,
+        PL,
+        CZ,
+        HU,
+        RO,
+        PT,
+        AT,
+        CH,
+        BE,
+        IE,
+        NZ,
+        MX,
+        AR,
+        CL,
+        CO
     }
 }

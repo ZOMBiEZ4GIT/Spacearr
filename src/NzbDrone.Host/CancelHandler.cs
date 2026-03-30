@@ -2,7 +2,7 @@ using System;
 using NLog;
 using NzbDrone.Core.Lifecycle;
 
-namespace Radarr.Host
+namespace Spacearr.Host
 {
     public interface ICancelHandler
     {

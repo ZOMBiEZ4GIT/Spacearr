@@ -7,11 +7,11 @@ import styles from '../styles.css';
 function Donations() {
   return (
     <FieldSet legend={translate('Donations')}>
-      <div className={styles.logoContainer} title="Radarr">
-        <Link to="https://radarr.video/donate">
+      <div className={styles.logoContainer} title="Spacearr">
+        <Link to="https://spacearr.video/donate">
           <img
             className={styles.logo}
-            src={`${window.Radarr.urlBase}/Content/Images/Icons/logo-radarr.png`}
+            src={`${window.Spacearr.urlBase}/Content/Images/Icons/logo-spacearr.png`}
           />
         </Link>
       </div>
@@ -19,7 +19,7 @@ function Donations() {
         <Link to="https://lidarr.audio/donate">
           <img
             className={styles.logo}
-            src={`${window.Radarr.urlBase}/Content/Images/Icons/logo-lidarr.png`}
+            src={`${window.Spacearr.urlBase}/Content/Images/Icons/logo-lidarr.png`}
           />
         </Link>
       </div>
@@ -27,7 +27,7 @@ function Donations() {
         <Link to="https://prowlarr.com/donate">
           <img
             className={styles.logo}
-            src={`${window.Radarr.urlBase}/Content/Images/Icons/logo-prowlarr.png`}
+            src={`${window.Spacearr.urlBase}/Content/Images/Icons/logo-prowlarr.png`}
           />
         </Link>
       </div>
@@ -35,7 +35,7 @@ function Donations() {
         <Link to="https://sonarr.tv/donate">
           <img
             className={styles.logo}
-            src={`${window.Radarr.urlBase}/Content/Images/Icons/logo-sonarr.png`}
+            src={`${window.Spacearr.urlBase}/Content/Images/Icons/logo-sonarr.png`}
           />
         </Link>
       </div>
