@@ -2997,3 +2997,126 @@ PARAMETERS:
 
 
 
+2026-03-30 20:31:24.6|Info|Bootstrap|Starting Spacearr - C:\Users\(removed)\Spacearr\_output\net8.0\Spacearr.Console.exe - Version 10.0.0.36851
+2026-03-30 20:31:25.0|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:31:25.0|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:31:25.2|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:31:25.7|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\spacearr.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:31:25.8|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:31:25.8|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:31:25.8|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:31:25.8|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:31:25.8|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0387053s
+2026-03-30 20:31:25.8|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:31:25.8|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0423115s
+2026-03-30 20:31:25.9|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\logs.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:31:25.9|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:31:25.9|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:31:25.9|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:31:25.9|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:31:25.9|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0060021s
+2026-03-30 20:31:25.9|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:31:25.9|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0074238s
+2026-03-30 20:31:26.0|Info|Microsoft.Hosting.Lifetime|Now listening on: http://[::]:8787
+2026-03-30 20:31:26.1|Info|CommandExecutor|Starting 2 threads for tasks.
+2026-03-30 20:31:26.2|Error|EventAggregator|TaskManager failed while processing [ApplicationStartedEvent]
+
+[v10.0.0.36852] code = Error (1), message = System.Data.SQLite.SQLiteException (0x87AF001F): SQL logic error
+table ScheduledTasks has no column named LastStartTime
+   at System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   at System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   at System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   at System.Data.SQLite.SQLiteDataReader.NextResult()
+   at System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   at System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SQLite.SQLiteCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1185
+   at Dapper.SqlMapper.QueryMultipleImpl(IDbConnection cnn, CommandDefinition& command) in /_/Dapper/SqlMapper.cs:line 1152
+   at Dapper.SqlMapper.QueryMultiple(IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 1128
+   at NzbDrone.Core.Datastore.BasicRepository`1.<>c.<Insert>b__24_0(ValueTuple`4 state, CancellationToken _) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 214
+   at Polly.ResiliencePipeline.<>c__37`2.<Execute>b__37_0(ResilienceContext context, ValueTuple`2 state)
+--- End of stack trace from previous location ---
+   at Polly.Outcome`1.GetResultOrRethrow()
+   at Polly.ResiliencePipeline.Execute[TResult,TState](Func`3 callback, TState state, CancellationToken cancellationToken)
+   at NzbDrone.Core.Datastore.BasicRepository`1.Insert(IDbConnection connection, IDbTransaction transaction, TModel model) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 211
+   at NzbDrone.Core.Datastore.BasicRepository`1.Insert(TModel model) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 170
+   at NzbDrone.Core.Datastore.BasicRepository`1.Upsert(TModel model) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 316
+   at NzbDrone.Core.Jobs.TaskManager.Handle(ApplicationStartedEvent message) in ./NzbDrone.Core/Jobs/TaskManager.cs:line 128
+   at NzbDrone.Core.Messaging.Events.EventAggregator.PublishEvent[TEvent](TEvent event) in ./NzbDrone.Core/Messaging/Events/EventAggregator.cs:line 93
+
+
+2026-03-30 20:31:26.2|Info|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
+2026-03-30 20:31:26.2|Info|Microsoft.Hosting.Lifetime|Hosting environment: Production
+2026-03-30 20:31:26.2|Info|Microsoft.Hosting.Lifetime|Content root path: C:\Users\(removed)\Spacearr\_output\net8.0
+2026-03-30 20:31:26.4|Info|ManagedHttpDispatcher|IPv4 is available: True, IPv6 will be disabled
+2026-03-30 20:31:26.4|Error|ServerSideNotificationService|Failed to retrieve notifications
+
+[v10.0.0.36852] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.Execute(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 128
+   at NzbDrone.Core.HealthCheck.ServerSideNotificationService.RetrieveServerChecks() in ./NzbDrone.Core/HealthCheck/ServerSideNotificationService.cs:line 61
+
+
+2026-03-30 20:31:26.4|Error|TaskExtensions|Task Error
+
+[v10.0.0.36852] code = Error (1), message = System.Data.SQLite.SQLiteException (0x87AF001F): SQL logic error
+no such table: NotificationStatus
+   at System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   at System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   at System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   at System.Data.SQLite.SQLiteDataReader.NextResult()
+   at System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   at System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SQLite.SQLiteCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1185
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1213
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 844
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, String sql, Object param) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 11
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, SqlBuilder builder) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 140
+   at NzbDrone.Core.Datastore.BasicRepository`1.Query(SqlBuilder builder) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 96
+   at NzbDrone.Core.Datastore.BasicRepository`1.All() in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 112
+   at NzbDrone.Core.ThingiProvider.Status.ProviderStatusServiceBase`2.GetBlockedProviders() in ./NzbDrone.Core/ThingiProvider/Status/ProviderStatusServiceBase.cs:line 45
+   at NzbDrone.Core.HealthCheck.Checks.NotificationStatusCheck.Check() in ./NzbDrone.Core/HealthCheck/Checks/NotificationStatusCheck.cs:line 28
+   at NzbDrone.Core.HealthCheck.HealthCheckService.<ProcessHealthChecks>b__15_0(IProvideHealthCheck c) in ./NzbDrone.Core/HealthCheck/HealthCheckService.cs:line 98
+   at System.Linq.Enumerable.SelectListIterator`2.Fill(ReadOnlySpan`1 source, Span`1 destination, Func`2 func)
+   at System.Linq.Enumerable.SelectListIterator`2.ToList()
+   at NzbDrone.Core.HealthCheck.HealthCheckService.ProcessHealthChecks() in ./NzbDrone.Core/HealthCheck/HealthCheckService.cs:line 95
+   at NzbDrone.Core.HealthCheck.HealthCheckService.HandleAsync(ApplicationStartedEvent message) in ./NzbDrone.Core/HealthCheck/HealthCheckService.cs:line 162
+   at NzbDrone.Core.Messaging.Events.EventAggregator.<>c__DisplayClass6_2`1.<PublishEvent>b__2() in ./NzbDrone.Core/Messaging/Events/EventAggregator.cs:line 120
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+SQL: 
+==== Begin Query Trace ====
+
+QUERY TEXT:
+SELECT "NotificationStatus".*
+ FROM "NotificationStatus"       
+
+PARAMETERS:
+
+==== End Query Trace ====
+
+
+

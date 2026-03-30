@@ -3,12 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import AppState from 'App/State/AppState';
 import { fetchTranslations } from 'Store/Actions/appActions';
-import { fetchCustomFilters } from 'Store/Actions/customFilterActions';
 import {
-  fetchImportLists,
-  fetchIndexerFlags,
-  fetchLanguages,
-  fetchQualityProfiles,
   fetchUISettings,
 } from 'Store/Actions/settingsActions';
 import { fetchStatus } from 'Store/Actions/systemActions';
@@ -16,34 +11,19 @@ import { fetchTags } from 'Store/Actions/tagActions';
 
 const createErrorsSelector = () =>
   createSelector(
-    (state: AppState) => state.customFilters.error,
     (state: AppState) => state.tags.error,
     (state: AppState) => state.settings.ui.error,
-    (state: AppState) => state.settings.qualityProfiles.error,
-    (state: AppState) => state.settings.languages.error,
-    (state: AppState) => state.settings.importLists.error,
-    (state: AppState) => state.settings.indexerFlags.error,
     (state: AppState) => state.system.status.error,
     (state: AppState) => state.app.translations.error,
     (
-      customFiltersError,
       tagsError,
       uiSettingsError,
-      qualityProfilesError,
-      languagesError,
-      importListsError,
-      indexerFlagsError,
       systemStatusError,
       translationsError
     ) => {
       const hasError = !!(
-        customFiltersError ||
         tagsError ||
         uiSettingsError ||
-        qualityProfilesError ||
-        languagesError ||
-        importListsError ||
-        indexerFlagsError ||
         systemStatusError ||
         translationsError
       );
@@ -51,13 +31,8 @@ const createErrorsSelector = () =>
       return {
         hasError,
         errors: {
-          customFiltersError,
           tagsError,
           uiSettingsError,
-          qualityProfilesError,
-          languagesError,
-          importListsError,
-          indexerFlagsError,
           systemStatusError,
           translationsError,
         },
@@ -70,13 +45,8 @@ const useAppPage = () => {
 
   const isPopulated = useSelector(
     (state: AppState) =>
-      state.customFilters.isPopulated &&
       state.tags.isPopulated &&
       state.settings.ui.isPopulated &&
-      state.settings.qualityProfiles.isPopulated &&
-      state.settings.languages.isPopulated &&
-      state.settings.importLists.isPopulated &&
-      state.settings.indexerFlags.isPopulated &&
       state.system.status.isPopulated &&
       state.app.translations.isPopulated
   );
@@ -97,12 +67,7 @@ const useAppPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchCustomFilters());
     dispatch(fetchTags());
-    dispatch(fetchQualityProfiles());
-    dispatch(fetchLanguages());
-    dispatch(fetchImportLists());
-    dispatch(fetchIndexerFlags());
     dispatch(fetchUISettings());
     dispatch(fetchStatus());
     dispatch(fetchTranslations());
