@@ -1,8 +1,6 @@
 import React from 'react';
 import { ParseModel } from 'App/State/ParseAppState';
 import FieldSet from 'Components/FieldSet';
-import MovieFormats from 'Movie/MovieFormats';
-import MovieTitleLink from 'Movie/MovieTitleLink';
 import translate from 'Utilities/String/translate';
 import ParseResultItem from './ParseResultItem';
 import styles from './ParseResult.css';
@@ -80,82 +78,65 @@ function ParseResult(props: ParseResultProps) {
         ) : null}
       </FieldSet>
 
-      <FieldSet legend={translate('Quality')}>
-        <div className={styles.container}>
-          <div className={styles.column}>
-            <ParseResultItem
-              title={translate('Quality')}
-              data={quality.quality.name}
-            />
-            <ParseResultItem
-              title={translate('Proper')}
-              data={
-                quality.revision.version > 1 && !quality.revision.isRepack
-                  ? 'True'
-                  : '-'
-              }
-            />
+      {quality ? (
+        <FieldSet legend={translate('Quality')}>
+          <div className={styles.container}>
+            <div className={styles.column}>
+              <ParseResultItem
+                title={translate('Quality')}
+                data={quality.quality?.name ?? '-'}
+              />
+              <ParseResultItem
+                title={translate('Proper')}
+                data={
+                  quality.revision?.version > 1 && !quality.revision?.isRepack
+                    ? 'True'
+                    : '-'
+                }
+              />
 
-            <ParseResultItem
-              title={translate('Repack')}
-              data={quality.revision.isRepack ? translate('True') : '-'}
-            />
+              <ParseResultItem
+                title={translate('Repack')}
+                data={quality.revision?.isRepack ? translate('True') : '-'}
+              />
+            </div>
+
+            <div className={styles.column}>
+              <ParseResultItem
+                title={translate('Version')}
+                data={
+                  quality.revision?.version > 1 ? quality.revision.version : '-'
+                }
+              />
+
+              <ParseResultItem
+                title={translate('Real')}
+                data={quality.revision?.real ? translate('True') : '-'}
+              />
+            </div>
           </div>
-
-          <div className={styles.column}>
-            <ParseResultItem
-              title={translate('Version')}
-              data={
-                quality.revision.version > 1 ? quality.revision.version : '-'
-              }
-            />
-
-            <ParseResultItem
-              title={translate('Real')}
-              data={quality.revision.real ? translate('True') : '-'}
-            />
-          </div>
-        </div>
-      </FieldSet>
+        </FieldSet>
+      ) : null}
 
       <FieldSet legend={translate('Languages')}>
         <ParseResultItem
           title={translate('Languages')}
-          data={finalLanguages.map((l) => l.name).join(', ')}
+          data={finalLanguages?.map((l) => l.name).join(', ') ?? '-'}
         />
       </FieldSet>
 
       <FieldSet legend={translate('Details')}>
         <ParseResultItem
           title={translate('MatchedToMovie')}
-          data={
-            movie ? (
-              <MovieTitleLink
-                titleSlug={movie.titleSlug}
-                title={movie.title}
-                year={movie.year}
-              />
-            ) : (
-              '-'
-            )
-          }
+          data={movie ? movie.title ?? '-' : '-'}
         />
-
-        {movie && movie.originalLanguage ? (
-          <ParseResultItem
-            title={translate('OriginalLanguage')}
-            data={movie.originalLanguage.name}
-          />
-        ) : null}
 
         <ParseResultItem
           title={translate('CustomFormats')}
           data={
-            customFormats?.length ? (
-              <MovieFormats formats={customFormats} />
-            ) : (
-              '-'
-            )
+            customFormats?.length
+              ? customFormats.map((cf: any) => cf.name).join(', ')
+              : '-'
           }
         />
 

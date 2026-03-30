@@ -1,4 +1,4 @@
-import DownloadProtocol from 'DownloadClient/DownloadProtocol';
+import DownloadProtocol from './DownloadProtocol';
 import Provider from './Provider';
 
 interface Indexer extends Provider {

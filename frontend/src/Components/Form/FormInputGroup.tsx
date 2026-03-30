@@ -32,9 +32,6 @@ import IndexerSelectInput, {
 import LanguageSelectInput, {
   LanguageSelectInputProps,
 } from './Select/LanguageSelectInput';
-import MonitorMoviesSelectInput, {
-  MonitorMoviesSelectInputProps,
-} from './Select/MonitorMoviesSelectInput';
 import ProviderDataSelectInput, {
   ProviderOptionSelectInputProps,
 } from './Select/ProviderOptionSelectInput';
@@ -68,7 +65,6 @@ const componentMap: Record<InputType, ElementType> = {
   indexerSelect: IndexerSelectInput,
   keyValueList: KeyValueListInput,
   languageSelect: LanguageSelectInput,
-  monitorMoviesSelect: MonitorMoviesSelectInput,
   movieTag: MovieTagInput,
   number: NumberInput,
   oauth: OAuthInput,
@@ -117,8 +113,6 @@ type PickProps<V, C extends InputType> = C extends 'text'
   ? KeyValueListInputProps
   : C extends 'languageSelect'
   ? LanguageSelectInputProps
-  : C extends 'monitorMoviesSelect'
-  ? MonitorMoviesSelectInputProps
   : C extends 'movieTag'
   ? MovieTagInputProps<V>
   : C extends 'number'

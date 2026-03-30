@@ -85,6 +85,10 @@ const LINKS: SidebarItem[] = [
         to: '/settings/connect',
       },
       {
+        title: 'Rules',
+        to: '/settings/rules',
+      },
+      {
         title: () => translate('Tags'),
         to: '/settings/tags',
       },

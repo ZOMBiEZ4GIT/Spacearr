@@ -1,5 +1,11 @@
-import Quality from 'Quality/Quality';
 import { QualityProfileFormatItem } from './CustomFormat';
+
+interface Quality {
+  id: number;
+  name: string;
+  source: string;
+  resolution: number;
+}
 
 export interface QualityProfileQualityItem {
   id?: number;

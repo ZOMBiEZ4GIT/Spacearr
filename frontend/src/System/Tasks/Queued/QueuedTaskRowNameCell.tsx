@@ -1,27 +1,8 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { CommandBody } from 'Commands/Command';
 import TableRowCell from 'Components/Table/Cells/TableRowCell';
-import createMultiMoviesSelector from 'Store/Selectors/createMultiMoviesSelector';
-import sortByProp from 'Utilities/Array/sortByProp';
 import translate from 'Utilities/String/translate';
 import styles from './QueuedTaskRowNameCell.css';
-
-function formatTitles(titles: string[]) {
-  if (!titles) {
-    return null;
-  }
-
-  if (titles.length > 11) {
-    return (
-      <span title={titles.join(', ')}>
-        {titles.slice(0, 10).join(', ')}, {titles.length - 10} more
-      </span>
-    );
-  }
-
-  return <span>{titles.join(', ')}</span>;
-}
 
 export interface QueuedTaskRowNameCellProps {
   commandName: string;
@@ -32,23 +13,12 @@ export interface QueuedTaskRowNameCellProps {
 export default function QueuedTaskRowNameCell(
   props: QueuedTaskRowNameCellProps
 ) {
-  const { commandName, body, clientUserAgent } = props;
-  const movieIds = [...(body.movieIds ?? [])];
-
-  if (body.movieId) {
-    movieIds.push(body.movieId);
-  }
-
-  const movies = useSelector(createMultiMoviesSelector(movieIds));
-  const sortedMovies = movies.sort(sortByProp('sortTitle'));
+  const { commandName, clientUserAgent } = props;
 
   return (
     <TableRowCell>
       <span className={styles.commandName}>
         {commandName}
-        {sortedMovies.length ? (
-          <span> - {formatTitles(sortedMovies.map((m) => m.title))}</span>
-        ) : null}
       </span>
 
       {clientUserAgent ? (

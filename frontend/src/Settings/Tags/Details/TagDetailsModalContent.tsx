@@ -11,7 +11,6 @@ import ModalContent from 'Components/Modal/ModalContent';
 import ModalFooter from 'Components/Modal/ModalFooter';
 import ModalHeader from 'Components/Modal/ModalHeader';
 import { kinds } from 'Helpers/Props';
-import createAllMoviesSelector from 'Store/Selectors/createAllMoviesSelector';
 import translate from 'Utilities/String/translate';
 import TagDetailsDelayProfile from './TagDetailsDelayProfile';
 import styles from './TagDetailsModalContent.css';
@@ -20,32 +19,6 @@ function findMatchingItems<T extends ModelBase>(ids: number[], items: T[]) {
   return items.filter((s) => {
     return ids.includes(s.id);
   });
-}
-
-function createUnorderedMatchingMoviesSelector(movieIds: number[]) {
-  return createSelector(createAllMoviesSelector(), (movies) =>
-    findMatchingItems(movieIds, movies)
-  );
-}
-
-function createMatchingMoviesSelector(movieIds: number[]) {
-  return createSelector(
-    createUnorderedMatchingMoviesSelector(movieIds),
-    (movies) => {
-      return movies.sort((movieA, movieB) => {
-        const sortTitleA = movieA.sortTitle;
-        const sortTitleB = movieB.sortTitle;
-
-        if (sortTitleA > sortTitleB) {
-          return 1;
-        } else if (sortTitleA < sortTitleB) {
-          return -1;
-        }
-
-        return 0;
-      });
-    }
-  );
 }
 
 function createMatchingItemSelector<T extends ModelBase>(
@@ -80,12 +53,9 @@ function TagDetailsModalContent({
   indexerIds = [],
   downloadClientIds = [],
   autoTagIds = [],
-  movieIds = [],
   onModalClose,
   onDeleteTagPress,
 }: TagDetailsModalContentProps) {
-  const movies = useSelector(createMatchingMoviesSelector(movieIds));
-
   const delayProfiles = useSelector(
     createMatchingItemSelector(
       delayProfileIds,
@@ -141,14 +111,6 @@ function TagDetailsModalContent({
 
       <ModalBody>
         {!isTagUsed && <div>{translate('TagIsNotUsedAndCanBeDeleted')}</div>}
-
-        {movies.length ? (
-          <FieldSet legend={translate('Movies')}>
-            {movies.map((item) => {
-              return <div key={item.id}>{item.title}</div>;
-            })}
-          </FieldSet>
-        ) : null}
 
         {delayProfiles.length ? (
           <FieldSet legend={translate('DelayProfile')}>
