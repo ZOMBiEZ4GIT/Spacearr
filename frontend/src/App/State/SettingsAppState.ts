@@ -25,7 +25,6 @@ import NamingConfig from 'typings/Settings/NamingConfig';
 import NamingExample from 'typings/Settings/NamingExample';
 import ReleaseProfile from 'typings/Settings/ReleaseProfile';
 import UiSettings from 'typings/Settings/UiSettings';
-import MetadataAppState from './MetadataAppState';
 
 type Presets<T> = T & {
   presets: T[];
@@ -139,7 +138,7 @@ interface SettingsAppState {
   indexers: IndexerAppState;
   languages: LanguageSettingsAppState;
   mediaManagement: MediaManagementAppState;
-  metadata: MetadataAppState;
+  metadata: any;
   naming: NamingAppState;
   namingExamples: NamingExamplesAppState;
   notifications: NotificationAppState;

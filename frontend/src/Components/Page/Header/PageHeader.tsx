@@ -8,7 +8,6 @@ import { icons } from 'Helpers/Props';
 import { setIsSidebarVisible } from 'Store/Actions/appActions';
 import translate from 'Utilities/String/translate';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
-import MovieSearchInput from './MovieSearchInput';
 import PageHeaderActionsMenu from './PageHeaderActionsMenu';
 import styles from './PageHeader.css';
 
@@ -72,8 +71,6 @@ function PageHeader({ isSmallScreen }: PageHeaderProps) {
           onPress={handleSidebarToggle}
         />
       </div>
-
-      <MovieSearchInput />
 
       <div className={styles.right}>
         <IconButton

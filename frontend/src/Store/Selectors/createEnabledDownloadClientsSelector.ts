@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { DownloadClientAppState } from 'App/State/SettingsAppState';
-import DownloadProtocol from 'DownloadClient/DownloadProtocol';
+import DownloadProtocol from 'typings/DownloadProtocol';
 import createSortedSectionSelector from 'Store/Selectors/createSortedSectionSelector';
 import DownloadClient from 'typings/DownloadClient';
 import sortByProp from 'Utilities/Array/sortByProp';

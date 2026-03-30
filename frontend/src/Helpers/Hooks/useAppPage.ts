@@ -4,8 +4,6 @@ import { createSelector } from 'reselect';
 import AppState from 'App/State/AppState';
 import { fetchTranslations } from 'Store/Actions/appActions';
 import { fetchCustomFilters } from 'Store/Actions/customFilterActions';
-import { fetchMovies } from 'Store/Actions/movieActions';
-import { fetchMovieCollections } from 'Store/Actions/movieCollectionActions';
 import {
   fetchImportLists,
   fetchIndexerFlags,
@@ -18,8 +16,6 @@ import { fetchTags } from 'Store/Actions/tagActions';
 
 const createErrorsSelector = () =>
   createSelector(
-    (state: AppState) => state.movies.error,
-    (state: AppState) => state.movieCollections.error,
     (state: AppState) => state.customFilters.error,
     (state: AppState) => state.tags.error,
     (state: AppState) => state.settings.ui.error,
@@ -30,8 +26,6 @@ const createErrorsSelector = () =>
     (state: AppState) => state.system.status.error,
     (state: AppState) => state.app.translations.error,
     (
-      moviesError,
-      movieCollectionsError,
       customFiltersError,
       tagsError,
       uiSettingsError,
@@ -43,8 +37,6 @@ const createErrorsSelector = () =>
       translationsError
     ) => {
       const hasError = !!(
-        moviesError ||
-        movieCollectionsError ||
         customFiltersError ||
         tagsError ||
         uiSettingsError ||
@@ -59,8 +51,6 @@ const createErrorsSelector = () =>
       return {
         hasError,
         errors: {
-          moviesError,
-          movieCollectionsError,
           customFiltersError,
           tagsError,
           uiSettingsError,
@@ -80,8 +70,6 @@ const useAppPage = () => {
 
   const isPopulated = useSelector(
     (state: AppState) =>
-      state.movies.isPopulated &&
-      state.movieCollections.isPopulated &&
       state.customFilters.isPopulated &&
       state.tags.isPopulated &&
       state.settings.ui.isPopulated &&
@@ -109,8 +97,6 @@ const useAppPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchMovies());
-    dispatch(fetchMovieCollections());
     dispatch(fetchCustomFilters());
     dispatch(fetchTags());
     dispatch(fetchQualityProfiles());

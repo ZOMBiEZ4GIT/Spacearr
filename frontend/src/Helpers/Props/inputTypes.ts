@@ -4,7 +4,6 @@ export const CAPTCHA = 'captcha';
 export const CHECK = 'check';
 export const DEVICE = 'device';
 export const KEY_VALUE_LIST = 'keyValueList';
-export const MONITOR_MOVIES_SELECT = 'monitorMoviesSelect';
 export const FLOAT = 'float';
 export const NUMBER = 'number';
 export const OAUTH = 'oauth';
@@ -33,7 +32,6 @@ export const all = [
   CHECK,
   DEVICE,
   KEY_VALUE_LIST,
-  MONITOR_MOVIES_SELECT,
   FLOAT,
   NUMBER,
   OAUTH,
@@ -64,7 +62,6 @@ export type InputType =
   | 'date'
   | 'device'
   | 'keyValueList'
-  | 'monitorMoviesSelect'
   | 'file'
   | 'float'
   | 'number'

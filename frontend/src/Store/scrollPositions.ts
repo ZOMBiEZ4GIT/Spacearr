@@ -1,7 +1,3 @@
-const scrollPositions: Record<string, number> = {
-  movieIndex: 0,
-  discoverMovie: 0,
-  movieCollections: 0,
-};
+const scrollPositions: Record<string, number> = {};
 
 export default scrollPositions;

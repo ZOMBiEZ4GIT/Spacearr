@@ -1,8 +1,6 @@
 import ModelBase from 'App/ModelBase';
 import { AppSectionItemState } from 'App/State/AppSectionState';
 import Language from 'Language/Language';
-import Movie from 'Movie/Movie';
-import { QualityModel } from 'Quality/Quality';
 import CustomFormat from 'typings/CustomFormat';
 
 export interface ParsedMovieInfo {
@@ -11,7 +9,7 @@ export interface ParsedMovieInfo {
   movieTitle: string;
   movieTitles: string[];
   year: number;
-  quality: QualityModel;
+  quality: any;
   languages: Language[];
   releaseHash: string;
   releaseGroup?: string;
@@ -23,7 +21,7 @@ export interface ParsedMovieInfo {
 export interface ParseModel extends ModelBase {
   title: string;
   parsedMovieInfo: ParsedMovieInfo;
-  movie?: Movie;
+  movie?: any;
   languages?: Language[];
   customFormats?: CustomFormat[];
   customFormatScore?: number;
