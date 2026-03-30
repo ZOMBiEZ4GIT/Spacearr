@@ -84,6 +84,14 @@ function Settings() {
           {translate('MetadataSettingsMovieSummary')}
         </div>
 
+        <Link className={styles.link} to="/settings/rules">
+          Rules
+        </Link>
+
+        <div className={styles.summary}>
+          Configure automated rules for space management, quality enforcement, and file cleanup.
+        </div>
+
         <Link className={styles.link} to="/settings/tags">
           {translate('Tags')}
         </Link>

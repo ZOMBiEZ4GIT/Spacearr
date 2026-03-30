@@ -1,0 +1,195 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.addButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primaryColor);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 150ms;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.rulesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ruleCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid var(--borderColor);
+  border-radius: 6px;
+  background-color: var(--cardBackgroundColor);
+  transition: border-color 200ms;
+
+  &:hover {
+    border-color: var(--primaryColor);
+  }
+}
+
+.ruleInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.ruleName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--textColor);
+  margin-bottom: 4px;
+}
+
+.ruleSummary {
+  font-size: $smallFontSize;
+  color: var(--disabledColor);
+  line-height: 1.4;
+}
+
+.ruleActionBadge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.actionEnforce {
+  composes: ruleActionBadge;
+  background-color: rgba(58, 135, 253, 0.15);
+  color: var(--primaryColor);
+}
+
+.actionFlag {
+  composes: ruleActionBadge;
+  background-color: rgba(255, 165, 0, 0.15);
+  color: var(--warningColor);
+}
+
+.actionDelete {
+  composes: ruleActionBadge;
+  background-color: rgba(240, 80, 80, 0.15);
+  color: var(--dangerColor);
+}
+
+.ruleControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--borderColor);
+  border-radius: 20px;
+  transition: background-color 200ms;
+
+  &::before {
+    content: '';
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 200ms;
+  }
+}
+
+.toggle input:checked + .toggleSlider {
+  background-color: var(--primaryColor);
+
+  &::before {
+    transform: translateX(16px);
+  }
+}
+
+.editButton {
+  padding: 4px 10px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--textColor);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.deleteButton {
+  padding: 4px 10px;
+  border: 1px solid var(--dangerColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--dangerColor);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--dangerColor);
+    color: #fff;
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--disabledColor);
+  font-size: 16px;
+}
+
+.emptyHint {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--disabledColor);
+  font-size: 16px;
+}

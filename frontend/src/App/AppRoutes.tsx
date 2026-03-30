@@ -8,6 +8,7 @@ import LibraryPage from 'Library/LibraryPage';
 import RecommendationsPage from 'Recommendations/RecommendationsPage';
 import GeneralSettingsConnector from 'Settings/General/GeneralSettingsConnector';
 import NotificationSettings from 'Settings/Notifications/NotificationSettings';
+import RulesSettings from 'Settings/Rules/RulesSettings';
 import Settings from 'Settings/Settings';
 import TagSettings from 'Settings/Tags/TagSettings';
 import UISettingsConnector from 'Settings/UI/UISettingsConnector';
@@ -62,6 +63,8 @@ function AppRoutes() {
       <Route path="/settings/general" component={GeneralSettingsConnector} />
 
       <Route path="/settings/connect" component={NotificationSettings} />
+
+      <Route path="/settings/rules" component={RulesSettings} />
 
       <Route path="/settings/tags" component={TagSettings} />
 

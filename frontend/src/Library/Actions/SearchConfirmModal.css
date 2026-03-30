@@ -1,0 +1,33 @@
+.itemInfo {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: var(--tableRowHoverBackgroundColor);
+}
+
+.itemTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.profileBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background-color: var(--primaryColor);
+  color: #fff;
+  font-size: $smallFontSize;
+}
+
+.description {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--textColor);
+  line-height: 1.5;
+}
+
+.sourceHighlight {
+  font-weight: 600;
+  color: var(--primaryColor);
+}

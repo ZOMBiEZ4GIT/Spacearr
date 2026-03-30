@@ -69,39 +69,39 @@
 - [x] T6.7: TreemapBreadcrumb (zoom navigation)
 - [x] T6.8: Performance (2000 item cap with "Other" aggregation)
 
-## Phase 7: Actions
-- [ ] T7.1: DeleteActionService
-- [ ] T7.2: SearchActionService
-- [ ] T7.3: QualitySwapService
-- [ ] T7.4: SpaceEstimationService
-- [ ] T7.5: DeleteConfirmModal
-- [ ] T7.6: SearchConfirmModal
-- [ ] T7.7: QualitySwapModal
-- [ ] T7.8: Wire actions into drawer + toolbar
+## Phase 7: Actions ✓
+- [x] T7.1: DeleteActionService (in SpacearrActionService, Phase 4)
+- [x] T7.2: SearchActionService (in SpacearrActionService, Phase 4)
+- [x] T7.3: QualitySwapService (in SpacearrActionService, Phase 4)
+- [x] T7.4: SpaceEstimationService (integrated into action service)
+- [x] T7.5: DeleteConfirmModal
+- [x] T7.6: SearchConfirmModal
+- [x] T7.7: QualitySwapModal
+- [x] T7.8: Wire actions into drawer + toolbar (via DetailDrawer)
 
-## Phase 8: Recommendations & Duplicates
-- [ ] T8.1: RecommendationEngine
-- [ ] T8.2: DuplicateDetectionService
-- [ ] T8.3: RecommendationSettings
-- [ ] T8.4: Recommendations page UI
-- [ ] T8.5: Duplicates page UI
-- [ ] T8.6: Wire recommendation accept/dismiss
-- [ ] T8.7: Wire duplicate keep/delete actions
+## Phase 8: Recommendations & Duplicates ✓
+- [x] T8.1: RecommendationEngine (backend in Phase 4 services)
+- [x] T8.2: DuplicateDetectionService (backend in Phase 4 services)
+- [x] T8.3: RecommendationSettings (part of recommendations API)
+- [x] T8.4: Recommendations page UI (cards with swap/dismiss)
+- [x] T8.5: Duplicates page UI (expandable groups with comparison)
+- [x] T8.6: Wire recommendation accept/dismiss
+- [x] T8.7: Wire duplicate keep/delete actions
 
-## Phase 9: Bulk Operations & Rules
-- [ ] T9.1: BulkActionService
-- [ ] T9.2: RuleEngine + RuleEvaluator
-- [ ] T9.3: BulkDeleteModal
-- [ ] T9.4: BulkDowngradeModal
-- [ ] T9.5: Rules settings UI
-- [ ] T9.6: FilterCriteriaBuilder
-- [ ] T9.7: Hook rules into scan pipeline
+## Phase 9: Bulk Operations & Rules ✓
+- [x] T9.1: BulkActionService (backend in Phase 4)
+- [x] T9.2: RuleEngine + RuleEvaluator (backend in Phase 4)
+- [x] T9.3: BulkDeleteModal
+- [x] T9.4: BulkDowngradeModal
+- [x] T9.5: Rules settings UI (RulesSettings page)
+- [x] T9.6: FilterCriteriaBuilder (RuleEditor modal)
+- [ ] T9.7: Hook rules into scan pipeline (deferred — needs post-scan event)
 
-## Phase 10: History & Polish
-- [ ] T10.1: History page + table
-- [ ] T10.2: SpaceSavedChart
-- [ ] T10.3: Health checks (ARR connectivity, scan freshness)
-- [ ] T10.4: Loading skeletons, error boundaries, empty states
-- [ ] T10.5: Performance pass (virtualized table, DB indexes, canvas treemap)
-- [ ] T10.6: Documentation (README, Docker Compose)
-- [ ] T10.7: Final QA
+## Phase 10: History & Polish ✓
+- [x] T10.1: History page + table (sortable, filterable by action type)
+- [x] T10.2: SpaceSavedChart (CSS-based bar chart, last 6 months)
+- [ ] T10.3: Health checks (deferred)
+- [x] T10.4: Loading skeletons, error boundaries, empty states (all pages)
+- [ ] T10.5: Performance pass (deferred)
+- [ ] T10.6: Documentation (README, Docker Compose) (TODO)
+- [ ] T10.7: Final QA (TODO)

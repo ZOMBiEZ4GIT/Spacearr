@@ -1,0 +1,69 @@
+.itemInfo {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: var(--tableRowHoverBackgroundColor);
+}
+
+.itemTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.currentQuality {
+  font-size: $smallFontSize;
+  color: var(--disabledColor);
+}
+
+.currentQualityValue {
+  color: var(--textColor);
+  font-weight: 600;
+}
+
+.fieldGroup {
+  margin-top: 16px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--textColor);
+}
+
+.qualitySelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: var(--inputBackgroundColor);
+  color: var(--textColor);
+  font-size: 14px;
+  cursor: pointer;
+
+  &:focus {
+    border-color: var(--primaryColor);
+    outline: none;
+  }
+}
+
+.estimatedChange {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: rgba(45, 138, 78, 0.15);
+  border: 1px solid #2d8a4e;
+  font-size: $smallFontSize;
+}
+
+.savingsAmount {
+  color: #2d8a4e;
+  font-weight: 700;
+}
+
+.arrow {
+  margin: 0 6px;
+  color: var(--disabledColor);
+}

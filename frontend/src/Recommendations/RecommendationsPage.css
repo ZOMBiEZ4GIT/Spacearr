@@ -1,0 +1,155 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.toolbarTitle {
+  font-size: 14px;
+  color: var(--disabledColor);
+}
+
+.dismissAllButton {
+  padding: 6px 14px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--textColor);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--borderColor);
+  border-radius: 6px;
+  background-color: var(--cardBackgroundColor);
+  transition: border-color 200ms;
+
+  &:hover {
+    border-color: var(--primaryColor);
+  }
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--textColor);
+  margin-bottom: 10px;
+}
+
+.sizeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--disabledColor);
+}
+
+.currentSize {
+  color: var(--textColor);
+}
+
+.arrow {
+  color: var(--disabledColor);
+}
+
+.estimatedSize {
+  color: var(--textColor);
+}
+
+.savings {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: rgba(45, 138, 78, 0.15);
+  color: #2d8a4e;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.swapButton {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primaryColor);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 150ms;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.dismissButton {
+  padding: 6px 16px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--disabledColor);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--disabledColor);
+  font-size: 18px;
+}
+
+.emptyHint {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--disabledColor);
+  font-size: 16px;
+}
+
+.suggestedQuality {
+  font-size: $smallFontSize;
+  color: var(--disabledColor);
+  margin-bottom: 4px;
+}
+
+.qualityValue {
+  font-weight: 600;
+  color: var(--textColor);
+}

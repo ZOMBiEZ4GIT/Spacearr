@@ -1,0 +1,53 @@
+.summary {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: var(--tableRowHoverBackgroundColor);
+}
+
+.summaryCount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--textColor);
+  margin-bottom: 4px;
+}
+
+.summaryDetail {
+  font-size: $smallFontSize;
+  color: var(--disabledColor);
+}
+
+.fieldGroup {
+  margin-top: 16px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--textColor);
+}
+
+.qualitySelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: var(--inputBackgroundColor);
+  color: var(--textColor);
+  font-size: 14px;
+  cursor: pointer;
+
+  &:focus {
+    border-color: var(--primaryColor);
+    outline: none;
+  }
+}
+
+.description {
+  margin-top: 12px;
+  font-size: $smallFontSize;
+  color: var(--disabledColor);
+  line-height: 1.5;
+}

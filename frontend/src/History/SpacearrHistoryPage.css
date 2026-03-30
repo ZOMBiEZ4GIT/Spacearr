@@ -1,0 +1,192 @@
+.statsBar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border-radius: 6px;
+  background-color: var(--cardBackgroundColor);
+  border: 1px solid var(--borderColor);
+}
+
+.totalSaved {
+  text-align: center;
+}
+
+.totalSavedValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d8a4e;
+}
+
+.totalSavedLabel {
+  font-size: 12px;
+  color: var(--disabledColor);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--textColor);
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--disabledColor);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 40px;
+  background-color: var(--borderColor);
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filterLabel {
+  font-size: 13px;
+  color: var(--disabledColor);
+}
+
+.filterButton {
+  padding: 4px 12px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--textColor);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.filterButtonActive {
+  composes: filterButton;
+  border-color: var(--primaryColor);
+  background-color: rgba(58, 135, 253, 0.1);
+  color: var(--primaryColor);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--disabledColor);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--borderColor);
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    color: var(--textColor);
+  }
+}
+
+.tableHeaderActive {
+  composes: tableHeader;
+  color: var(--primaryColor);
+}
+
+.sortIndicator {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--borderColor);
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.tableCell {
+  padding: 10px 12px;
+  font-size: $smallFontSize;
+  color: var(--textColor);
+}
+
+.actionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.actionDelete {
+  composes: actionBadge;
+  background-color: rgba(240, 80, 80, 0.15);
+  color: var(--dangerColor);
+}
+
+.actionSearch {
+  composes: actionBadge;
+  background-color: rgba(58, 135, 253, 0.15);
+  color: var(--primaryColor);
+}
+
+.actionSwap {
+  composes: actionBadge;
+  background-color: rgba(255, 165, 0, 0.15);
+  color: var(--warningColor);
+}
+
+.actionDuplicate {
+  composes: actionBadge;
+  background-color: rgba(128, 0, 128, 0.15);
+  color: #9b59b6;
+}
+
+.spaceFreed {
+  color: #2d8a4e;
+  font-weight: 600;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--disabledColor);
+  font-size: 16px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: var(--disabledColor);
+  font-size: 16px;
+}
+
+.chartSection {
+  margin-bottom: 24px;
+}
