@@ -1,23 +1,23 @@
 # Spacearr — TODO
 
-## Phase 0: Fork & Strip
-- [ ] T0.1: Clone Radarr develop branch
-- [ ] T0.2: Strip backend domain modules
-- [ ] T0.3: Strip frontend domain modules
-- [ ] T0.4: Rename Radarr → Spacearr (namespaces, projects, branding, port)
-- [ ] T0.5: Fix compilation errors
-- [ ] T0.6: Verify build (dotnet build + Docker)
-- [ ] T0.7: Create tracking docs (TODO.md, DEVLOG.md)
-- [ ] T0.8: Strip database migrations, create fresh 001
+## Phase 0: Fork & Strip ✓
+- [x] T0.1: Clone Radarr develop branch
+- [x] T0.2: Strip backend domain modules
+- [x] T0.3: Strip frontend domain modules
+- [x] T0.4: Rename Radarr → Spacearr (namespaces, projects, branding, port)
+- [x] T0.5: Fix compilation errors (648 errors → 0)
+- [x] T0.6: Verify build (dotnet build passes, 0 errors 0 warnings)
+- [x] T0.7: Create tracking docs (TODO.md, DEVLOG.md)
+- [x] T0.8: Strip database migrations (deleted 9 broken migrations)
 
-## Phase 1: Core Data Layer
-- [ ] T1.1: Create enum types (MediaSource, ActionType, RecommendationType, RuleActionType, ScanStatus)
-- [ ] T1.2: Create model classes (MediaFile, MediaItem, ScanJob, ActionHistory, Recommendation, Rule)
-- [ ] T1.3: Create SQLite migration (001_initial_spacearr_schema)
-- [ ] T1.4: Repository interfaces
-- [ ] T1.5: Repository implementations
-- [ ] T1.6: Register in DI (TableMapper)
-- [ ] T1.7: Unit tests
+## Phase 1: Core Data Layer ✓
+- [x] T1.1: Create enum types (MediaSource, ActionType, RecommendationType, RuleActionType, ScanStatus)
+- [x] T1.2: Create model classes (MediaFile, MediaItem, ScanJob, ActionHistory, Recommendation, Rule)
+- [x] T1.3: Create SQLite migration (250_spacearr_initial_schema)
+- [x] T1.4: Repository interfaces
+- [x] T1.5: Repository implementations
+- [x] T1.6: Register in DI (TableMapper)
+- [ ] T1.7: Unit tests (deferred)
 
 ## Phase 2: Filesystem Scanner
 - [ ] T2.1: FileDiscoveryService (directory walking)

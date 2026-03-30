@@ -14,6 +14,7 @@ using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Notifications;
 using NzbDrone.Core.RemotePathMappings;
 using NzbDrone.Core.RootFolders;
+using NzbDrone.Core.Spacearr;
 using NzbDrone.Core.Tags;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Update.History;
@@ -73,6 +74,14 @@ namespace NzbDrone.Core.Datastore
             Mapper.Entity<UpdateHistory>("UpdateHistory").RegisterModel();
 
             Mapper.Entity<Log>("Logs").RegisterModel();
+
+            // Spacearr tables
+            Mapper.Entity<MediaFile>("MediaFiles").RegisterModel();
+            Mapper.Entity<MediaItem>("MediaItems").RegisterModel();
+            Mapper.Entity<ScanJob>("ScanJobs").RegisterModel();
+            Mapper.Entity<ActionHistory>("ActionHistory").RegisterModel();
+            Mapper.Entity<Recommendation>("Recommendations").RegisterModel();
+            Mapper.Entity<Rule>("Rules").RegisterModel();
         }
 
         private static void RegisterMappers()
