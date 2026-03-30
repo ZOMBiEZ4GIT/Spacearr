@@ -55,6 +55,7 @@ namespace NzbDrone.Core.Datastore.Migration
                   .WithColumn("QualityProfile").AsString().Nullable()
                   .WithColumn("Monitored").AsBoolean().NotNullable()
                   .WithColumn("Tags").AsString().Nullable()
+                  .WithColumn("PosterUrl").AsString().Nullable()
                   .WithColumn("LastEnriched").AsDateTime().NotNullable();
 
             Create.TableForModel("ScanJobs")

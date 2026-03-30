@@ -40,6 +40,7 @@ interface LibraryResource {
   resolution: string;
   durationSeconds: number;
   containerFormat: string;
+  posterUrl?: string;
 }
 
 function mapResourceToLibraryItem(resource: LibraryResource): LibraryItem {
@@ -67,6 +68,7 @@ function mapResourceToLibraryItem(resource: LibraryResource): LibraryItem {
     year: resource.year,
     qualityProfile: resource.qualityProfile,
     monitored: resource.monitored,
+    posterUrl: resource.posterUrl,
   };
 }
 
@@ -81,6 +83,7 @@ function libraryItemToTreemapItem(item: LibraryItem): TreemapItem {
     qualityProfile: item.qualityProfile ?? item.quality,
     source: item.source,
     parentGroup: item.source,
+    posterUrl: item.posterUrl,
   };
 }
 

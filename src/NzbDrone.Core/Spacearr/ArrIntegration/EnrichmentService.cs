@@ -184,6 +184,7 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
             item.Year = movie.Year;
             item.Monitored = movie.Monitored;
             item.Tags = movie.Tags != null ? string.Join(",", movie.Tags) : null;
+            item.PosterUrl = movie.Images?.FirstOrDefault(i => i.CoverType == "poster")?.RemoteUrl;
 
             if (movie.QualityProfile != null)
             {
@@ -201,6 +202,7 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
             item.SeasonNumber = episodeFile.SeasonNumber;
             item.Monitored = series.Monitored;
             item.Tags = series.Tags != null ? string.Join(",", series.Tags) : null;
+            item.PosterUrl = series.Images?.FirstOrDefault(i => i.CoverType == "poster")?.RemoteUrl;
 
             var profileName = _qualityProfileCache.GetProfileName(MediaSource.Sonarr, series.QualityProfileId);
             item.QualityProfile = profileName ?? $"Profile {series.QualityProfileId}";

@@ -66,13 +66,17 @@ function TreemapBlock({ node, colorMode, onHover, onClick }: TreemapBlockProps) 
         top: y0,
         width,
         height,
-        backgroundColor,
+        backgroundImage: item?.posterUrl ? `url(${item.posterUrl})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundColor: item?.posterUrl ? undefined : backgroundColor,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
+      <div className={styles.colorOverlay} style={{ backgroundColor }} />
       {showLabel ? (
         <div className={styles.blockLabel}>
           {data.name}

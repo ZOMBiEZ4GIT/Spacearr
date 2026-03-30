@@ -15,6 +15,7 @@ export interface LibraryItem {
   monitored?: boolean;
   estimatedSavings?: number;
   suggestedQuality?: string;
+  posterUrl?: string;
 }
 
 export function formatSize(bytes: number): string {
@@ -91,6 +92,7 @@ export const MOCK_LIBRARY_ITEMS: LibraryItem[] = [
     monitored: true,
     estimatedSavings: 42_000_000_000,
     suggestedQuality: 'Bluray-1080p',
+    posterUrl: 'https://image.tmdb.org/t/p/w300/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
   },
   {
     id: 2,
@@ -125,6 +127,7 @@ export const MOCK_LIBRARY_ITEMS: LibraryItem[] = [
     monitored: true,
     estimatedSavings: 55_000_000_000,
     suggestedQuality: 'Bluray-2160p',
+    posterUrl: 'https://image.tmdb.org/t/p/w300/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg',
   },
   {
     id: 4,
@@ -157,6 +160,7 @@ export const MOCK_LIBRARY_ITEMS: LibraryItem[] = [
     year: 2021,
     qualityProfile: 'Ultra-HD',
     monitored: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w300/d5NXSklXo0qyIYkgV94XAgMIckC.jpg',
   },
   {
     id: 6,
@@ -191,6 +195,7 @@ export const MOCK_LIBRARY_ITEMS: LibraryItem[] = [
     monitored: true,
     estimatedSavings: 60_000_000_000,
     suggestedQuality: 'Bluray-2160p',
+    posterUrl: 'https://image.tmdb.org/t/p/w300/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
   },
   {
     id: 8,

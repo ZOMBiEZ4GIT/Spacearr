@@ -3,6 +3,7 @@
 interface CssExports {
   'block': string;
   'blockLabel': string;
+  'colorOverlay': string;
   'groupLabel': string;
 }
 export const cssExports: CssExports;

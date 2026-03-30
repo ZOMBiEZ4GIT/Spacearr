@@ -8,6 +8,7 @@ export interface TreemapItem {
   qualityProfile: string;
   source: string;
   parentGroup: string | null;
+  posterUrl?: string;
 }
 
 export type ColorMode = 'bitrate' | 'quality' | 'codec' | 'resolution';
