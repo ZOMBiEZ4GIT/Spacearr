@@ -8,6 +8,28 @@ namespace NzbDrone.Core.Datastore.Migration
     {
         protected override void MainDbUpgrade()
         {
+            // Add missing columns to tables created by migration 001
+            Alter.Table("ScheduledTasks").AddColumn("LastStartTime").AsDateTime().Nullable();
+
+            // Create tables that were in later Radarr migrations but got deleted
+            Create.TableForModel("NotificationStatus")
+                  .WithColumn("ProviderId").AsInt32().NotNullable()
+                  .WithColumn("InitialFailure").AsDateTime().Nullable()
+                  .WithColumn("MostRecentFailure").AsDateTime().Nullable()
+                  .WithColumn("EscalationLevel").AsInt32().NotNullable()
+                  .WithColumn("DisabledTill").AsDateTime().Nullable();
+
+            Create.TableForModel("CustomFilters")
+                  .WithColumn("Type").AsString().NotNullable()
+                  .WithColumn("Label").AsString().NotNullable()
+                  .WithColumn("Filters").AsString().NotNullable();
+
+            Create.TableForModel("UpdateHistory")
+                  .WithColumn("Date").AsDateTime().NotNullable()
+                  .WithColumn("Version").AsString().NotNullable()
+                  .WithColumn("EventType").AsInt32().NotNullable();
+
+            // Spacearr tables
             Create.TableForModel("MediaFiles")
                   .WithColumn("Path").AsString().NotNullable().Unique()
                   .WithColumn("SizeBytes").AsInt64().NotNullable()

@@ -3120,3 +3120,613 @@ PARAMETERS:
 
 
 
+2026-03-30 20:31:56.1|Error|TaskExtensions|Task Error
+
+[v10.0.0.36852] System.InvalidOperationException: Sequence contains no elements
+   at System.Linq.ThrowHelper.ThrowNoElementsException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source)
+   at NzbDrone.Core.Jobs.ScheduledTaskRepository.GetDefinition(Type type) in ./NzbDrone.Core/Jobs/ScheduledTaskRepository.cs:line 23
+   at NzbDrone.Core.Jobs.TaskManager.HandleAsync(ConfigSavedEvent message) in ./NzbDrone.Core/Jobs/TaskManager.cs:line 167
+   at NzbDrone.Core.Messaging.Events.EventAggregator.<>c__DisplayClass6_2`1.<PublishEvent>b__2() in ./NzbDrone.Core/Messaging/Events/EventAggregator.cs:line 120
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+
+
+2026-03-30 20:31:56.1|Error|SpacearrErrorPipeline|[PUT /api/v3/config/host]
+
+[v10.0.0.36852] code = Error (1), message = System.Data.SQLite.SQLiteException (0x87AF001F): SQL logic error
+table Users has no column named Salt
+   at System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   at System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   at System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   at System.Data.SQLite.SQLiteDataReader.NextResult()
+   at System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   at System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SQLite.SQLiteCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1185
+   at Dapper.SqlMapper.QueryMultipleImpl(IDbConnection cnn, CommandDefinition& command) in /_/Dapper/SqlMapper.cs:line 1152
+   at Dapper.SqlMapper.QueryMultiple(IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 1128
+   at NzbDrone.Core.Datastore.BasicRepository`1.<>c.<Insert>b__24_0(ValueTuple`4 state, CancellationToken _) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 214
+   at Polly.ResiliencePipeline.<>c__37`2.<Execute>b__37_0(ResilienceContext context, ValueTuple`2 state)
+--- End of stack trace from previous location ---
+   at Polly.Outcome`1.GetResultOrRethrow()
+   at Polly.ResiliencePipeline.Execute[TResult,TState](Func`3 callback, TState state, CancellationToken cancellationToken)
+   at NzbDrone.Core.Datastore.BasicRepository`1.Insert(IDbConnection connection, IDbTransaction transaction, TModel model) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 211
+   at NzbDrone.Core.Datastore.BasicRepository`1.Insert(TModel model) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 170
+   at NzbDrone.Core.Authentication.UserService.Add(String username, String password) in ./NzbDrone.Core/Authentication/UserService.cs:line 53
+   at NzbDrone.Core.Authentication.UserService.Upsert(String username, String password) in ./NzbDrone.Core/Authentication/UserService.cs:line 67
+   at Spacearr.Api.V1.Config.HostConfigController.SaveHostConfig(HostConfigResource resource) in ./Spacearr.Api.V1/Config/HostConfigController.cs:line 125
+   at lambda_method19(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Spacearr.Http.Middleware.BufferingMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/BufferingMiddleware.cs:line 27
+   at Spacearr.Http.Middleware.IfModifiedMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/IfModifiedMiddleware.cs:line 40
+   at Spacearr.Http.Middleware.CacheHeaderMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/CacheHeaderMiddleware.cs:line 32
+   at Spacearr.Http.Middleware.StartingUpMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/StartingUpMiddleware.cs:line 37
+   at Spacearr.Http.Middleware.UrlBaseMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/UrlBaseMiddleware.cs:line 28
+   at Spacearr.Http.Middleware.VersionMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/VersionMiddleware.cs:line 28
+   at Microsoft.AspNetCore.ResponseCompression.ResponseCompressionMiddleware.InvokeCore(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+
+
+2026-03-30 20:37:13.9|Info|Bootstrap|Starting Spacearr - C:\Users\(removed)\Spacearr\_output\net8.0\Spacearr.Console.exe - Version 10.0.0.37082
+2026-03-30 20:37:14.2|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:37:14.2|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:37:14.6|Info|AppFolderInfo|Data directory is being overridden to [C:\Users\(removed)\Spacearr\config]
+2026-03-30 20:37:15.2|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\spacearr.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:37:15.2|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:37:15.2|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:37:15.2|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:37:15.3|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0398393s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0430344s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionMigration migrating
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|CreateTable VersionInfo
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "VersionInfo" ("Version" INTEGER NOT NULL)
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0195123s
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionMigration migrated
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0245181s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionUniqueMigration migrating
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex VersionInfo (Version)
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "UC_Version" ON "VersionInfo" ("Version" ASC)
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0019255s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|AlterTable VersionInfo
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 9.37E-05s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|CreateColumn VersionInfo AppliedOn DateTime
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|ALTER TABLE "VersionInfo" ADD COLUMN "AppliedOn" DATETIME
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014828s
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionUniqueMigration migrated
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0036864s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionDescriptionMigration migrating
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|AlterTable VersionInfo
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 1.71E-05s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|CreateColumn VersionInfo Description String
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|ALTER TABLE "VersionInfo" ADD COLUMN "Description" TEXT
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.001129s
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|VersionDescriptionMigration migrated
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0033587s
+2026-03-30 20:37:15.3|Info|FluentMigrator.Runner.MigrationRunner|1: InitialSetup migrating
+2026-03-30 20:37:15.3|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.3|Info|InitialSetup|Starting migration of Main DB to 1
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Config
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Config" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Key" TEXT NOT NULL UNIQUE, "Value" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012627s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Config (Key)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Config_Key" ON "Config" ("Key" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008992s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable RootFolders
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "RootFolders" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Path" TEXT NOT NULL UNIQUE)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009894s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex RootFolders (Path)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_RootFolders_Path" ON "RootFolders" ("Path" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009061s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Series
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Series" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "TvdbId" INTEGER NOT NULL UNIQUE, "TvRageId" INTEGER NOT NULL, "ImdbId" TEXT, "Title" TEXT NOT NULL, "TitleSlug" TEXT, "CleanTitle" TEXT NOT NULL, "Status" INTEGER NOT NULL, "Overview" TEXT, "AirTime" TEXT, "Images" TEXT NOT NULL, "Path" TEXT NOT NULL, "Monitored" INTEGER NOT NULL, "SeasonFolder" INTEGER NOT NULL, "LastInfoSync" DATETIME, "LastDiskSync" DATETIME, "Runtime" INTEGER NOT NULL, "SeriesType" INTEGER NOT NULL, "Network" TEXT, "UseSceneNumbering" INTEGER NOT NULL, "FirstAired" DATETIME, "NextAiring" DATETIME, "Year" INTEGER, "Seasons" TEXT, "Actors" TEXT, "Ratings" TEXT, "Genres" TEXT, "Certification" TEXT, "SortTitle" TEXT, "ProfileId" INTEGER, "Tags" TEXT, "Added" DATETIME, "AddOptions" TEXT, "TvMazeId" INTEGER NOT NULL DEFAULT 0)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0020589s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Series (TvdbId)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Series_TvdbId" ON "Series" ("TvdbId" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009183s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Movies
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Movies" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "ImdbId" TEXT NOT NULL UNIQUE, "Title" TEXT NOT NULL, "TitleSlug" TEXT NOT NULL UNIQUE, "SortTitle" TEXT, "CleanTitle" TEXT NOT NULL, "Status" INTEGER NOT NULL, "Overview" TEXT, "Images" TEXT NOT NULL, "Path" TEXT NOT NULL, "Monitored" INTEGER NOT NULL, "ProfileId" INTEGER NOT NULL, "LastInfoSync" DATETIME, "LastDiskSync" DATETIME, "Runtime" INTEGER NOT NULL, "InCinemas" DATETIME, "Year" INTEGER, "Added" DATETIME, "Actors" TEXT, "Ratings" TEXT, "Genres" TEXT, "Tags" TEXT, "Certification" TEXT, "AddOptions" TEXT)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0016493s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Movies (ImdbId)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Movies_ImdbId" ON "Movies" ("ImdbId" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008954s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Movies (TitleSlug)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Movies_TitleSlug" ON "Movies" ("TitleSlug" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008551s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Episodes
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Episodes" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "SeasonNumber" INTEGER NOT NULL, "EpisodeNumber" INTEGER NOT NULL, "Title" TEXT, "Overview" TEXT, "EpisodeFileId" INTEGER, "AirDate" TEXT, "AirDateUtc" DATETIME, "AbsoluteEpisodeNumber" INTEGER, "SceneAbsoluteEpisodeNumber" INTEGER, "SceneSeasonNumber" INTEGER, "SceneEpisodeNumber" INTEGER, "Monitored" INTEGER, "Ratings" TEXT, "Images" TEXT, "UnverifiedSceneNumbering" INTEGER NOT NULL DEFAULT 0)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0017772s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable EpisodeFiles
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "EpisodeFiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "Quality" TEXT NOT NULL, "Size" INTEGER NOT NULL, "DateAdded" DATETIME NOT NULL, "SeasonNumber" INTEGER NOT NULL, "SceneName" TEXT, "ReleaseGroup" TEXT, "MediaInfo" TEXT, "RelativePath" TEXT)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013037s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable History
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "History" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "EpisodeId" INTEGER NOT NULL, "SeriesId" INTEGER NOT NULL, "SourceTitle" TEXT NOT NULL, "Date" DATETIME NOT NULL, "Quality" TEXT NOT NULL, "Data" TEXT NOT NULL, "EventType" INTEGER, "DownloadId" TEXT)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012152s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex History (DownloadId)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_History_DownloadId" ON "History" ("DownloadId" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009062s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Notifications
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Notifications" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Name" TEXT NOT NULL, "OnGrab" INTEGER NOT NULL, "OnDownload" INTEGER NOT NULL, "Settings" TEXT NOT NULL, "Implementation" TEXT NOT NULL, "ConfigContract" TEXT, "OnUpgrade" INTEGER, "Tags" TEXT, "OnRename" INTEGER NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0051091s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable ScheduledTasks
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "ScheduledTasks" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "TypeName" TEXT NOT NULL UNIQUE, "Interval" INTEGER NOT NULL, "LastExecution" DATETIME NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011874s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex ScheduledTasks (TypeName)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_ScheduledTasks_TypeName" ON "ScheduledTasks" ("TypeName" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009775s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Indexers
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Indexers" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Name" TEXT NOT NULL UNIQUE, "Implementation" TEXT NOT NULL, "Settings" TEXT, "ConfigContract" TEXT, "EnableRss" INTEGER, "EnableSearch" INTEGER)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0035393s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Indexers (Name)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Indexers_Name" ON "Indexers" ("Name" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009333s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Profiles
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Profiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Name" TEXT NOT NULL UNIQUE, "Cutoff" INTEGER NOT NULL, "Items" TEXT NOT NULL, "Language" INTEGER)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011184s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Profiles (Name)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Profiles_Name" ON "Profiles" ("Name" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009225s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|ExecuteSqlStatement UPDATE "Profiles" SET "Language" = 1
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|UPDATE "Profiles" SET "Language" = 1
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011872s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable SceneMappings
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "SceneMappings" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "TvdbId" INTEGER NOT NULL, "SeasonNumber" INTEGER, "SearchTerm" TEXT NOT NULL, "ParseTerm" TEXT NOT NULL, "Title" TEXT, "Type" TEXT, "SceneSeasonNumber" INTEGER)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014291s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable NamingConfig
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "NamingConfig" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "MultiEpisodeStyle" INTEGER NOT NULL, "RenameEpisodes" INTEGER, "StandardEpisodeFormat" TEXT, "DailyEpisodeFormat" TEXT, "SeriesFolderFormat" TEXT, "SeasonFolderFormat" TEXT, "AnimeEpisodeFormat" TEXT, "ReplaceIllegalCharacters" INTEGER NOT NULL DEFAULT 1)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013351s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Blacklist
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Blacklist" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "EpisodeIds" TEXT NOT NULL, "SourceTitle" TEXT NOT NULL, "Quality" TEXT NOT NULL, "Date" DATETIME NOT NULL, "PublishedDate" DATETIME, "Size" INTEGER, "Protocol" INTEGER, "Indexer" TEXT, "Message" TEXT, "TorrentInfoHash" TEXT)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013097s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable QualityDefinitions
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "QualityDefinitions" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Quality" INTEGER NOT NULL UNIQUE, "Title" TEXT NOT NULL UNIQUE, "MinSize" NUMERIC, "MaxSize" NUMERIC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013103s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex QualityDefinitions (Quality)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_QualityDefinitions_Quality" ON "QualityDefinitions" ("Quality" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010025s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex QualityDefinitions (Title)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_QualityDefinitions_Title" ON "QualityDefinitions" ("Title" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009146s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Metadata
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Metadata" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Enable" INTEGER NOT NULL, "Name" TEXT NOT NULL, "Implementation" TEXT NOT NULL, "Settings" TEXT NOT NULL, "ConfigContract" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013053s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable MetadataFiles
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "MetadataFiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "Consumer" TEXT NOT NULL, "Type" INTEGER NOT NULL, "RelativePath" TEXT NOT NULL, "LastUpdated" DATETIME NOT NULL, "SeasonNumber" INTEGER, "EpisodeFileId" INTEGER, "Added" DATETIME, "Extension" TEXT NOT NULL, "Hash" TEXT)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014559s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable DownloadClients
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "DownloadClients" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Enable" INTEGER NOT NULL, "Name" TEXT NOT NULL, "Implementation" TEXT NOT NULL, "Settings" TEXT NOT NULL, "ConfigContract" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011955s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable PendingReleases
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "PendingReleases" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL DEFAULT 0, "Title" TEXT NOT NULL, "Added" DATETIME NOT NULL, "ParsedEpisodeInfo" TEXT NOT NULL, "Release" TEXT NOT NULL, "MovieId" INTEGER NOT NULL DEFAULT 0)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0015098s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable RemotePathMappings
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "RemotePathMappings" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Host" TEXT NOT NULL, "RemotePath" TEXT NOT NULL, "LocalPath" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010532s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Tags
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Tags" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Label" TEXT NOT NULL UNIQUE)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009798s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Tags (Label)
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Tags_Label" ON "Tags" ("Label" ASC)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009214s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Restrictions
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Restrictions" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Required" TEXT, "Preferred" TEXT, "Ignored" TEXT, "Tags" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010989s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable DelayProfiles
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "DelayProfiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "EnableUsenet" INTEGER NOT NULL, "EnableTorrent" INTEGER NOT NULL, "PreferredProtocol" INTEGER NOT NULL, "UsenetDelay" INTEGER NOT NULL, "TorrentDelay" INTEGER NOT NULL, "Order" INTEGER NOT NULL, "Tags" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.001259s
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|INSERT INTO "DelayProfiles" ("EnableUsenet", "EnableTorrent", "PreferredProtocol", "UsenetDelay", "TorrentDelay", "Order", "Tags") VALUES (1, 1, 1, 0, 0, 2147483647, '[]')
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Users
+2026-03-30 20:37:15.4|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Users" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Identifier" TEXT NOT NULL UNIQUE, "Username" TEXT NOT NULL UNIQUE, "Password" TEXT NOT NULL)
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012508s
+2026-03-30 20:37:15.4|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Users (Identifier)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Users_Identifier" ON "Users" ("Identifier" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012235s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Users (Username)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_Users_Username" ON "Users" ("Username" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011283s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Commands
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Commands" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Name" TEXT NOT NULL, "Body" TEXT NOT NULL, "Priority" INTEGER NOT NULL, "Status" INTEGER NOT NULL, "QueuedAt" DATETIME NOT NULL, "StartedAt" DATETIME, "EndedAt" DATETIME, "Duration" TEXT, "Exception" TEXT, "Trigger" INTEGER NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014161s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable IndexerStatus
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "IndexerStatus" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "IndexerId" INTEGER NOT NULL UNIQUE, "InitialFailure" DATETIME, "MostRecentFailure" DATETIME, "EscalationLevel" INTEGER NOT NULL, "DisabledTill" DATETIME, "LastRssSyncReleaseInfo" TEXT)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012401s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex IndexerStatus (IndexerId)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_IndexerStatus_IndexerId" ON "IndexerStatus" ("IndexerId" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013014s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable ExtraFiles
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "ExtraFiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "SeasonNumber" INTEGER NOT NULL, "EpisodeFileId" INTEGER NOT NULL, "RelativePath" TEXT NOT NULL, "Extension" TEXT NOT NULL, "Added" DATETIME NOT NULL, "LastUpdated" DATETIME NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014506s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable SubtitleFiles
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "SubtitleFiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "SeriesId" INTEGER NOT NULL, "SeasonNumber" INTEGER NOT NULL, "EpisodeFileId" INTEGER NOT NULL, "RelativePath" TEXT NOT NULL, "Extension" TEXT NOT NULL, "Added" DATETIME NOT NULL, "LastUpdated" DATETIME NOT NULL, "Language" INTEGER NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014051s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex History (Date)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_History_Date" ON "History" ("Date" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008854s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|-> 1 Insert operations completed in 00:00:00.0021506 taking an average of 00:00:00.0021506
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|INSERT INTO "VersionInfo" ("Version", "AppliedOn", "Description") VALUES (1, '2026-03-30T09:37:15', 'InitialSetup')
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|1: InitialSetup migrated
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0072455s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|250: spacearr_initial_schema migrating
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.5|Info|spacearr_initial_schema|Starting migration of Main DB to 250
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|AlterTable ScheduledTasks
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 3.3E-06s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateColumn ScheduledTasks LastStartTime DateTime
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|ALTER TABLE "ScheduledTasks" ADD COLUMN "LastStartTime" DATETIME
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013261s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable NotificationStatus
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "NotificationStatus" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "ProviderId" INTEGER NOT NULL, "InitialFailure" DATETIME, "MostRecentFailure" DATETIME, "EscalationLevel" INTEGER NOT NULL, "DisabledTill" DATETIME)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011556s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable CustomFilters
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "CustomFilters" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Type" TEXT NOT NULL, "Label" TEXT NOT NULL, "Filters" TEXT NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010715s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable UpdateHistory
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "UpdateHistory" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Date" DATETIME NOT NULL, "Version" TEXT NOT NULL, "EventType" INTEGER NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011712s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable MediaFiles
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "MediaFiles" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Path" TEXT NOT NULL UNIQUE, "SizeBytes" INTEGER NOT NULL, "BitrateBps" INTEGER NOT NULL, "Codec" TEXT, "Resolution" TEXT, "ResolutionWidth" INTEGER NOT NULL, "ResolutionHeight" INTEGER NOT NULL, "DurationSeconds" INTEGER NOT NULL, "ContainerFormat" TEXT, "LibraryPath" TEXT, "LastScanned" DATETIME NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013862s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex MediaFiles (Path)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "IX_MediaFiles_Path" ON "MediaFiles" ("Path" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009128s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable MediaItems
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "MediaItems" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "MediaFileId" INTEGER NOT NULL, "Source" INTEGER NOT NULL, "ExternalId" INTEGER NOT NULL, "Title" TEXT NOT NULL, "Year" INTEGER NOT NULL, "SeriesTitle" TEXT, "SeasonNumber" INTEGER, "EpisodeNumber" INTEGER, "QualityProfile" TEXT, "Monitored" INTEGER NOT NULL, "Tags" TEXT, "LastEnriched" DATETIME NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0014113s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable ScanJobs
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "ScanJobs" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "StartedAt" DATETIME NOT NULL, "CompletedAt" DATETIME, "Status" INTEGER NOT NULL, "FilesScanned" INTEGER NOT NULL, "FilesAdded" INTEGER NOT NULL, "FilesRemoved" INTEGER NOT NULL, "ErrorMessage" TEXT)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012152s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable ActionHistory
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "ActionHistory" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "ActionType" INTEGER NOT NULL, "MediaItemId" INTEGER, "Title" TEXT, "Details" TEXT, "OldQuality" TEXT, "NewQuality" TEXT, "SpaceFreedBytes" INTEGER NOT NULL, "Timestamp" DATETIME NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012922s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Recommendations
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Recommendations" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "MediaItemId" INTEGER NOT NULL, "RecommendationType" INTEGER NOT NULL, "CurrentSizeBytes" INTEGER NOT NULL, "EstimatedNewSizeBytes" INTEGER NOT NULL, "EstimatedSavingsBytes" INTEGER NOT NULL, "SuggestedQuality" TEXT, "Dismissed" INTEGER NOT NULL, "CreatedAt" DATETIME NOT NULL)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.001448s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Rules
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Rules" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Name" TEXT NOT NULL, "FilterCriteria" TEXT, "ActionType" INTEGER NOT NULL, "TargetQuality" TEXT, "Active" INTEGER NOT NULL, "LastEvaluated" DATETIME)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0011434s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex MediaFiles (LibraryPath)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_MediaFiles_LibraryPath" ON "MediaFiles" ("LibraryPath" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008931s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex MediaItems (MediaFileId)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_MediaItems_MediaFileId" ON "MediaItems" ("MediaFileId" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008879s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex MediaItems (ExternalId)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_MediaItems_ExternalId" ON "MediaItems" ("ExternalId" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009294s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex ActionHistory (Timestamp)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_ActionHistory_Timestamp" ON "ActionHistory" ("Timestamp" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009184s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Recommendations (MediaItemId)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_Recommendations_MediaItemId" ON "Recommendations" ("MediaItemId" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0009009s
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Recommendations (Dismissed)
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_Recommendations_Dismissed" ON "Recommendations" ("Dismissed" ASC)
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010783s
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|INSERT INTO "VersionInfo" ("Version", "AppliedOn", "Description") VALUES (250, '2026-03-30T09:37:15', 'spacearr_initial_schema')
+2026-03-30 20:37:15.5|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|250: spacearr_initial_schema migrated
+2026-03-30 20:37:15.5|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0043523s
+2026-03-30 20:37:15.6|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\logs.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:37:15.6|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0070258s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0077766s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionMigration migrating
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateTable VersionInfo
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "VersionInfo" ("Version" INTEGER NOT NULL)
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0010557s
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionMigration migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0043855s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionUniqueMigration migrating
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex VersionInfo (Version)
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE UNIQUE INDEX "UC_Version" ON "VersionInfo" ("Version" ASC)
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0012449s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|AlterTable VersionInfo
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 4E-06s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateColumn VersionInfo AppliedOn DateTime
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|ALTER TABLE "VersionInfo" ADD COLUMN "AppliedOn" DATETIME
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013567s
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionUniqueMigration migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0038906s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionDescriptionMigration migrating
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|AlterTable VersionInfo
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 2.7E-06s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateColumn VersionInfo Description String
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|ALTER TABLE "VersionInfo" ADD COLUMN "Description" TEXT
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0019816s
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|VersionDescriptionMigration migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0047252s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|1: InitialSetup migrating
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.6|Info|InitialSetup|Starting migration of Log DB to 1
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateTable Logs
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE TABLE "Logs" ("Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "Message" TEXT NOT NULL, "Time" DATETIME NOT NULL, "Logger" TEXT NOT NULL, "Exception" TEXT, "ExceptionType" TEXT, "Level" TEXT NOT NULL)
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0013037s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|CreateIndex Logs (Time)
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|CREATE INDEX "IX_Logs_Time" ON "Logs" ("Time" ASC)
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0008872s
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|INSERT INTO "VersionInfo" ("Version", "AppliedOn", "Description") VALUES (1, '2026-03-30T09:37:15', 'InitialSetup')
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|1: InitialSetup migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.004587s
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|250: spacearr_initial_schema migrating
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Beginning Transaction
+2026-03-30 20:37:15.6|Info|spacearr_initial_schema|Starting migration of Log DB to 250
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|INSERT INTO "VersionInfo" ("Version", "AppliedOn", "Description") VALUES (250, '2026-03-30T09:37:15', 'spacearr_initial_schema')
+2026-03-30 20:37:15.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Committing Transaction
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|250: spacearr_initial_schema migrated
+2026-03-30 20:37:15.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0053843s
+2026-03-30 20:37:15.8|Info|Microsoft.Hosting.Lifetime|Now listening on: http://[::]:8787
+2026-03-30 20:37:15.9|Info|CommandExecutor|Starting 2 threads for tasks.
+2026-03-30 20:37:15.9|Info|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
+2026-03-30 20:37:15.9|Info|Microsoft.Hosting.Lifetime|Hosting environment: Production
+2026-03-30 20:37:15.9|Info|Microsoft.Hosting.Lifetime|Content root path: C:\Users\(removed)\Spacearr\_output\net8.0
+2026-03-30 20:37:16.1|Info|ManagedHttpDispatcher|IPv4 is available: True, IPv6 will be disabled
+2026-03-30 20:37:16.1|Error|ServerSideNotificationService|Failed to retrieve notifications
+
+[v10.0.0.37083] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.Execute(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 128
+   at NzbDrone.Core.HealthCheck.ServerSideNotificationService.RetrieveServerChecks() in ./NzbDrone.Core/HealthCheck/ServerSideNotificationService.cs:line 61
+
+
+2026-03-30 20:37:16.1|Warn|SystemTimeCheck|Unable to verify system time
+
+[v10.0.0.37083] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.Execute(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 128
+   at NzbDrone.Core.HealthCheck.Checks.SystemTimeCheck.Check() in ./NzbDrone.Core/HealthCheck/Checks/SystemTimeCheck.cs:line 32
+
+
+2026-03-30 20:37:24.4|Warn|UpdateHistoryService|Failed to determine previously installed version
+
+[v10.0.0.37083] code = Error (1), message = System.Data.SQLite.SQLiteException (0x87AF001F): SQL logic error
+no such table: UpdateHistory
+   at System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   at System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   at System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   at System.Data.SQLite.SQLiteDataReader.NextResult()
+   at System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   at System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SQLite.SQLiteCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1185
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1213
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 844
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, String sql, Object param) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 11
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, SqlBuilder builder) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 140
+   at NzbDrone.Core.Datastore.BasicRepository`1.Query(SqlBuilder builder) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 96
+   at NzbDrone.Core.Datastore.BasicRepository`1.Query(Expression`1 where) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 98
+   at NzbDrone.Core.Update.History.UpdateHistoryRepository.PreviouslyInstalled() in ./NzbDrone.Core/Update/History/UpdateHistoryRepository.cs:line 35
+   at NzbDrone.Core.Update.History.UpdateHistoryService.PreviouslyInstalled() in ./NzbDrone.Core/Update/History/UpdateHistoryService.cs:line 38
+SQL: 
+==== Begin Query Trace ====
+
+QUERY TEXT:
+SELECT "UpdateHistory".*
+ FROM "UpdateHistory"    WHERE ("UpdateHistory"."EventType" = @Clause1_P1)
+   
+
+PARAMETERS:
+Clause1_P1 = [2]
+
+==== End Query Trace ====
+
+
+
+2026-03-30 20:37:24.5|Fatal|SpacearrErrorPipeline|Request Failed. GET /api/v3/update
+
+[v10.0.0.37083] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.GetAsync[T](HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 333
+   at NzbDrone.Common.Http.HttpClient.Get[T](HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 341
+   at NzbDrone.Core.Update.UpdatePackageProvider.GetRecentUpdates(String branch, Version currentVersion, Version previousVersion) in ./NzbDrone.Core/Update/UpdatePackageProvider.cs:line 71
+   at NzbDrone.Core.Update.RecentUpdateProvider.GetRecentUpdatePackages() in ./NzbDrone.Core/Update/RecentUpdateProvider.cs:line 33
+   at Spacearr.Api.V1.Update.UpdateController.GetRecentUpdates() in ./Spacearr.Api.V1/Update/UpdateController.cs:line 29
+   at lambda_method14(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Spacearr.Http.Middleware.BufferingMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/BufferingMiddleware.cs:line 27
+   at Spacearr.Http.Middleware.IfModifiedMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/IfModifiedMiddleware.cs:line 40
+   at Spacearr.Http.Middleware.CacheHeaderMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/CacheHeaderMiddleware.cs:line 32
+   at Spacearr.Http.Middleware.StartingUpMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/StartingUpMiddleware.cs:line 37
+   at Spacearr.Http.Middleware.UrlBaseMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/UrlBaseMiddleware.cs:line 28
+   at Spacearr.Http.Middleware.VersionMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/VersionMiddleware.cs:line 28
+   at Microsoft.AspNetCore.ResponseCompression.ResponseCompressionMiddleware.InvokeCore(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+
+
+2026-03-30 20:37:24.5|Warn|UpdateHistoryService|Failed to determine previously installed version
+
+[v10.0.0.37083] code = Error (1), message = System.Data.SQLite.SQLiteException (0x87AF001F): SQL logic error
+no such table: UpdateHistory
+   at System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   at System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   at System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   at System.Data.SQLite.SQLiteDataReader.NextResult()
+   at System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   at System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SQLite.SQLiteCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1185
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1213
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 844
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, String sql, Object param) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 11
+   at NzbDrone.Core.Datastore.SqlMapperExtensions.Query[T](IDatabase db, SqlBuilder builder) in ./NzbDrone.Core/Datastore/Extensions/SqlMapperExtensions.cs:line 140
+   at NzbDrone.Core.Datastore.BasicRepository`1.Query(SqlBuilder builder) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 96
+   at NzbDrone.Core.Datastore.BasicRepository`1.Query(Expression`1 where) in ./NzbDrone.Core/Datastore/BasicRepository.cs:line 98
+   at NzbDrone.Core.Update.History.UpdateHistoryRepository.PreviouslyInstalled() in ./NzbDrone.Core/Update/History/UpdateHistoryRepository.cs:line 35
+   at NzbDrone.Core.Update.History.UpdateHistoryService.PreviouslyInstalled() in ./NzbDrone.Core/Update/History/UpdateHistoryService.cs:line 38
+SQL: 
+==== Begin Query Trace ====
+
+QUERY TEXT:
+SELECT "UpdateHistory".*
+ FROM "UpdateHistory"    WHERE ("UpdateHistory"."EventType" = @Clause1_P1)
+   
+
+PARAMETERS:
+Clause1_P1 = [2]
+
+==== End Query Trace ====
+
+
+
+2026-03-30 20:37:24.5|Fatal|SpacearrErrorPipeline|Request Failed. GET /api/v3/update
+
+[v10.0.0.37083] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.GetAsync[T](HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 333
+   at NzbDrone.Common.Http.HttpClient.Get[T](HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 341
+   at NzbDrone.Core.Update.UpdatePackageProvider.GetRecentUpdates(String branch, Version currentVersion, Version previousVersion) in ./NzbDrone.Core/Update/UpdatePackageProvider.cs:line 71
+   at NzbDrone.Core.Update.RecentUpdateProvider.GetRecentUpdatePackages() in ./NzbDrone.Core/Update/RecentUpdateProvider.cs:line 33
+   at Spacearr.Api.V1.Update.UpdateController.GetRecentUpdates() in ./Spacearr.Api.V1/Update/UpdateController.cs:line 29
+   at lambda_method14(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Spacearr.Http.Middleware.BufferingMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/BufferingMiddleware.cs:line 27
+   at Spacearr.Http.Middleware.IfModifiedMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/IfModifiedMiddleware.cs:line 40
+   at Spacearr.Http.Middleware.CacheHeaderMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/CacheHeaderMiddleware.cs:line 32
+   at Spacearr.Http.Middleware.StartingUpMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/StartingUpMiddleware.cs:line 37
+   at Spacearr.Http.Middleware.UrlBaseMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/UrlBaseMiddleware.cs:line 28
+   at Spacearr.Http.Middleware.VersionMiddleware.InvokeAsync(HttpContext context) in ./Spacearr.Http/Middleware/VersionMiddleware.cs:line 28
+   at Microsoft.AspNetCore.ResponseCompression.ResponseCompressionMiddleware.InvokeCore(HttpContext context)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+
+
