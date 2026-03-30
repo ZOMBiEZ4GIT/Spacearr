@@ -72,8 +72,7 @@ namespace NzbDrone.Core.Datastore.Migration
                   .WithColumn("Active").AsBoolean().NotNullable()
                   .WithColumn("LastEvaluated").AsDateTime().Nullable();
 
-            // Indexes
-            Create.Index("IX_MediaFiles_Path").OnTable("MediaFiles").OnColumn("Path");
+            // Indexes (Path already has unique index from .Unique() above)
             Create.Index("IX_MediaFiles_LibraryPath").OnTable("MediaFiles").OnColumn("LibraryPath");
             Create.Index("IX_MediaItems_MediaFileId").OnTable("MediaItems").OnColumn("MediaFileId");
             Create.Index("IX_MediaItems_ExternalId").OnTable("MediaItems").OnColumn("ExternalId");
