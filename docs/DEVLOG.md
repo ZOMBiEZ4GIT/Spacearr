@@ -44,3 +44,21 @@ Created 18 files under `src/NzbDrone.Core/Spacearr/`:
 Build: 0 errors, 0 warnings.
 
 ---
+
+## 2026-03-30 — Phases 2+3 Complete: Scanner & ARR Integration
+
+**Phase 2 — Filesystem Scanner** (5 files in `Spacearr/Scanner/`):
+- FileDiscoveryService: walks root folders, filters 9 media extensions
+- MediaInfoExtractor: wraps `mediainfo --Output=JSON` with ffprobe fallback, caches tool availability
+- FileScannerService: full scan orchestration with incremental support (compares file mod time vs LastScanned)
+- ScanLibraryCommand + Handler: NzbDrone command pattern, registered as 6h scheduled task
+
+**Phase 3 — ARR Integration** (8 files in `Spacearr/ArrIntegration/`):
+- RadarrApiClient + SonarrApiClient: v3 API clients with search, quality profile update, connection test
+- FileMatchingService: path-normalized O(1) matching of scanned files to ARR items
+- EnrichmentService: fetch all items from ARR, match to MediaFiles, create/update MediaItem records
+- QualityProfileCache: thread-safe in-memory ID→name cache with source prefixes
+
+Build: 0 errors, 0 warnings.
+
+---

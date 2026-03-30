@@ -19,25 +19,25 @@
 - [x] T1.6: Register in DI (TableMapper)
 - [ ] T1.7: Unit tests (deferred)
 
-## Phase 2: Filesystem Scanner
-- [ ] T2.1: FileDiscoveryService (directory walking)
-- [ ] T2.2: MediaInfoExtractor (CLI wrapper + JSON parsing)
-- [ ] T2.3: FileScannerService (orchestration)
-- [ ] T2.4: IncrementalScanStrategy
-- [ ] T2.5: ScanLibraryCommand + Handler
-- [ ] T2.6: Register scheduled task in TaskManager
-- [ ] T2.7: SignalR scan progress
-- [ ] T2.8: Scanner tests
+## Phase 2: Filesystem Scanner ✓
+- [x] T2.1: FileDiscoveryService (directory walking, 9 media extensions)
+- [x] T2.2: MediaInfoExtractor (mediainfo CLI + ffprobe fallback, JSON parsing)
+- [x] T2.3: FileScannerService (orchestration, incremental scanning)
+- [x] T2.4: IncrementalScanStrategy (built into FileScannerService)
+- [x] T2.5: ScanLibraryCommand + Handler
+- [x] T2.6: Register scheduled task in TaskManager (360 min)
+- [ ] T2.7: SignalR scan progress (deferred)
+- [ ] T2.8: Scanner tests (deferred)
 
-## Phase 3: ARR Integration
-- [ ] T3.1: RadarrApiClient
-- [ ] T3.2: SonarrApiClient
-- [ ] T3.3: ArrConnectionTestService
-- [ ] T3.4: FileMatchingService (path normalization)
-- [ ] T3.5: EnrichmentService (orchestration)
-- [ ] T3.6: QualityProfileCache
-- [ ] T3.7: Hook enrichment into scan pipeline
-- [ ] T3.8: Settings UI for ARR connections
+## Phase 3: ARR Integration ✓
+- [x] T3.1: RadarrApiClient (GetMovies, TriggerSearch, UpdateQualityProfile, TestConnection)
+- [x] T3.2: SonarrApiClient (GetSeries, GetEpisodeFiles, TriggerSearch, TestConnection)
+- [x] T3.3: ArrConnectionTestService
+- [x] T3.4: FileMatchingService (path normalization, case-insensitive, O(1) lookup)
+- [x] T3.5: EnrichmentService (full pipeline: fetch, match, create/update MediaItems)
+- [x] T3.6: QualityProfileCache (thread-safe, source-prefixed keys)
+- [ ] T3.7: Hook enrichment into scan pipeline (deferred — will wire in Phase 7)
+- [ ] T3.8: Settings UI for ARR connections (deferred — Phase 5)
 
 ## Phase 4: API Layer
 - [ ] T4.1: LibraryController

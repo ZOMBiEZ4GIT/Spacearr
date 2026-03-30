@@ -11,6 +11,7 @@ using NzbDrone.Core.Housekeeping;
 using NzbDrone.Core.Lifecycle;
 using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Messaging.Events;
+using NzbDrone.Core.Spacearr.Scanner;
 using NzbDrone.Core.Update.Commands;
 
 namespace NzbDrone.Core.Jobs
@@ -82,6 +83,12 @@ namespace NzbDrone.Core.Jobs
                     {
                         Interval = 24 * 60,
                         TypeName = typeof(HousekeepingCommand).FullName
+                    },
+
+                    new ScheduledTask
+                    {
+                        Interval = 6 * 60,
+                        TypeName = typeof(ScanLibraryCommand).FullName
                     },
 
                     new ScheduledTask
