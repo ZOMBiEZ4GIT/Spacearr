@@ -16,6 +16,7 @@ interface TreemapProps {
 function Treemap({ items, colorMode, onItemClick }: TreemapProps) {
   const [measureRef, bounds] = useMeasure();
   const [currentGroup, setCurrentGroup] = useState<string | null>(null);
+  const [currentSubGroup, setCurrentSubGroup] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState>({
     item: null,
     x: 0,
@@ -30,10 +31,10 @@ function Treemap({ items, colorMode, onItemClick }: TreemapProps) {
       return null;
     }
 
-    const rootData = buildTreemapData(items, currentGroup);
+    const rootData = buildTreemapData(items, currentGroup, currentSubGroup);
 
     return computeTreemapLayout(rootData, width, height);
-  }, [items, width, height, currentGroup]);
+  }, [items, width, height, currentGroup, currentSubGroup]);
 
   const leafNodes = useMemo(() => {
     if (!layout) {
@@ -44,12 +45,12 @@ function Treemap({ items, colorMode, onItemClick }: TreemapProps) {
   }, [layout]);
 
   const groupNodes = useMemo(() => {
-    if (!layout || currentGroup) {
+    if (!layout || (currentGroup && currentSubGroup)) {
       return [];
     }
 
     return getGroupNodes(layout);
-  }, [layout, currentGroup]);
+  }, [layout, currentGroup, currentSubGroup]);
 
   const handleHover = useCallback(
     (item: TreemapItem | null, x: number, y: number) => {
@@ -74,14 +75,30 @@ function Treemap({ items, colorMode, onItemClick }: TreemapProps) {
 
   const handleGroupClick = useCallback(
     (groupName: string) => {
-      setCurrentGroup(groupName);
+      if (currentGroup) {
+        // Already drilled into a series, now drilling into a season
+        setCurrentSubGroup(groupName);
+      } else {
+        setCurrentGroup(groupName);
+      }
     },
-    []
+    [currentGroup]
   );
 
   const handleBreadcrumbNavigate = useCallback(
-    (group: string | null) => {
-      setCurrentGroup(group);
+    (group: string | null, subGroup?: string | null) => {
+      if (group === null) {
+        // Navigate to root
+        setCurrentGroup(null);
+        setCurrentSubGroup(null);
+      } else if (subGroup === undefined || subGroup === null) {
+        // Navigate to series level
+        setCurrentGroup(group);
+        setCurrentSubGroup(null);
+      } else {
+        setCurrentGroup(group);
+        setCurrentSubGroup(subGroup);
+      }
     },
     []
   );
@@ -90,6 +107,7 @@ function Treemap({ items, colorMode, onItemClick }: TreemapProps) {
     <div className={styles.container}>
       <TreemapBreadcrumb
         currentGroup={currentGroup}
+        currentSubGroup={currentSubGroup}
         onNavigate={handleBreadcrumbNavigate}
       />
 

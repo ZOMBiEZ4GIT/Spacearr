@@ -2397,3 +2397,85 @@ Clause1_P1 = [2]
 
 
 2026-03-30 20:44:25.6|Debug|Api|[GET] /api/v3/update: 500.InternalServerError (33 ms)
+2026-03-30 20:49:08.4|Debug|ProcessProvider|Found 1 processes with the name: Spacearr.Console
+2026-03-30 20:49:08.4|Debug|ProcessProvider| - [765248] Spacearr.Console
+2026-03-30 20:49:08.5|Debug|ProcessProvider|Found 0 processes with the name: Spacearr
+2026-03-30 20:49:08.5|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\spacearr.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:49:08.6|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:49:08.6|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:49:08.6|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:49:08.6|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:49:08.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.041228s
+2026-03-30 20:49:08.6|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:49:08.6|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0445617s
+2026-03-30 20:49:08.7|Debug|MigrationController|Took: 00:00:00.1244685
+2026-03-30 20:49:08.7|Info|MigrationController|*** Migrating data source=C:\Users\(removed)\Spacearr\config\logs.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=100 ***
+2026-03-30 20:49:08.7|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-03-30 20:49:08.7|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-03-30 20:49:08.7|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-03-30 20:49:08.7|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-03-30 20:49:08.7|Info|FluentMigrator.Runner.MigrationRunner|=> 0.01401s
+2026-03-30 20:49:08.7|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-03-30 20:49:08.7|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0146809s
+2026-03-30 20:49:08.7|Debug|MigrationController|Took: 00:00:00.0283576
+2026-03-30 20:49:08.8|Info|Microsoft.Hosting.Lifetime|Now listening on: http://[::]:8787
+2026-03-30 20:49:08.8|Debug|NotificationFactory|Initializing Providers. Count 21
+2026-03-30 20:49:08.9|Info|CommandExecutor|Starting 2 threads for tasks.
+2026-03-30 20:49:09.0|Info|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
+2026-03-30 20:49:09.0|Info|Microsoft.Hosting.Lifetime|Hosting environment: Production
+2026-03-30 20:49:09.0|Info|Microsoft.Hosting.Lifetime|Content root path: C:\Users\(removed)\Spacearr\_output\net8.0
+2026-03-30 20:49:09.1|Info|ManagedHttpDispatcher|IPv4 is available: True, IPv6 will be disabled
+2026-03-30 20:49:09.1|Error|ServerSideNotificationService|Failed to retrieve notifications
+
+[v10.0.0.37330] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.Execute(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 128
+   at NzbDrone.Core.HealthCheck.ServerSideNotificationService.RetrieveServerChecks() in ./NzbDrone.Core/HealthCheck/ServerSideNotificationService.cs:line 61
+
+
+2026-03-30 20:49:09.2|Warn|SystemTimeCheck|Unable to verify system time
+
+[v10.0.0.37330] System.Net.Http.HttpRequestException: No such host is known. (spacearr.servarr.com:443)
+ ---> System.Net.Sockets.SocketException (11001): No such host is known.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.attemptConnection(AddressFamily addressFamily, SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 326
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 312
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp2ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at NzbDrone.Common.Http.Dispatchers.ManagedHttpDispatcher.GetResponseAsync(HttpRequest request, CookieContainer cookies) in ./NzbDrone.Common/Http/Dispatchers/ManagedHttpDispatcher.cs:line 115
+   at NzbDrone.Common.Http.HttpClient.ExecuteRequestAsync(HttpRequest request, CookieContainer cookieContainer) in ./NzbDrone.Common/Http/HttpClient.cs:line 157
+   at NzbDrone.Common.Http.HttpClient.ExecuteAsync(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 70
+   at NzbDrone.Common.Http.HttpClient.Execute(HttpRequest request) in ./NzbDrone.Common/Http/HttpClient.cs:line 128
+   at NzbDrone.Core.HealthCheck.Checks.SystemTimeCheck.Check() in ./NzbDrone.Core/HealthCheck/Checks/SystemTimeCheck.cs:line 32
+
+
+2026-03-30 20:49:09.5|Debug|Api|[GET] /api/v3/command: 200.OK (45 ms)
+2026-03-30 20:49:09.5|Debug|Api|[GET] /api/v3/health: 200.OK (44 ms)

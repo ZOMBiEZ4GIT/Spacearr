@@ -69,10 +69,15 @@ function mapResourceToLibraryItem(resource: LibraryResource): LibraryItem {
     qualityProfile: resource.qualityProfile,
     monitored: resource.monitored,
     posterUrl: resource.posterUrl,
+    seriesTitle: resource.seriesTitle,
+    seasonNumber: resource.seasonNumber,
+    episodeNumber: resource.episodeNumber,
   };
 }
 
 function libraryItemToTreemapItem(item: LibraryItem): TreemapItem {
+  const isTv = item.source === 'sonarr';
+
   return {
     id: item.id,
     title: item.title,
@@ -82,7 +87,8 @@ function libraryItemToTreemapItem(item: LibraryItem): TreemapItem {
     resolution: item.resolution,
     qualityProfile: item.qualityProfile ?? item.quality,
     source: item.source,
-    parentGroup: item.source,
+    parentGroup: isTv && item.seriesTitle ? item.seriesTitle : null,
+    subGroup: isTv && item.seasonNumber != null ? `Season ${String(item.seasonNumber).padStart(2, '0')}` : undefined,
     posterUrl: item.posterUrl,
   };
 }

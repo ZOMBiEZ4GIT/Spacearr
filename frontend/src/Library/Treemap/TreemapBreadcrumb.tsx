@@ -3,13 +3,18 @@ import styles from './TreemapBreadcrumb.css';
 
 interface TreemapBreadcrumbProps {
   currentGroup: string | null;
-  onNavigate: (group: string | null) => void;
+  currentSubGroup?: string | null;
+  onNavigate: (group: string | null, subGroup?: string | null) => void;
 }
 
-function TreemapBreadcrumb({ currentGroup, onNavigate }: TreemapBreadcrumbProps) {
+function TreemapBreadcrumb({ currentGroup, currentSubGroup, onNavigate }: TreemapBreadcrumbProps) {
   const handleRootClick = useCallback(() => {
     onNavigate(null);
   }, [onNavigate]);
+
+  const handleGroupClick = useCallback(() => {
+    onNavigate(currentGroup, null);
+  }, [onNavigate, currentGroup]);
 
   return (
     <div className={styles.breadcrumb}>
@@ -23,7 +28,21 @@ function TreemapBreadcrumb({ currentGroup, onNavigate }: TreemapBreadcrumbProps)
             All
           </button>
           <span className={styles.separator}>&rsaquo;</span>
-          <span className={styles.current}>{currentGroup}</span>
+          {currentSubGroup ? (
+            <>
+              <button
+                className={styles.segment}
+                onClick={handleGroupClick}
+                type="button"
+              >
+                {currentGroup}
+              </button>
+              <span className={styles.separator}>&rsaquo;</span>
+              <span className={styles.current}>{currentSubGroup}</span>
+            </>
+          ) : (
+            <span className={styles.current}>{currentGroup}</span>
+          )}
         </>
       ) : (
         <span className={styles.current}>All</span>
