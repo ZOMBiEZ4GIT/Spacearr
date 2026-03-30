@@ -36,21 +36,82 @@ function aggregateSmallItems(items: TreemapItem[]): TreemapItem[] {
 }
 
 // Build hierarchical data structure for d3.treemap
+// Supports two-level drill-down: Series > Season > Episode
 export function buildTreemapData(
   items: TreemapItem[],
-  drillGroup: string | null = null
+  drillGroup: string | null = null,
+  drillSubGroup: string | null = null
 ): TreemapNode {
   const processedItems = aggregateSmallItems(items);
 
-  // Filter to drilled-in group if applicable
-  const filteredItems = drillGroup
-    ? processedItems.filter((item) => item.parentGroup === drillGroup)
-    : processedItems;
+  // Level 2: drilled into a specific season within a series
+  if (drillGroup && drillSubGroup) {
+    const filteredItems = processedItems.filter(
+      (item) => item.parentGroup === drillGroup && item.subGroup === drillSubGroup
+    );
 
-  // Group items by parentGroup
+    return {
+      name: `${drillGroup} > ${drillSubGroup}`,
+      children: filteredItems.map((item) => ({
+        name: item.title,
+        value: Math.max(item.sizeBytes, 1),
+        data: item,
+      })),
+    };
+  }
+
+  // Level 1: drilled into a specific series, show seasons as sub-groups
+  if (drillGroup) {
+    const filteredItems = processedItems.filter(
+      (item) => item.parentGroup === drillGroup
+    );
+
+    // Group by subGroup (season)
+    const subGroups = new Map<string, TreemapItem[]>();
+
+    for (const item of filteredItems) {
+      const subKey = item.subGroup || item.title;
+
+      if (!subGroups.has(subKey)) {
+        subGroups.set(subKey, []);
+      }
+
+      subGroups.get(subKey)!.push(item);
+    }
+
+    const children: TreemapNode[] = [];
+
+    for (const [subGroupName, subGroupItems] of subGroups) {
+      if (subGroupItems.length === 1 && !subGroupItems[0].subGroup) {
+        // Single item without a sub-group
+        children.push({
+          name: subGroupItems[0].title,
+          value: Math.max(subGroupItems[0].sizeBytes, 1),
+          data: subGroupItems[0],
+        });
+      } else {
+        // Season group with episode children
+        children.push({
+          name: subGroupName,
+          children: subGroupItems.map((item) => ({
+            name: item.title,
+            value: Math.max(item.sizeBytes, 1),
+            data: item,
+          })),
+        });
+      }
+    }
+
+    return {
+      name: drillGroup,
+      children,
+    };
+  }
+
+  // Level 0: top level — movies as individual items, series as groups
   const groups = new Map<string, TreemapItem[]>();
 
-  for (const item of filteredItems) {
+  for (const item of processedItems) {
     const groupKey = item.parentGroup || item.title;
 
     if (!groups.has(groupKey)) {
@@ -60,19 +121,18 @@ export function buildTreemapData(
     groups.get(groupKey)!.push(item);
   }
 
-  // Build hierarchy: root -> groups -> items
   const children: TreemapNode[] = [];
 
   for (const [groupName, groupItems] of groups) {
     if (groupItems.length === 1 && !groupItems[0].parentGroup) {
-      // Single standalone item (no group)
+      // Single standalone item (movie with no group)
       children.push({
         name: groupItems[0].title,
         value: Math.max(groupItems[0].sizeBytes, 1),
         data: groupItems[0],
       });
     } else {
-      // Group with children
+      // Series group with children
       children.push({
         name: groupName,
         children: groupItems.map((item) => ({
@@ -85,7 +145,7 @@ export function buildTreemapData(
   }
 
   return {
-    name: drillGroup || 'All',
+    name: 'All',
     children,
   };
 }

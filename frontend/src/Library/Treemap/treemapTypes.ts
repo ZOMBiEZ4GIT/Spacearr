@@ -8,6 +8,7 @@ export interface TreemapItem {
   qualityProfile: string;
   source: string;
   parentGroup: string | null;
+  subGroup?: string;
   posterUrl?: string;
 }
 
@@ -43,4 +44,5 @@ export interface TooltipState {
 export interface ZoomState {
   path: string[];
   currentGroup: string | null;
+  currentSubGroup: string | null;
 }
