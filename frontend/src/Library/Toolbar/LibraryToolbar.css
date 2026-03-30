@@ -1,0 +1,113 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: var(--toolbarBackgroundColor);
+  border-bottom: 1px solid var(--borderColor);
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.filterButton {
+  padding: 4px 12px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--textColor);
+  cursor: pointer;
+  font-size: $smallFontSize;
+  transition: all 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.filterButtonActive {
+  composes: filterButton;
+  background-color: var(--primaryColor);
+  border-color: var(--primaryColor);
+  color: #fff;
+}
+
+.colorByGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.colorByLabel {
+  color: var(--disabledColor);
+  font-size: $smallFontSize;
+}
+
+.colorBySelect {
+  padding: 4px 8px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: var(--inputBackgroundColor);
+  color: var(--textColor);
+  font-size: $smallFontSize;
+}
+
+.minSizeGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.minSizeLabel {
+  color: var(--disabledColor);
+  font-size: $smallFontSize;
+  white-space: nowrap;
+}
+
+.minSizeInput {
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: var(--inputBackgroundColor);
+  color: var(--textColor);
+  font-size: $smallFontSize;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.scanButton {
+  padding: 4px 12px;
+  border: 1px solid var(--successColor);
+  border-radius: 4px;
+  background-color: var(--successColor);
+  color: #fff;
+  cursor: pointer;
+  font-size: $smallFontSize;
+  font-weight: 600;
+  transition: opacity 150ms;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.bulkButton {
+  padding: 4px 12px;
+  border: 1px solid var(--borderColor);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--textColor);
+  cursor: pointer;
+  font-size: $smallFontSize;
+  transition: background-color 150ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}

@@ -1,0 +1,55 @@
+.row {
+  cursor: pointer;
+  transition: background-color 200ms;
+
+  &:hover {
+    background-color: var(--tableRowHoverBackgroundColor);
+  }
+}
+
+.cell {
+  padding: 8px 12px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.checkboxCell {
+  composes: cell;
+  width: 36px;
+  text-align: center;
+}
+
+.titleCell {
+  composes: cell;
+  min-width: 200px;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 2px;
+  color: var(--disabledColor);
+  font-size: $smallFontSize;
+}
+
+.sizeCell {
+  composes: cell;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.bitrateCell {
+  composes: cell;
+  text-align: center;
+}
+
+.qualityCell {
+  composes: cell;
+}
+
+.sourceCell {
+  composes: cell;
+  text-align: center;
+}

@@ -1,0 +1,35 @@
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: $smallFontSize;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.low {
+  composes: badge;
+  background-color: #2d8a4e;
+}
+
+.mediumLow {
+  composes: badge;
+  background-color: #6e8b3d;
+}
+
+.medium {
+  composes: badge;
+  background-color: #c4a43e;
+}
+
+.mediumHigh {
+  composes: badge;
+  background-color: #f5a623;
+}
+
+.high {
+  composes: badge;
+  background-color: #e94560;
+}

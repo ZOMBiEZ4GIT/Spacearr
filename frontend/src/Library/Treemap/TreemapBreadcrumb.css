@@ -1,0 +1,33 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background-color: var(--cardBackgroundColor);
+  color: #ccc;
+  font-size: 12px;
+}
+
+.segment {
+  padding: 2px 4px;
+  border: none;
+  border-radius: 2px;
+  background: none;
+  color: var(--themeLightColor);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.segment:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.separator {
+  color: #666;
+}
+
+.current {
+  color: #eee;
+  font-weight: 600;
+}

@@ -1,0 +1,38 @@
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 320px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background-color: rgba(30, 30, 35, 0.96);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  color: #e1e1e1;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.title {
+  margin-bottom: 6px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 1px 0;
+}
+
+.label {
+  color: #999;
+}
+
+.value {
+  color: #ddd;
+  font-weight: 500;
+}

@@ -1,0 +1,99 @@
+.panel {
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  margin-bottom: 8px;
+  color: var(--textColor);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.statLabel {
+  color: var(--disabledColor);
+}
+
+.statValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legendBar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #2d8a4e, #6e8b3d, #c4a43e, #f5a623, #e94560);
+}
+
+.legendLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  color: var(--disabledColor);
+  font-size: $extraSmallFontSize;
+}
+
+.qualityRow {
+  margin-bottom: 8px;
+}
+
+.qualityLabel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: $smallFontSize;
+}
+
+.qualityName {
+  color: var(--textColor);
+}
+
+.qualitySize {
+  color: var(--disabledColor);
+  font-variant-numeric: tabular-nums;
+}
+
+.qualityBar {
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--progressBarBackgroundColor);
+  overflow: hidden;
+}
+
+.qualityBarFill {
+  height: 100%;
+  border-radius: 3px;
+  background-color: var(--primaryColor);
+  transition: width 300ms;
+}
+
+.quickWinItem {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: var(--tableRowHoverBackgroundColor);
+}
+
+.quickWinTitle {
+  font-size: $smallFontSize;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.quickWinSavings {
+  color: #2d8a4e;
+  font-size: $smallFontSize;
+  font-weight: 600;
+}

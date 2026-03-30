@@ -1,0 +1,41 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.tableContainer {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+}
+
+.statsPanel {
+  flex: 0 0 220px;
+  overflow-y: auto;
+  border-left: 1px solid var(--borderColor);
+}
+
+.treemapContainer {
+  flex: 0 0 300px;
+  border-top: 1px solid var(--borderColor);
+  background-color: var(--tableBackgroundColor);
+}
+
+@media only screen and (max-width: $breakpointMedium) {
+  .mainContent {
+    flex-direction: column;
+  }
+
+  .statsPanel {
+    flex: 0 0 auto;
+    border-left: none;
+    border-top: 1px solid var(--borderColor);
+  }
+}

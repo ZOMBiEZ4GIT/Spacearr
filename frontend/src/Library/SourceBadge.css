@@ -1,0 +1,22 @@
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: $smallFontSize;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.radarr {
+  composes: badge;
+  background-color: #ffc230;
+  color: #1a1a1a;
+}
+
+.sonarr {
+  composes: badge;
+  background-color: #35c5f4;
+  color: #1a1a1a;
+}

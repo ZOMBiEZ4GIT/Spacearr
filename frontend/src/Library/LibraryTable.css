@@ -1,0 +1,9 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.headerCell {
+  composes: headerCell from '~Components/Table/TableHeaderCell.css';
+  white-space: nowrap;
+}

@@ -49,25 +49,25 @@
 - [x] T4.7: HistoryController (paginated + stats)
 - [x] T4.8: RuleController (full CRUD + evaluate)
 
-## Phase 5: Frontend — Table & Stats
-- [ ] T5.1: Navigation + routing (AppRoutes, nav bar)
-- [ ] T5.2: Store actions + reducers
-- [ ] T5.3: LibraryTable + LibraryTableRow
-- [ ] T5.4: StatsPanel (summary, heat legend, quality breakdown, quick wins)
-- [ ] T5.5: LibraryToolbar (filters, scan, bulk actions)
-- [ ] T5.6: DetailDrawer (slide-out with file/ARR info + actions)
-- [ ] T5.7: BitrateBadge + SourceBadge components
-- [ ] T5.8: Library page layout (compose panels)
+## Phase 5: Frontend — Table & Stats ✓
+- [x] T5.1: Navigation + routing (AppRoutes rewritten, sidebar updated)
+- [x] T5.2: Store actions + reducers (libraryActions.ts)
+- [x] T5.3: LibraryTable + LibraryTableRow (sortable, filterable, multi-select)
+- [x] T5.4: StatsPanel (summary, heat legend, quality breakdown, quick wins)
+- [x] T5.5: LibraryToolbar (source filter, color-by, min size, scan, bulk actions)
+- [x] T5.6: DetailDrawer (slide-out with file/ARR info + action buttons)
+- [x] T5.7: BitrateBadge + SourceBadge components
+- [x] T5.8: Library page layout (three-panel: table + stats + treemap slot)
 
-## Phase 6: Frontend — Treemap
-- [ ] T6.1: treemapColors (bitrate heat scale + categorical)
-- [ ] T6.2: treemapLayout + treemapData (d3 config + API transform)
-- [ ] T6.3: TreemapTooltip
-- [ ] T6.4: TreemapRenderer (SVG)
-- [ ] T6.5: Treemap container
-- [ ] T6.6: Interaction (zoom, selection)
-- [ ] T6.7: Bidirectional table sync
-- [ ] T6.8: Canvas fallback for large libraries
+## Phase 6: Frontend — Treemap ✓
+- [x] T6.1: treemapColors (bitrate heat + quality/codec/resolution categoricals)
+- [x] T6.2: treemapData (d3-hierarchy transform, aggregateSmallItems for perf)
+- [x] T6.3: TreemapTooltip (cursor-following, dark themed)
+- [x] T6.4: TreemapBlock (React.memo, absolute positioned, CSS transitions)
+- [x] T6.5: Treemap container (react-use-measure, responsive layout)
+- [x] T6.6: Interaction (drill-down zoom into groups)
+- [x] T6.7: TreemapBreadcrumb (zoom navigation)
+- [x] T6.8: Performance (2000 item cap with "Other" aggregation)
 
 ## Phase 7: Actions
 - [ ] T7.1: DeleteActionService

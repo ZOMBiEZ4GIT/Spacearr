@@ -9,6 +9,7 @@ import * as discoverMovie from './discoverMovieActions';
 import * as extraFiles from './extraFileActions';
 import * as history from './historyActions';
 import * as importMovie from './importMovieActions';
+import * as library from './libraryActions';
 import * as interactiveImportActions from './interactiveImportActions';
 import * as movies from './movieActions';
 import * as movieBlocklist from './movieBlocklistActions';
@@ -44,6 +45,7 @@ export default [
   history,
   importMovie,
   interactiveImportActions,
+  library,
   oAuth,
   organizePreview,
   parse,

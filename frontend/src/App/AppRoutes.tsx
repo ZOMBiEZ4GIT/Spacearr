@@ -1,27 +1,13 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import Blocklist from 'Activity/Blocklist/Blocklist';
-import History from 'Activity/History/History';
-import Queue from 'Activity/Queue/Queue';
-import AddNewMovieConnector from 'AddMovie/AddNewMovie/AddNewMovieConnector';
-import ImportMovies from 'AddMovie/ImportMovie/ImportMovies';
-import CalendarPage from 'Calendar/CalendarPage';
-import CollectionConnector from 'Collection/CollectionConnector';
 import NotFound from 'Components/NotFound';
 import Switch from 'Components/Router/Switch';
-import DiscoverMovieConnector from 'DiscoverMovie/DiscoverMovieConnector';
-import MovieDetailsPage from 'Movie/Details/MovieDetailsPage';
-import MovieIndex from 'Movie/Index/MovieIndex';
-import CustomFormatSettingsPage from 'Settings/CustomFormats/CustomFormatSettingsPage';
-import DownloadClientSettingsConnector from 'Settings/DownloadClients/DownloadClientSettingsConnector';
+import DuplicatesPage from 'Duplicates/DuplicatesPage';
+import SpacearrHistoryPage from 'History/SpacearrHistoryPage';
+import LibraryPage from 'Library/LibraryPage';
+import RecommendationsPage from 'Recommendations/RecommendationsPage';
 import GeneralSettingsConnector from 'Settings/General/GeneralSettingsConnector';
-import ImportListSettings from 'Settings/ImportLists/ImportListSettings';
-import IndexerSettings from 'Settings/Indexers/IndexerSettings';
-import MediaManagement from 'Settings/MediaManagement/MediaManagement';
-import MetadataSettings from 'Settings/Metadata/MetadataSettings';
 import NotificationSettings from 'Settings/Notifications/NotificationSettings';
-import Profiles from 'Settings/Profiles/Profiles';
-import QualityConnector from 'Settings/Quality/QualityConnector';
 import Settings from 'Settings/Settings';
 import TagSettings from 'Settings/Tags/TagSettings';
 import UISettingsConnector from 'Settings/UI/UISettingsConnector';
@@ -32,8 +18,6 @@ import Status from 'System/Status/Status';
 import Tasks from 'System/Tasks/Tasks';
 import Updates from 'System/Updates/Updates';
 import getPathWithUrlBase from 'Utilities/getPathWithUrlBase';
-import CutoffUnmet from 'Wanted/CutoffUnmet/CutoffUnmet';
-import Missing from 'Wanted/Missing/Missing';
 
 function RedirectWithUrlBase() {
   return <Redirect to={getPathWithUrlBase('/')} />;
@@ -43,10 +27,10 @@ function AppRoutes() {
   return (
     <Switch>
       {/*
-        Movies
+        Library (default)
       */}
 
-      <Route exact={true} path="/" component={MovieIndex} />
+      <Route exact={true} path="/" component={LibraryPage} />
 
       {window.Spacearr.urlBase && (
         <Route
@@ -59,39 +43,15 @@ function AppRoutes() {
         />
       )}
 
-      <Route path="/add/new" component={AddNewMovieConnector} />
-
-      <Route path="/collections" component={CollectionConnector} />
-
-      <Route path="/add/import" component={ImportMovies} />
-
-      <Route path="/add/discover" component={DiscoverMovieConnector} />
-
-      <Route path="/movie/:titleSlug" component={MovieDetailsPage} />
-
       {/*
-        Calendar
+        Spacearr Pages
       */}
 
-      <Route path="/calendar" component={CalendarPage} />
+      <Route path="/recommendations" component={RecommendationsPage} />
 
-      {/*
-        Activity
-      */}
+      <Route path="/duplicates" component={DuplicatesPage} />
 
-      <Route path="/activity/history" component={History} />
-
-      <Route path="/activity/queue" component={Queue} />
-
-      <Route path="/activity/blocklist" component={Blocklist} />
-
-      {/*
-        Wanted
-      */}
-
-      <Route path="/wanted/missing" component={Missing} />
-
-      <Route path="/wanted/cutoffunmet" component={CutoffUnmet} />
+      <Route path="/history" component={SpacearrHistoryPage} />
 
       {/*
         Settings
@@ -99,33 +59,11 @@ function AppRoutes() {
 
       <Route exact={true} path="/settings" component={Settings} />
 
-      <Route path="/settings/mediamanagement" component={MediaManagement} />
-
-      <Route path="/settings/profiles" component={Profiles} />
-
-      <Route path="/settings/quality" component={QualityConnector} />
-
-      <Route
-        path="/settings/customformats"
-        component={CustomFormatSettingsPage}
-      />
-
-      <Route path="/settings/indexers" component={IndexerSettings} />
-
-      <Route
-        path="/settings/downloadclients"
-        component={DownloadClientSettingsConnector}
-      />
-
-      <Route path="/settings/importlists" component={ImportListSettings} />
+      <Route path="/settings/general" component={GeneralSettingsConnector} />
 
       <Route path="/settings/connect" component={NotificationSettings} />
 
-      <Route path="/settings/metadata" component={MetadataSettings} />
-
       <Route path="/settings/tags" component={TagSettings} />
-
-      <Route path="/settings/general" component={GeneralSettingsConnector} />
 
       <Route path="/settings/ui" component={UISettingsConnector} />
 

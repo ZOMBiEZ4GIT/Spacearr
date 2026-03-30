@@ -9,7 +9,6 @@ import React, {
 import ReactDOM from 'react-dom';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
-import QueueStatus from 'Activity/Queue/Status/QueueStatus';
 import { IconName } from 'Components/Icon';
 import OverlayScroller from 'Components/Scroller/OverlayScroller';
 import Scroller from 'Components/Scroller/Scroller';
@@ -45,71 +44,27 @@ interface SidebarItem {
 
 const LINKS: SidebarItem[] = [
   {
-    iconName: icons.MOVIE_CONTINUING,
-    title: () => translate('Movies'),
+    iconName: icons.DRIVE,
+    title: 'Library',
     to: '/',
-    alias: '/movies',
-    children: [
-      {
-        title: () => translate('AddNew'),
-        to: '/add/new',
-      },
-      {
-        title: () => translate('ImportLibrary'),
-        to: '/add/import',
-      },
-      {
-        title: () => translate('Collections'),
-        to: '/collections',
-      },
-      {
-        title: () => translate('Discover'),
-        to: '/add/discover',
-      },
-    ],
   },
 
   {
-    iconName: icons.CALENDAR,
-    title: () => translate('Calendar'),
-    to: '/calendar',
+    iconName: icons.RECOMMENDED,
+    title: 'Recommendations',
+    to: '/recommendations',
   },
 
   {
-    iconName: icons.ACTIVITY,
-    title: () => translate('Activity'),
-    to: '/activity/queue',
-    children: [
-      {
-        title: () => translate('Queue'),
-        to: '/activity/queue',
-        statusComponent: QueueStatus,
-      },
-      {
-        title: () => translate('History'),
-        to: '/activity/history',
-      },
-      {
-        title: () => translate('Blocklist'),
-        to: '/activity/blocklist',
-      },
-    ],
+    iconName: icons.CLONE,
+    title: 'Duplicates',
+    to: '/duplicates',
   },
 
   {
-    iconName: icons.WARNING,
-    title: () => translate('Wanted'),
-    to: '/wanted/missing',
-    children: [
-      {
-        title: () => translate('Missing'),
-        to: '/wanted/missing',
-      },
-      {
-        title: () => translate('CutoffUnmet'),
-        to: '/wanted/cutoffunmet',
-      },
-    ],
+    iconName: icons.HISTORY,
+    title: 'History',
+    to: '/history',
   },
 
   {
@@ -118,48 +73,16 @@ const LINKS: SidebarItem[] = [
     to: '/settings',
     children: [
       {
-        title: () => translate('MediaManagement'),
-        to: '/settings/mediamanagement',
-      },
-      {
-        title: () => translate('Profiles'),
-        to: '/settings/profiles',
-      },
-      {
-        title: () => translate('Quality'),
-        to: '/settings/quality',
-      },
-      {
-        title: () => translate('CustomFormats'),
-        to: '/settings/customformats',
-      },
-      {
-        title: () => translate('Indexers'),
-        to: '/settings/indexers',
-      },
-      {
-        title: () => translate('DownloadClients'),
-        to: '/settings/downloadclients',
-      },
-      {
-        title: () => translate('ImportLists'),
-        to: '/settings/importlists',
+        title: () => translate('General'),
+        to: '/settings/general',
       },
       {
         title: () => translate('Connect'),
         to: '/settings/connect',
       },
       {
-        title: () => translate('Metadata'),
-        to: '/settings/metadata',
-      },
-      {
         title: () => translate('Tags'),
         to: '/settings/tags',
-      },
-      {
-        title: () => translate('General'),
-        to: '/settings/general',
       },
       {
         title: () => translate('Ui'),

@@ -62,3 +62,18 @@ Build: 0 errors, 0 warnings.
 Build: 0 errors, 0 warnings.
 
 ---
+
+## 2026-03-30 — Phases 5+6 Complete: Frontend UI
+
+**Phase 5 — Table, Stats, Navigation** (25 new files, 3 modified):
+- AppRoutes.tsx rewritten for Spacearr pages; sidebar updated
+- LibraryPage: three-panel layout (table + stats + treemap slot)
+- LibraryTable + StatsPanel + LibraryToolbar + DetailDrawer
+- BitrateBadge (green→red heat) + SourceBadge (Radarr gold / Sonarr blue)
+- Redux store actions for library state
+
+**Phase 6 — Treemap** (17 files):
+- d3-hierarchy treemap with 4 color modes, drill-down zoom, 2000-item perf cap
+- TreemapBlock (React.memo), TreemapTooltip, TreemapBreadcrumb
+
+---
