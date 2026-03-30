@@ -188,7 +188,7 @@ function RulesSettings() {
                 <div className={styles.ruleInfo}>
                   <div className={styles.ruleName}>
                     <span
-                      className={styles[ACTION_STYLES[rule.action]]}
+                      className={(styles as unknown as Record<string, string>)[ACTION_STYLES[rule.action]]}
                     >
                       {ACTION_LABELS[rule.action]}
                     </span>

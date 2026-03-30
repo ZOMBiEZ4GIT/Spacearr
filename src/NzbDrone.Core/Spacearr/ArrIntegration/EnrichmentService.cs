@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NLog;
+using NzbDrone.Core.Configuration;
 
 namespace NzbDrone.Core.Spacearr.ArrIntegration
 {
     public interface IEnrichmentService
     {
+        void EnrichAll();
         void EnrichMediaFiles(List<MediaFile> mediaFiles, ArrConnectionSettings radarrSettings, ArrConnectionSettings sonarrSettings);
     }
 
@@ -16,6 +19,8 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
         private readonly IFileMatchingService _fileMatchingService;
         private readonly IQualityProfileCache _qualityProfileCache;
         private readonly IMediaItemRepository _mediaItemRepository;
+        private readonly IMediaFileRepository _mediaFileRepository;
+        private readonly IConfigService _configService;
         private readonly Logger _logger;
 
         public EnrichmentService(
@@ -24,6 +29,8 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
             IFileMatchingService fileMatchingService,
             IQualityProfileCache qualityProfileCache,
             IMediaItemRepository mediaItemRepository,
+            IMediaFileRepository mediaFileRepository,
+            IConfigService configService,
             Logger logger)
         {
             _radarrApiClient = radarrApiClient;
@@ -31,7 +38,37 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
             _fileMatchingService = fileMatchingService;
             _qualityProfileCache = qualityProfileCache;
             _mediaItemRepository = mediaItemRepository;
+            _mediaFileRepository = mediaFileRepository;
+            _configService = configService;
             _logger = logger;
+        }
+
+        public void EnrichAll()
+        {
+            var radarrSettings = new ArrConnectionSettings
+            {
+                Url = _configService.RadarrUrl,
+                ApiKey = _configService.RadarrApiKey,
+                Enabled = _configService.RadarrEnabled
+            };
+
+            var sonarrSettings = new ArrConnectionSettings
+            {
+                Url = _configService.SonarrUrl,
+                ApiKey = _configService.SonarrApiKey,
+                Enabled = _configService.SonarrEnabled
+            };
+
+            if (!radarrSettings.Enabled && !sonarrSettings.Enabled)
+            {
+                _logger.Info("Skipping enrichment: neither Radarr nor Sonarr is enabled");
+                return;
+            }
+
+            var allMediaFiles = _mediaFileRepository.All().ToList();
+            _logger.Info("Running enrichment for {0} media files", allMediaFiles.Count);
+
+            EnrichMediaFiles(allMediaFiles, radarrSettings, sonarrSettings);
         }
 
         public void EnrichMediaFiles(List<MediaFile> mediaFiles, ArrConnectionSettings radarrSettings, ArrConnectionSettings sonarrSettings)

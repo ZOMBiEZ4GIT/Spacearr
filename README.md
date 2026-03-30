@@ -1,90 +1,130 @@
 # Spacearr
 
-[![Build Status](https://dev.azure.com/Spacearr/Spacearr/_apis/build/status/Spacearr.Spacearr?branchName=develop)](https://dev.azure.com/Spacearr/Spacearr/_build/latest?definitionId=1&branchName=develop)
-[![Translation status](https://translate.servarr.com/widget/servarr/spacearr/svg-badge.svg)](https://translate.servarr.com/engage/servarr/?utm_source=widget)
-[![Docker Pulls](https://img.shields.io/docker/pulls/linuxserver/spacearr.svg)](https://wiki.servarr.com/spacearr/installation/docker)
-![Github Downloads](https://img.shields.io/github/downloads/Spacearr/Spacearr/total.svg)
-[![Backers on Open Collective](https://opencollective.com/Spacearr/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/Spacearr/sponsors/badge.svg)](#sponsors)
-[![Mega Sponsors on Open Collective](https://opencollective.com/Spacearr/megasponsors/badge.svg)](#mega-sponsors)
+Storage visualization and optimization for the *arr media stack.
 
-Spacearr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will interface with clients and indexers to grab, sort, and rename them. It can also be configured to automatically upgrade the quality of existing files in the library when a better quality format becomes available.
-Note that only one type of a given movie is supported. If you want both a 4k version and 1080p version of a given movie you will need multiple instances.
+Spacearr scans your media library, visualizes file sizes and bitrates with an interactive treemap, and helps you reclaim storage by identifying oversized files, duplicates, and quality swap opportunities -- all integrated with Sonarr and Radarr.
 
-## Major Features Include
+## Features
 
-* Adding new movies with lots of information, such as trailers, ratings, etc.
-* Support for major platforms: Windows, Linux, macOS, Raspberry Pi, etc.
-* Can watch for better quality of the movies you have and do an automatic upgrade. _eg. from DVD to Blu-Ray_
-* Automatic failed download handling will try another release if one fails
-* Manual search so you can pick any release or to see why a release was not downloaded automatically
-* Full integration with SABnzbd and NZBGet
-* Automatically searching for releases as well as RSS Sync
-* Automatically importing downloaded movies
-* Recognizing Special Editions, Director's Cut, etc.
-* Identifying releases with hardcoded subs
-* Identifying releases with AKA movie names
-* SABnzbd, NZBGet, QBittorrent, Deluge, rTorrent, Transmission, uTorrent, and other download clients are supported and integrated
-* Full integration with Kodi and Plex (notifications, library updates)
-* Importing Metadata such as trailers or subtitles
-* Adding metadata such as posters and information for Kodi and others to use
-* Advanced customization for profiles, such that Spacearr will always download the copy you want
-* A beautiful UI
+- **WinDirStat-style treemap** -- Rectangle size = file size, color = bitrate heat (green = efficient, red = bloated)
+- **Bitrate heat mapping** -- Instantly spot files with unusually high bitrates relative to their resolution
+- **Multiple color modes** -- Switch between bitrate, quality profile, codec, or resolution views
+- **Space Saver recommendations** -- Automatically identifies files where a quality downgrade saves the most space
+- **Duplicate detection** -- Find and resolve multiple copies of the same media
+- **Integrated actions** -- Delete, search for replacements, or swap quality profiles directly through Sonarr/Radarr
+- **Bulk operations** -- Mass delete or downgrade by filter criteria
+- **Tag-based rules** -- Enforce quality limits automatically (e.g., "kids movies never exceed 1080p")
+- **Action history** -- Track all changes with running space-saved totals
 
-## Support
+## Screenshots
 
-[![Wiki](https://img.shields.io/badge/servarr-wiki-181717.svg?maxAge=60)](https://wiki.servarr.com/spacearr)
-[![Discord](https://img.shields.io/badge/discord-chat-7289DA.svg?maxAge=60)](https://spacearr.video/discord)
+> Screenshots coming soon
 
-Note: GitHub Issues are for Bugs and Feature Requests Only
+## Installation
 
-[![GitHub - Bugs and Feature Requests Only](https://img.shields.io/badge/github-issues-red.svg?maxAge=60)](https://github.com/Spacearr/Spacearr/issues)
+### Docker (Recommended)
 
-## Contributors & Developers
+Pull and run with a single command:
 
-[API Documentation](https://spacearr.video/docs/api/)
+```bash
+docker run -d \
+  --name spacearr \
+  -p 8787:8787 \
+  -v /path/to/config:/config \
+  -v /path/to/media:/media \
+  -e TZ=Etc/UTC \
+  --restart unless-stopped \
+  spacearr/spacearr:latest
+```
 
-This project exists thanks to all the people who contribute.
-- [Contribute (GitHub)](CONTRIBUTING.md)
-- [Contribution (Wiki Article)](https://wiki.servarr.com/spacearr/contributing)
+Or use Docker Compose. Create a `docker-compose.yml`:
 
-[![Contributors List](https://opencollective.com/Spacearr/contributors.svg?width=890&button=false)](https://github.com/Spacearr/Spacearr/graphs/contributors)
+```yaml
+services:
+  spacearr:
+    image: spacearr/spacearr:latest
+    container_name: spacearr
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config:/config
+      - /path/to/media:/media
+    environment:
+      - TZ=Etc/UTC
+    restart: unless-stopped
+```
 
-## Backers
+Then start it:
 
-Thank you to all our backers! 🙏 [Become a backer](https://opencollective.com/Spacearr#backer)
+```bash
+docker compose up -d
+```
 
-[![Backers List](https://opencollective.com/Spacearr/backers.svg?width=890)](https://opencollective.com/Spacearr#backer)
+To build from source instead of using a pre-built image, replace `image: spacearr/spacearr:latest` with `build: .` and run from the repository root.
 
-## Sponsors
+### Manual
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/Spacearr#sponsor)
+Prerequisites:
 
-[![Sponsors List](https://opencollective.com/Spacearr/sponsors.svg?width=890)](https://opencollective.com/Spacearr#sponsor)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Node.js 20](https://nodejs.org/) (LTS)
 
-## Mega Sponsors
+Build the frontend:
 
-[![Mega Sponsors List](https://opencollective.com/Spacearr/tiers/mega-sponsor.svg?width=890)](https://opencollective.com/Spacearr#mega-sponsor)
+```bash
+npm install --legacy-peer-deps
+npm run build
+```
 
-## JetBrains
+Build and run the backend:
 
-Thank you to [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" alt="JetBrains" width="96">](http://www.jetbrains.com/) for providing us with free licenses to their great tools.
+```bash
+dotnet build src/Spacearr.sln -c Release
+dotnet run --project src/NzbDrone.Console/Spacearr.Console.csproj -- --nobrowser --data=./config
+```
 
-* [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/ReSharper_icon.png" alt="ReSharper" width="32"> ReSharper](http://www.jetbrains.com/resharper/)
-* [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.png" alt="WebStorm" width="32"> WebStorm](http://www.jetbrains.com/webstorm/)
-* [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/Rider_icon.png" alt="Rider" width="32"> Rider](http://www.jetbrains.com/rider/)
-* [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/dotTrace_icon.png" alt="dotTrace" width="32"> dotTrace](http://www.jetbrains.com/dottrace/)
+Spacearr will start on `http://localhost:8787` by default.
 
-## DigitalOcean
+## Configuration
 
-This project is also supported by DigitalOcean
-<p>
-  <a href="https://www.digitalocean.com/">
-    <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/SVG/DO_Logo_horizontal_blue.svg" width="201px">
-  </a>
-</p>
+On first launch, open the Spacearr UI at `http://localhost:8787` and navigate to **Settings > General** to configure the basics.
 
-### License
+### Connecting Sonarr and Radarr
 
-* [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
-* Copyright 2010-2025
+1. Go to **Settings > ARR Connections**.
+2. Click **Add Connection** and select Sonarr or Radarr.
+3. Enter the URL of your Sonarr/Radarr instance (e.g., `http://localhost:7878` for Radarr).
+4. Provide the API key, which you can find in your Sonarr/Radarr instance under **Settings > General > Security**.
+5. Click **Test** to verify the connection, then **Save**.
+
+Once connected, Spacearr will pull your media library data from each ARR instance and begin building the treemap visualization.
+
+### Key Settings
+
+| Setting | Description |
+|---|---|
+| **Port** | Default `8787`. Override with the `SPACEARR__PORT` environment variable. |
+| **Data Directory** | Where Spacearr stores its database and configuration. Default `/config` in Docker. |
+| **Media Path** | Mount your media library so Spacearr can scan file sizes and bitrates on disk. |
+
+## Tech Stack
+
+- **Backend:** .NET 8 (C#) -- forked from the Radarr architecture
+- **Frontend:** React 18 + TypeScript
+- **Database:** SQLite
+- **Visualization:** d3-hierarchy treemap
+- **Real-time updates:** SignalR
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
+
+1. Fork the repository.
+2. Create a feature branch from `develop`.
+3. Make your changes and add tests where appropriate.
+4. Run the frontend linter: `npm run lint`
+5. Submit a pull request targeting the `develop` branch.
+
+## License
+
+[GNU GPL v3](http://www.gnu.org/licenses/gpl.html) -- see [LICENSE](LICENSE) for details.

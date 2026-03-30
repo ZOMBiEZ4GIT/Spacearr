@@ -6,6 +6,7 @@ import DuplicatesPage from 'Duplicates/DuplicatesPage';
 import SpacearrHistoryPage from 'History/SpacearrHistoryPage';
 import LibraryPage from 'Library/LibraryPage';
 import RecommendationsPage from 'Recommendations/RecommendationsPage';
+import ArrConnectionsSettings from 'Settings/ArrConnections/ArrConnectionsSettings';
 import GeneralSettingsConnector from 'Settings/General/GeneralSettingsConnector';
 import NotificationSettings from 'Settings/Notifications/NotificationSettings';
 import RulesSettings from 'Settings/Rules/RulesSettings';
@@ -59,6 +60,11 @@ function AppRoutes() {
       */}
 
       <Route exact={true} path="/settings" component={Settings} />
+
+      <Route
+        path="/settings/connections"
+        component={ArrConnectionsSettings}
+      />
 
       <Route path="/settings/general" component={GeneralSettingsConnector} />
 

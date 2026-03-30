@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { LibraryItem, formatSize, formatBitrate, formatDuration } from '../LibraryItem';
+import { LibraryItem, formatSize, formatDuration } from '../LibraryItem';
 import BitrateBadge from '../BitrateBadge';
 import SourceBadge from '../SourceBadge';
 import styles from './DetailDrawer.css';

@@ -79,6 +79,14 @@ namespace NzbDrone.Core.Configuration
         int MovieInfoLanguage { get; set; }
         int UILanguage { get; set; }
 
+        // ARR Connection Settings
+        string RadarrUrl { get; set; }
+        string RadarrApiKey { get; set; }
+        bool RadarrEnabled { get; set; }
+        string SonarrUrl { get; set; }
+        string SonarrApiKey { get; set; }
+        bool SonarrEnabled { get; set; }
+
         // Internal
         bool CleanupMetadataImages { get; set; }
         string PlexClientIdentifier { get; }

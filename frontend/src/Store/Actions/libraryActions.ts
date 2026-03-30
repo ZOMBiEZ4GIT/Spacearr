@@ -142,7 +142,7 @@ export const triggerScan = createThunk(TRIGGER_SCAN);
 // Action Handlers
 
 export const actionHandlers = handleThunks({
-  [FETCH_LIBRARY]: function (getState, payload, dispatch) {
+  [FETCH_LIBRARY]: function (_getState: any, _payload: any, dispatch: any) {
     dispatch(set({ section, isFetching: true }));
 
     const { request, abortRequest } = createAjaxRequest({
@@ -150,7 +150,7 @@ export const actionHandlers = handleThunks({
       traditional: true,
     });
 
-    request.done((data) => {
+    request.done((data: any) => {
       dispatch(
         update({
           section,
@@ -168,7 +168,7 @@ export const actionHandlers = handleThunks({
       );
     });
 
-    request.fail((xhr) => {
+    request.fail((xhr: any) => {
       dispatch(
         set({
           section,
@@ -182,7 +182,7 @@ export const actionHandlers = handleThunks({
     return abortRequest;
   },
 
-  [FETCH_LIBRARY_STATS]: function (getState, payload, dispatch) {
+  [FETCH_LIBRARY_STATS]: function (_getState: any, _payload: any, dispatch: any) {
     dispatch(set({ section: `${section}.stats`, isFetching: true }));
 
     const { request, abortRequest } = createAjaxRequest({
@@ -190,7 +190,7 @@ export const actionHandlers = handleThunks({
       traditional: true,
     });
 
-    request.done((data) => {
+    request.done((data: any) => {
       dispatch(
         set({
           section: `${section}.stats`,
@@ -202,7 +202,7 @@ export const actionHandlers = handleThunks({
       );
     });
 
-    request.fail((xhr) => {
+    request.fail((xhr: any) => {
       dispatch(
         set({
           section: `${section}.stats`,
@@ -216,7 +216,7 @@ export const actionHandlers = handleThunks({
     return abortRequest;
   },
 
-  [TRIGGER_SCAN]: function (getState, payload, dispatch) {
+  [TRIGGER_SCAN]: function (_getState: any, payload: any, _dispatch: any) {
     const { request } = createAjaxRequest({
       url: '/api/v3/scan',
       method: 'POST',
@@ -234,7 +234,7 @@ export const actionHandlers = handleThunks({
 
 export const reducers = createHandleActions(
   {
-    [SET_LIBRARY_SORT]: function (state, { payload }) {
+    [SET_LIBRARY_SORT]: function (state: any, { payload }: any) {
       return {
         ...state,
         sortKey: payload.sortKey,
@@ -242,7 +242,7 @@ export const reducers = createHandleActions(
       };
     },
 
-    [SET_LIBRARY_FILTER]: function (state, { payload }) {
+    [SET_LIBRARY_FILTER]: function (state: any, { payload }: any) {
       return {
         ...state,
         selectedFilterKey: payload.selectedFilterKey,
@@ -251,28 +251,28 @@ export const reducers = createHandleActions(
 
     [SET_LIBRARY_TABLE_OPTION]: createSetTableOptionReducer(section),
 
-    [SET_LIBRARY_SOURCE_FILTER]: function (state, { payload }) {
+    [SET_LIBRARY_SOURCE_FILTER]: function (state: any, { payload }: any) {
       return {
         ...state,
         sourceFilter: payload.sourceFilter,
       };
     },
 
-    [SET_LIBRARY_MIN_SIZE_FILTER]: function (state, { payload }) {
+    [SET_LIBRARY_MIN_SIZE_FILTER]: function (state: any, { payload }: any) {
       return {
         ...state,
         minSizeFilter: payload.minSizeFilter,
       };
     },
 
-    [SET_LIBRARY_COLOR_BY]: function (state, { payload }) {
+    [SET_LIBRARY_COLOR_BY]: function (state: any, { payload }: any) {
       return {
         ...state,
         colorBy: payload.colorBy,
       };
     },
 
-    [SET_LIBRARY_SELECTED_IDS]: function (state, { payload }) {
+    [SET_LIBRARY_SELECTED_IDS]: function (state: any, { payload }: any) {
       return {
         ...state,
         selectedIds: payload.selectedIds,

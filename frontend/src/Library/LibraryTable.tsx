@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { SortDirection } from 'Helpers/Props/sortDirections';
 import { LibraryItem, MOCK_LIBRARY_ITEMS } from './LibraryItem';
 import LibraryTableRow from './LibraryTableRow';

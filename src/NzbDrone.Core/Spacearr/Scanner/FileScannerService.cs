@@ -4,6 +4,7 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Core.RootFolders;
+using NzbDrone.Core.Spacearr.ArrIntegration;
 
 namespace NzbDrone.Core.Spacearr.Scanner
 {
@@ -20,6 +21,7 @@ namespace NzbDrone.Core.Spacearr.Scanner
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly IScanJobRepository _scanJobRepository;
         private readonly IDiskProvider _diskProvider;
+        private readonly IEnrichmentService _enrichmentService;
         private readonly Logger _logger;
 
         public FileScannerService(IRootFolderService rootFolderService,
@@ -28,6 +30,7 @@ namespace NzbDrone.Core.Spacearr.Scanner
             IMediaFileRepository mediaFileRepository,
             IScanJobRepository scanJobRepository,
             IDiskProvider diskProvider,
+            IEnrichmentService enrichmentService,
             Logger logger)
         {
             _rootFolderService = rootFolderService;
@@ -36,6 +39,7 @@ namespace NzbDrone.Core.Spacearr.Scanner
             _mediaFileRepository = mediaFileRepository;
             _scanJobRepository = scanJobRepository;
             _diskProvider = diskProvider;
+            _enrichmentService = enrichmentService;
             _logger = logger;
         }
 
@@ -100,6 +104,17 @@ namespace NzbDrone.Core.Spacearr.Scanner
                     filesScanned,
                     filesAdded,
                     filesRemoved);
+
+                // Enrich scanned files with Radarr/Sonarr metadata
+                try
+                {
+                    _enrichmentService.EnrichAll();
+                    _logger.Info("Post-scan enrichment completed successfully");
+                }
+                catch (Exception enrichEx)
+                {
+                    _logger.Error(enrichEx, "Post-scan enrichment failed, but scan results are preserved");
+                }
             }
             catch (Exception ex)
             {

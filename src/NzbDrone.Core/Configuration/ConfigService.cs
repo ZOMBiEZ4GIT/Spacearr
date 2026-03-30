@@ -400,6 +400,42 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("UILanguage", value); }
         }
 
+        public string RadarrUrl
+        {
+            get { return GetValue("RadarrUrl", string.Empty); }
+            set { SetValue("RadarrUrl", value); }
+        }
+
+        public string RadarrApiKey
+        {
+            get { return GetValue("RadarrApiKey", string.Empty); }
+            set { SetValue("RadarrApiKey", value); }
+        }
+
+        public bool RadarrEnabled
+        {
+            get { return GetValueBoolean("RadarrEnabled", false); }
+            set { SetValue("RadarrEnabled", value); }
+        }
+
+        public string SonarrUrl
+        {
+            get { return GetValue("SonarrUrl", string.Empty); }
+            set { SetValue("SonarrUrl", value); }
+        }
+
+        public string SonarrApiKey
+        {
+            get { return GetValue("SonarrApiKey", string.Empty); }
+            set { SetValue("SonarrApiKey", value); }
+        }
+
+        public bool SonarrEnabled
+        {
+            get { return GetValueBoolean("SonarrEnabled", false); }
+            set { SetValue("SonarrEnabled", value); }
+        }
+
         public bool CleanupMetadataImages
         {
             get { return GetValueBoolean("CleanupMetadataImages", true); }

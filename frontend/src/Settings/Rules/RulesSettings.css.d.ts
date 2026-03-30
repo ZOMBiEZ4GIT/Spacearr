@@ -15,8 +15,8 @@ interface CssExports {
   'ruleControls': string;
   'ruleInfo': string;
   'ruleName': string;
-  'rulesList': string;
   'ruleSummary': string;
+  'rulesList': string;
   'toggle': string;
   'toggleSlider': string;
   'toolbar': string;

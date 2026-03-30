@@ -15,6 +15,7 @@ interface CssExports {
   'infoValue': string;
   'overlay': string;
   'sectionTitle': string;
+  'slideIn': string;
   'suggestion': string;
   'suggestionText': string;
   'suggestionTitle': string;

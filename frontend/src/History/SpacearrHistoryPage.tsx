@@ -280,7 +280,7 @@ function SpacearrHistoryPage() {
                   <td className={styles.tableCell}>
                     <span
                       className={
-                        styles[ACTION_STYLES[entry.actionType]]
+                        (styles as unknown as Record<string, string>)[ACTION_STYLES[entry.actionType]]
                       }
                     >
                       {ACTION_ICONS[entry.actionType]}{' '}

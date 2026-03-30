@@ -1,0 +1,12 @@
+services:
+  spacearr:
+    build: .
+    container_name: spacearr
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config:/config
+      - /path/to/media:/media  # Mount your media library
+    environment:
+      - TZ=Etc/UTC
+    restart: unless-stopped

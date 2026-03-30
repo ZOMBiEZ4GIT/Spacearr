@@ -12,6 +12,14 @@ function Settings() {
       <SettingsToolbar hasPendingChanges={false} />
 
       <PageContentBody>
+        <Link className={styles.link} to="/settings/connections">
+          Connections
+        </Link>
+
+        <div className={styles.summary}>
+          Configure Radarr and Sonarr connections
+        </div>
+
         <Link className={styles.link} to="/settings/mediamanagement">
           {translate('MediaManagement')}
         </Link>

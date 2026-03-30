@@ -73,6 +73,10 @@ const LINKS: SidebarItem[] = [
     to: '/settings',
     children: [
       {
+        title: 'Connections',
+        to: '/settings/connections',
+      },
+      {
         title: () => translate('General'),
         to: '/settings/general',
       },
