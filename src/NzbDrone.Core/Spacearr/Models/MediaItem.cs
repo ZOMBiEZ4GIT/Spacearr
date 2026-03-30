@@ -16,6 +16,7 @@ namespace NzbDrone.Core.Spacearr
         public string QualityProfile { get; set; }
         public bool Monitored { get; set; }
         public string Tags { get; set; }
+        public string PosterUrl { get; set; }
         public DateTime LastEnriched { get; set; }
     }
 }

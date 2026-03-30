@@ -22,6 +22,7 @@ namespace Spacearr.Api.V1.Spacearr
         public string Resolution { get; set; }
         public int DurationSeconds { get; set; }
         public string ContainerFormat { get; set; }
+        public string PosterUrl { get; set; }
     }
 
     public class LibraryStatsResource
@@ -59,7 +60,8 @@ namespace Spacearr.Api.V1.Spacearr
                 Codec = model.MediaFile?.Codec,
                 Resolution = model.MediaFile?.Resolution,
                 DurationSeconds = model.MediaFile?.DurationSeconds ?? 0,
-                ContainerFormat = model.MediaFile?.ContainerFormat
+                ContainerFormat = model.MediaFile?.ContainerFormat,
+                PosterUrl = model.MediaItem?.PosterUrl
             };
         }
 

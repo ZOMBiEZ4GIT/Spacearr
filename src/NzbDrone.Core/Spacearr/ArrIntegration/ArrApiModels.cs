@@ -12,6 +12,13 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
         public RadarrMovieFile MovieFile { get; set; }
         public RadarrQualityProfileRef QualityProfile { get; set; }
         public List<int> Tags { get; set; }
+        public List<RadarrImage> Images { get; set; }
+    }
+
+    public class RadarrImage
+    {
+        public string CoverType { get; set; }
+        public string RemoteUrl { get; set; }
     }
 
     public class RadarrMovieFile
@@ -42,6 +49,13 @@ namespace NzbDrone.Core.Spacearr.ArrIntegration
         public bool Monitored { get; set; }
         public int QualityProfileId { get; set; }
         public List<int> Tags { get; set; }
+        public List<SonarrImage> Images { get; set; }
+    }
+
+    public class SonarrImage
+    {
+        public string CoverType { get; set; }
+        public string RemoteUrl { get; set; }
     }
 
     public class SonarrEpisodeFile
