@@ -59,25 +59,31 @@ public static class InstanceEndpoints
         group.MapPost("/test", async (TestRequest req, IArrClientFactory factory, CancellationToken ct) =>
         {
             if (!IsHttpUrl(req.BaseUrl)) return Results.Ok(new TestResponse(false, "Enter a full URL such as http://radarr:7878. Inside Docker, use the container name rather than localhost.", null, null, Array.Empty<string>(), Array.Empty<ArrProfile>()));
-            return Results.Ok(await TestAsync(factory.Create(req.Type, req.BaseUrl, req.ApiKey ?? ""), ct));
+            return Results.Ok(await TestAsync(() => factory.Create(req.Type, req.BaseUrl, req.ApiKey ?? ""), ct));
         });
 
         group.MapPost("/{id:int}/test", async (int id, SpacearrDb db, IArrClientFactory factory, CancellationToken ct) =>
         {
             var inst = await db.ArrInstances.FindAsync(id);
-            return inst is null ? Results.NotFound() : Results.Ok(await TestAsync(factory.Create(inst), ct));
+            return inst is null ? Results.NotFound() : Results.Ok(await TestAsync(() => factory.Create(inst), ct));
         });
 
         group.MapGet("/{id:int}/profiles", async (int id, SpacearrDb db, IArrClientFactory factory, IMemoryCache cache, CancellationToken ct) =>
         {
             var inst = await db.ArrInstances.FindAsync(id);
             if (inst is null) return Results.NotFound();
-            var profiles = await cache.GetOrCreateAsync($"profiles:{id}", async e =>
+            try
             {
-                e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-                return await factory.Create(inst).GetProfilesAsync(ct);
-            });
-            return Results.Ok(profiles);
+                var profiles = await cache.GetOrCreateAsync($"profiles:{id}", async e =>
+                {
+                    e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    return await factory.Create(inst).GetProfilesAsync(ct);
+                });
+                return Results.Ok(profiles);
+            }
+            // The arr app being down or misconfigured is an upstream failure, not a
+            // Spacearr bug: report it as 502 with the usual { error } body, never a 500.
+            catch (ArrException ex) { return Results.Json(new { error = ex.Message }, statusCode: 502); }
         });
 
         group.MapGet("/{id:int}/mappings", async (int id, SpacearrDb db) =>
@@ -97,6 +103,7 @@ public static class InstanceEndpoints
         {
             var m = await db.PathMappings.SingleOrDefaultAsync(x => x.Id == mappingId && x.ArrInstanceId == id);
             if (m is null) return Results.NotFound();
+            if (string.IsNullOrWhiteSpace(req.RemotePrefix) || string.IsNullOrWhiteSpace(req.LocalPrefix)) return Results.BadRequest(new { error = "Both paths are required." });
             m.RemotePrefix = PathNormalizer.Normalize(req.RemotePrefix); m.LocalPrefix = PathNormalizer.Normalize(req.LocalPrefix);
             await db.SaveChangesAsync();
             return Results.NoContent();
@@ -115,7 +122,9 @@ public static class InstanceEndpoints
         {
             var inst = await db.ArrInstances.FindAsync(id);
             if (inst is null) return Results.NotFound();
-            var arrRoots = await factory.Create(inst).GetRootFoldersAsync(ct);
+            IReadOnlyList<ArrRootFolder> arrRoots;
+            try { arrRoots = await factory.Create(inst).GetRootFoldersAsync(ct); }
+            catch (ArrException ex) { return Results.Json(new { error = ex.Message }, statusCode: 502); }
             var localRoots = await db.RootFolders.Select(r => r.Path).ToListAsync(ct);
             var suggestions = new List<MappingSuggestion>();
             foreach (var arrRoot in arrRoots.Select(r => PathNormalizer.Normalize(r.Path)))
@@ -144,10 +153,14 @@ public static class InstanceEndpoints
     private static bool IsHttpUrl(string? url) =>
         Uri.TryCreate(url, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https");
 
-    private static async Task<TestResponse> TestAsync(IArrClient client, CancellationToken ct)
+    // Takes a factory rather than a client so that creating the client (which can
+    // itself throw ArrException for a stored URL that won't parse or an API key that
+    // won't decrypt) is inside the try and reported as ok:false like any other failure.
+    private static async Task<TestResponse> TestAsync(Func<IArrClient> create, CancellationToken ct)
     {
         try
         {
+            var client = create();
             var status = await client.GetStatusAsync(ct);
             var roots = await client.GetRootFoldersAsync(ct);
             var profiles = await client.GetProfilesAsync(ct);

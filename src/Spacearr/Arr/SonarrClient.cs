@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json.Nodes;
 using Spacearr.Data.Entities;
 
@@ -16,24 +17,26 @@ public sealed class SonarrClient : IArrClient
     }
 
     public async Task<IReadOnlyList<ArrProfile>> GetProfilesAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/qualityprofile", ct)).AsArray().Select(p => new ArrProfile(ArrHttp.Int(p!["id"]) ?? 0, ArrHttp.Str(p["name"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/qualityprofile", ct), "quality profiles").Select(p => new ArrProfile(ArrHttp.Int(p!["id"]) ?? 0, ArrHttp.Str(p["name"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrTag>> GetTagsAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/tag", ct)).AsArray().Select(t => new ArrTag(ArrHttp.Int(t!["id"]) ?? 0, ArrHttp.Str(t["label"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/tag", ct), "tags").Select(t => new ArrTag(ArrHttp.Int(t!["id"]) ?? 0, ArrHttp.Str(t["label"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrRootFolder>> GetRootFoldersAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/rootfolder", ct)).AsArray().Select(r => new ArrRootFolder(ArrHttp.Str(r!["path"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/rootfolder", ct), "root folders").Select(r => new ArrRootFolder(ArrHttp.Str(r!["path"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrItem>> GetItemsAsync(CancellationToken ct)
     {
-        var series = (await _http.GetAsync("/api/v3/series", ct)).AsArray();
-        var items = new List<ArrItem>();
-        foreach (var s in series)
+        var series = ArrHttp.Array(await _http.GetAsync("/api/v3/series", ct), "series");
+        // A large Sonarr library means two round trips per series; doing them four at a
+        // time keeps a sync from being one long serial stall without hammering the app.
+        var bag = new ConcurrentBag<ArrItem>();
+        await Parallel.ForEachAsync(series, new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = ct }, async (s, token) =>
         {
             var seriesId = ArrHttp.Int(s!["id"]) ?? 0;
-            var files = (await _http.GetAsync($"/api/v3/episodefile?seriesId={seriesId}", ct)).AsArray();
-            if (files.Count == 0) continue;
-            var episodes = (await _http.GetAsync($"/api/v3/episode?seriesId={seriesId}", ct)).AsArray()
+            var files = ArrHttp.Array(await _http.GetAsync($"/api/v3/episodefile?seriesId={seriesId}", token), "episode files");
+            if (files.Count == 0) return;
+            var episodes = ArrHttp.Array(await _http.GetAsync($"/api/v3/episode?seriesId={seriesId}", token), "episodes")
                 .Select(e => e!.AsObject()).Where(e => (ArrHttp.Int(e["episodeFileId"]) ?? 0) > 0)
                 .GroupBy(e => ArrHttp.Int(e["episodeFileId"])!.Value)
                 .ToDictionary(g => g.Key, g => g.OrderBy(e => ArrHttp.Int(e["episodeNumber"])).ToList());
@@ -43,7 +46,7 @@ public sealed class SonarrClient : IArrClient
                 var fileId = ArrHttp.Int(f!["id"]) ?? 0;
                 episodes.TryGetValue(fileId, out var eps);
                 eps ??= new List<JsonObject>();
-                items.Add(new ArrItem(
+                bag.Add(new ArrItem(
                     ExternalId: fileId, Kind: MediaKind.Episode,
                     Title: eps.Count == 0 ? $"Season {ArrHttp.Int(f["seasonNumber"])}" : string.Join(" / ", eps.Select(e => ArrHttp.Str(e["title"]) ?? "")),
                     Year: ArrHttp.Int(s["year"]),
@@ -56,8 +59,14 @@ public sealed class SonarrClient : IArrClient
                     TmdbId: null, TvdbId: ArrHttp.Int(s["tvdbId"]), ImdbId: ArrHttp.Str(s["imdbId"]),
                     ArrFileId: fileId, ArrPath: ArrHttp.Str(f["path"]), ArrSizeBytes: ArrHttp.Long(f["size"])));
             }
-        }
-        return items;
+        });
+        // Parallel completion order is arbitrary; sort back to a stable order so
+        // callers (and tests) see the same list every run.
+        return bag
+            .OrderBy(i => i.SeriesTitle, StringComparer.Ordinal)
+            .ThenBy(i => i.SeasonNumber ?? int.MaxValue)
+            .ThenBy(i => i.EpisodeNumbers.Length == 0 ? int.MaxValue : i.EpisodeNumbers[0])
+            .ToList();
     }
 
     public Task DeleteFileAsync(int arrFileId, CancellationToken ct) =>

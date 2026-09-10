@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 
-namespace Spacearr.Tests.System;
+namespace Spacearr.Tests.SystemInfo;
 
 public class SystemStatusTests : IClassFixture<TestApp>
 {

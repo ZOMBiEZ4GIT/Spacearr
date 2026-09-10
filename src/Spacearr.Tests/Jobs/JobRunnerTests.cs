@@ -33,6 +33,23 @@ public class JobRunnerTests : IClassFixture<TestApp>
         public Task<JobSummary> RunAsync(JobContext ctx, CancellationToken ct) => throw new InvalidOperationException("boom");
     }
 
+    /// <summary>
+    /// Blocks until the test releases it, so the job is guaranteed to still be
+    /// queued/running while the second enqueue is made - the dedupe check being
+    /// tested only applies to a job that has not finished yet.
+    /// </summary>
+    private sealed class GatedJob : IJob
+    {
+        private readonly TaskCompletionSource _gate;
+        public GatedJob(TaskCompletionSource gate) => _gate = gate;
+        public JobType Type => JobType.Scan;
+        public async Task<JobSummary> RunAsync(JobContext ctx, CancellationToken ct)
+        {
+            await _gate.Task.WaitAsync(ct);
+            return new JobSummary();
+        }
+    }
+
     private sealed class SlowJob : IJob
     {
         // Action is unused by any other test in this file, so it never
@@ -93,9 +110,18 @@ public class JobRunnerTests : IClassFixture<TestApp>
     public async Task Duplicate_scan_enqueue_returns_existing_id()
     {
         var queue = _app.Services.GetRequiredService<IJobQueue>();
-        var first = await queue.EnqueueAsync(JobType.Scan, JobTrigger.Manual, _ => new CountingJob());
-        var second = await queue.EnqueueAsync(JobType.Scan, JobTrigger.Manual, _ => new CountingJob());
-        second.Should().Be(first);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var first = 0;
+        try
+        {
+            first = await queue.EnqueueAsync(JobType.Scan, JobTrigger.Manual, _ => new GatedJob(gate));
+            var second = await queue.EnqueueAsync(JobType.Scan, JobTrigger.Manual, _ => new GatedJob(gate));
+            second.Should().Be(first, "a scan is already queued or running, so the second enqueue must reuse it");
+        }
+        finally
+        {
+            gate.TrySetResult();
+        }
         await WaitForFinish(first);
     }
 

@@ -94,9 +94,19 @@ public sealed class ActionJob : IJob
 
                 if (_request.Unmonitor)
                 {
-                    if (inst.Type == ArrType.Radarr) await client.UnmonitorAsync(item.ExternalId, ct);
-                    else foreach (var id in EpisodeIds(item)) await client.UnmonitorAsync(id, ct);
-                    completed.Add("unmonitored"); ctx.Report("action", ++n, total, "unmonitored");
+                    var unmonitorIds = inst.Type == ArrType.Radarr ? new[] { item.ExternalId } : EpisodeIds(item);
+                    // Same rule as the search step above (and what the preview promised):
+                    // with no known episode ids there is nothing to unmonitor, so say so
+                    // rather than silently reporting an unmonitor that never happened.
+                    if (inst.Type == ArrType.Sonarr && unmonitorIds.Length == 0)
+                    {
+                        completed.Add("no episode ids known; unmonitor skipped"); ctx.Report("action", ++n, total, "unmonitor skipped");
+                    }
+                    else
+                    {
+                        foreach (var id in unmonitorIds) await client.UnmonitorAsync(id, ct);
+                        completed.Add("unmonitored"); ctx.Report("action", ++n, total, "unmonitored");
+                    }
                 }
             }
             log.Outcome = ActionOutcome.Succeeded;
@@ -127,11 +137,6 @@ public sealed class ActionJob : IJob
         item.ArrFileId = null;
     }
 
-    // Sonarr search and unmonitor need episode ids; EnrichJob stores them on MediaItem.EpisodeIds (Step 6).
-    // Malformed entries (should never happen, but this column is a plain string) are
-    // skipped rather than throwing, so one bad id doesn't abort the whole action.
-    private static int[] EpisodeIds(MediaItem item) =>
-        (item.EpisodeIds ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
-            .Where(v => v.HasValue).Select(v => v!.Value).ToArray();
+    // Shared with the planner, so the preview lists exactly the ids this job will use.
+    private static int[] EpisodeIds(MediaItem item) => ActionPlanner.EpisodeIdsOf(item);
 }

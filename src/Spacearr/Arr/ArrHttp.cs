@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -17,8 +16,22 @@ internal sealed class ArrHttp
     public async Task<JsonNode> GetAsync(string path, CancellationToken ct)
     {
         using var response = await SendAsync(HttpMethod.Get, path, null, ct);
-        return JsonNode.Parse(await response.Content.ReadAsStringAsync(ct)) ?? throw new ArrException(null, $"Empty response from {path}");
+        var text = await response.Content.ReadAsStringAsync(ct);
+        JsonNode? node;
+        // A 200 that isn't JSON at all (a login page, a reverse proxy's HTML error,
+        // the wrong app entirely) must surface as an ArrException the endpoints
+        // already know how to report, never as an unhandled JsonException -> 500.
+        try { node = JsonNode.Parse(text); }
+        catch (JsonException ex) { throw new ArrException(null, $"{_http.BaseAddress} did not return JSON. Is this really a Radarr/Sonarr URL?", ex); }
+        return node ?? throw new ArrException(null, $"Empty response from {path}");
     }
+
+    /// <summary>
+    /// Asserts that a response we expect to be a list really is one. JsonNode.AsArray()
+    /// throws InvalidOperationException on an object/scalar, which would escape as a 500.
+    /// </summary>
+    internal static JsonArray Array(JsonNode node, string what) =>
+        node as JsonArray ?? throw new ArrException(null, $"Unexpected response shape from {what}: expected a list.");
 
     public async Task SendJsonAsync(HttpMethod method, string path, JsonNode? body, CancellationToken ct)
     {
@@ -51,7 +64,7 @@ internal sealed class ArrHttp
     public static long? Long(JsonNode? n) => n is null ? null : n.GetValueKind() == JsonValueKind.Number ? n.GetValue<long>() : long.TryParse(n.ToString(), out var l) ? l : null;
     public static string? Str(JsonNode? n) => n?.GetValueKind() == JsonValueKind.String ? n.GetValue<string>() : null;
     public static bool Bool(JsonNode? n) => n?.GetValueKind() == JsonValueKind.True;
-    public static int[] Ints(JsonNode? n) => n is JsonArray a ? a.Select(x => Int(x) ?? 0).ToArray() : Array.Empty<int>();
+    public static int[] Ints(JsonNode? n) => n is JsonArray a ? a.Select(x => Int(x) ?? 0).ToArray() : System.Array.Empty<int>();
     public static string? Poster(JsonNode? images) => images is JsonArray a
         ? a.Select(i => i!.AsObject()).Where(i => Str(i["coverType"]) == "poster").Select(i => Str(i["url"]) ?? Str(i["remoteUrl"])).FirstOrDefault(u => !string.IsNullOrEmpty(u))
         : null;

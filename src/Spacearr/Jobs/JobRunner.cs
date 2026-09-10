@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Spacearr.Data;
 using Spacearr.Data.Entities;
 using Spacearr.Infrastructure;
+using Spacearr.Library;
 
 namespace Spacearr.Jobs;
 
@@ -12,10 +13,11 @@ public sealed class JobRunner : BackgroundService
     private readonly IServiceScopeFactory _scopes;
     private readonly IProgressHub _hub;
     private readonly IClock _clock;
+    private readonly ILibraryCacheVersion _libraryCache;
     private readonly ILogger<JobRunner> _log;
 
-    public JobRunner(IJobQueue queue, IServiceScopeFactory scopes, IProgressHub hub, IClock clock, ILogger<JobRunner> log)
-    { _queue = queue; _scopes = scopes; _hub = hub; _clock = clock; _log = log; }
+    public JobRunner(IJobQueue queue, IServiceScopeFactory scopes, IProgressHub hub, IClock clock, ILibraryCacheVersion libraryCache, ILogger<JobRunner> log)
+    { _queue = queue; _scopes = scopes; _hub = hub; _clock = clock; _libraryCache = libraryCache; _log = log; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -85,6 +87,13 @@ public sealed class JobRunner : BackgroundService
                     final = JobStatus.Failed;
                 }
             }
+
+            // Any job may have changed the library, so invalidate the cached library
+            // queries now the job scope is closed - deliberately before the terminal
+            // status is written, so nothing watching for the job to finish (the UI, a
+            // test polling /jobs/{id}) can see "finished" and still be served a cache
+            // entry built before the job ran.
+            _libraryCache.Bump();
 
             try
             {

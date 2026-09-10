@@ -93,7 +93,10 @@ public sealed class EnrichJob : IJob, IEnrichRunner
                 await _db.SaveChangesAsync(ct);
                 _log.LogInformation("Enriched {Instance}: {Items} items, {Stale} removed", inst.Name, items.Count, stale.Count);
             }
-            catch (ArrException ex)
+            // Any failure for one instance (an ArrException, but also anything
+            // unexpected) is recorded against that instance and the loop moves on:
+            // one broken connection must never abort the sync of the others.
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 errors.Add($"{inst.Name}: {ex.Message}");
                 _log.LogWarning("Enrich failed for {Instance}: {Message}", inst.Name, ex.Message);

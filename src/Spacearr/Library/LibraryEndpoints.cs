@@ -38,10 +38,10 @@ public static class LibraryEndpoints
     {
         var group = app.MapGroup("/api/v1/library").RequireAuthorization();
 
-        group.MapGet("/", async (SpacearrDb db, ISettingsService settings, CancellationToken ct,
+        group.MapGet("/", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct,
             int? instanceId, MediaKind? kind, long minBytes = 0, string? search = null, string sort = "size", string order = "desc", int page = 1, int pageSize = 100, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, minBytes, search), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, minBytes, search), heatMode, ct);
             var scored = rows.Select((r, i) => LibraryItemResponse.From(r, heat[i]));
             scored = sort switch
             {
@@ -62,19 +62,19 @@ public static class LibraryEndpoints
             return Results.Ok(new PageResponse<LibraryItemResponse>(items, list.Count, page, pageSize));
         });
 
-        group.MapGet("/tree", async (SpacearrDb db, ISettingsService settings, CancellationToken ct,
+        group.MapGet("/tree", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct,
             int? instanceId, MediaKind? kind, long minBytes = 0, string colorBy = "heat", string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
             ISet<int>? dups = colorBy == "duplicates" ? DuplicateFinder.Find(rows).SelectMany(g => g.Members).Select(m => m.FileId).ToHashSet() : null;
             var total = rows.Sum(r => r.SizeBytes);
             var fold = Math.Max(minBytes, total / 4000); // never more than ~4000 visible leaves at the top level
             return Results.Ok(TreeBuilder.Build(rows, heat, colorBy, fold, 10000, dups));
         });
 
-        group.MapGet("/stats", async (SpacearrDb db, ISettingsService settings, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
+        group.MapGet("/stats", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
             var scored = rows.Select((r, i) => LibraryItemResponse.From(r, heat[i])).ToList();
             Bucket[] By(Func<LibraryRow, string?> key) => rows.GroupBy(r => key(r) ?? "Unknown").Select(g => new Bucket(g.Key, g.Sum(r => r.SizeBytes), g.Count())).OrderByDescending(b => b.Bytes).ToArray();
             var histogram = new int[10];
@@ -87,13 +87,13 @@ public static class LibraryEndpoints
                 scored.Where(x => x.Heat >= 0).OrderByDescending(x => x.Heat).ThenByDescending(x => x.SizeBytes).Take(5).ToArray()));
         });
 
-        group.MapGet("/{itemId:int}", async (int itemId, SpacearrDb db, ISettingsService settings, IArrClientFactory factory, IMemoryCache cache, CancellationToken ct) =>
+        group.MapGet("/{itemId:int}", async (int itemId, SpacearrDb db, ISettingsService settings, IArrClientFactory factory, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct) =>
         {
             // ItemId 0 (and negative ids) mean "unmatched loose file" in LibraryRow, not a
             // real item - without this guard /library/0 would return whichever unmatched
             // row happens to be first instead of a 404.
             if (itemId <= 0) return Results.NotFound();
-            var (rows, heat) = await Load(db, settings, new LibraryFilter(null, null, 0, null), null, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(null, null, 0, null), null, ct);
             var index = rows.FindIndex(r => r.ItemId == itemId);
             if (index < 0) return Results.NotFound();
             var row = rows[index];
@@ -112,9 +112,9 @@ public static class LibraryEndpoints
             return Results.Ok(new LibraryDetailResponse(item, profiles));
         });
 
-        app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
+        app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
             // Two MediaItems (e.g. the same physical file matched on two arr instances)
             // can share a FileId, so a plain ToDictionary would throw - group and keep
             // the first heat value for each file instead.
@@ -128,12 +128,24 @@ public static class LibraryEndpoints
         return app;
     }
 
-    internal static async Task<(List<LibraryRow> Rows, double[] Heat)> Load(SpacearrDb db, ISettingsService settings, LibraryFilter filter, string? heatMode, CancellationToken ct)
+    /// <summary>
+    /// Loads every row matching <paramref name="filter"/> and scores it. Building the
+    /// list means reading the whole library and scoring it in memory, and the library
+    /// only changes when a job changes it - so the result is memoised for 30 seconds
+    /// under a key that includes the cache version, which every finished job bumps.
+    /// </summary>
+    internal static async Task<(List<LibraryRow> Rows, double[] Heat)> Load(
+        SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, LibraryFilter filter, string? heatMode, CancellationToken ct)
     {
-        var rows = await LibraryQueries.RowsAsync(db, filter, ct);
         var mode = heatMode ?? (await settings.GetAsync()).HeatMode;
-        var nbpp = rows.Select(r => r.Nbpp).ToArray();
-        var heat = mode == "absolute" ? nbpp.Select(v => v is null ? double.NaN : Heat.AbsoluteHeat(v.Value)).ToArray() : Heat.RelativeHeat(nbpp);
-        return (rows, heat);
+        var key = $"library:{version.Current}:{filter.InstanceId}:{filter.Kind}:{filter.MinBytes}:{filter.Search}:{mode}";
+        return await cache.GetOrCreateAsync(key, async e =>
+        {
+            e.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            var rows = await LibraryQueries.RowsAsync(db, filter, ct);
+            var nbpp = rows.Select(r => r.Nbpp).ToArray();
+            var heat = mode == "absolute" ? nbpp.Select(v => v is null ? double.NaN : Heat.AbsoluteHeat(v.Value)).ToArray() : Heat.RelativeHeat(nbpp);
+            return (Rows: rows, Heat: heat);
+        });
     }
 }

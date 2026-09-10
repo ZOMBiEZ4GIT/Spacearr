@@ -28,6 +28,48 @@ public class InstanceEndpointTests : IClassFixture<ArrTestApp>
     }
 
     [Fact]
+    public async Task Test_endpoint_reports_a_non_json_response_instead_of_failing()
+    {
+        // Pointing Spacearr at something that is not an arr app (a login page, a proxy
+        // error page) is a user mistake, so it must come back as ok:false with an
+        // explanation - never as an unhandled JsonException.
+        using var app = new ArrTestApp();
+        app.Arr.Map("GET", "/api/v3/system/status", "<html>login</html>", contentType: "text/html");
+
+        var client = await AuthedClient.CreateAsync(app);
+        var response = await client.PostAsJsonAsync("/api/v1/instances/test", new { type = "radarr", baseUrl = "http://radarr:7878", apiKey = "secret" });
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<TestDto>();
+        body!.Ok.Should().BeFalse();
+        body.Error.Should().Contain("did not return JSON");
+    }
+
+    [Fact]
+    public async Task Profiles_returns_502_when_the_arr_app_is_unhappy()
+    {
+        using var app = new ArrTestApp();
+        app.Arr.Map("GET", "/api/v3/qualityprofile", "{}", HttpStatusCode.InternalServerError);
+
+        var client = await AuthedClient.CreateAsync(app);
+        var inst = await (await client.PostAsJsonAsync("/api/v1/instances", new { type = "radarr", name = "Down", baseUrl = "http://radarr:7878", apiKey = "secret" })).Content.ReadFromJsonAsync<InstanceDto>();
+
+        var response = await client.GetAsync($"/api/v1/instances/{inst!.Id}/profiles");
+        response.StatusCode.Should().Be(HttpStatusCode.BadGateway);
+        (await response.Content.ReadFromJsonAsync<ErrorDto>())!.Error.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task Put_mapping_rejects_empty_prefixes()
+    {
+        var client = await AuthedClient.CreateAsync(_app);
+        var inst = await (await client.PostAsJsonAsync("/api/v1/instances", new { type = "radarr", name = "MapValidate", baseUrl = "http://radarr:7878", apiKey = "secret" })).Content.ReadFromJsonAsync<InstanceDto>();
+        var mapping = await (await client.PostAsJsonAsync($"/api/v1/instances/{inst!.Id}/mappings", new { remotePrefix = "/data/movies", localPrefix = "/mnt/movies" })).Content.ReadFromJsonAsync<MappingDto>();
+
+        var put = await client.PutAsJsonAsync($"/api/v1/instances/{inst.Id}/mappings/{mapping!.Id}", new { remotePrefix = "", localPrefix = "/mnt/movies" });
+        put.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task Crud_never_returns_the_key_and_put_keeps_key_when_blank()
     {
         var client = await AuthedClient.CreateAsync(_app);
@@ -119,6 +161,7 @@ public class InstanceEndpointTests : IClassFixture<ArrTestApp>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
+    private sealed record ErrorDto(string Error);
     private sealed record TestDto(bool Ok, string? Error, string? Version, string? AppName, string[] RootFolders, ProfileDto[] Profiles);
     private sealed record ProfileDto(int Id, string Name);
     private sealed record MappingDto(int Id, string RemotePrefix, string LocalPrefix);

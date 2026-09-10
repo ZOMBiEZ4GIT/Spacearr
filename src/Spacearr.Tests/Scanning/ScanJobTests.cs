@@ -202,10 +202,17 @@ public class ScanJobTests : IDisposable
         discovery.SkipEnabled = true;
         discovery.SkipSubdirectory = Path.Combine(_root, "sub");
 
+        var beforeSecond = DateTime.UtcNow;
         var second = await RunScan();
         second.FilesRemoved.Should().Be(0);
         second.Errors.Should().Contain(e => e.Contains("Skipped cleanup"));
         (await Files()).Select(f => Path.GetFileName(f.Path)).Should().Contain("b.mkv");
+        // Cleanup was skipped, but the root was still walked: LastScanAt must still be
+        // stamped by this run, otherwise an unreadable subdirectory would leave the root
+        // looking as though it had never been scanned.
+        var scanned = (await GetRoot()).LastScanAt;
+        scanned.Should().NotBeNull();
+        scanned!.Value.Should().BeOnOrAfter(beforeSecond);
 
         // The guard must not disable cleanup permanently: once the subdirectory
         // is readable again (flag off) and the file is genuinely gone, cleanup

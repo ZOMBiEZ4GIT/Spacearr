@@ -12,7 +12,7 @@ using Spacearr.Jobs;
 using Spacearr.Library;
 using Spacearr.Scanning;
 using Spacearr.Settings;
-using Spacearr.System;
+using Spacearr.SystemInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +73,10 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSwagger(o => o.RouteTemplate = "api/docs/{documentName}/openapi.json");
+// The OpenAPI document describes every route in the app, so it sits behind the same
+// auth gate as the API itself (the endpoint-based form is what makes RequireAuthorization
+// possible - the UseSwagger middleware form runs before routing and cannot be gated).
+app.MapSwagger("/api/docs/{documentName}/openapi.json").RequireAuthorization();
 app.MapSystemEndpoints();
 app.MapAuthEndpoints();
 app.MapSettingsEndpoints();

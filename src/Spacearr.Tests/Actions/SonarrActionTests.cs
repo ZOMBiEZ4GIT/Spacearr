@@ -72,6 +72,25 @@ public class SonarrActionTests : IClassFixture<SonarrTestApp>
     }
 
     [Fact]
+    public async Task Delete_with_unmonitor_previews_one_step_per_real_episode_id()
+    {
+        var client = await AuthedClient.CreateAsync(_app);
+        var itemId = await SeedEpisode();
+
+        var preview = await client.PostAsJsonAsync("/api/v1/actions/preview", new { type = "delete", itemId, unmonitor = true });
+        preview.StatusCode.Should().Be(HttpStatusCode.OK);
+        var steps = (await preview.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("steps").EnumerateArray()
+            .Select(x => $"{x.GetProperty("method").GetString()} {x.GetProperty("path").GetString()}").ToList();
+
+        // The preview must name the episodes the job will actually PUT to, not a
+        // placeholder the user cannot check against Sonarr.
+        steps.Should().Contain("DELETE /api/v3/episodefile/501");
+        steps.Should().Contain("PUT /api/v3/episode/9001");
+        steps.Should().Contain("PUT /api/v3/episode/9002");
+        steps.Should().NotContain(x => x.Contains("{id}"));
+    }
+
+    [Fact]
     public async Task Replace_on_sonarr_episode_sets_series_profile_and_searches_episode_ids()
     {
         var client = await AuthedClient.CreateAsync(_app);

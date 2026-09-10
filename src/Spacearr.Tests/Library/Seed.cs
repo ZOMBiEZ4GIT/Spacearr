@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spacearr.Data;
 using Spacearr.Data.Entities;
 using Spacearr.Infrastructure;
+using Spacearr.Library;
 
 namespace Spacearr.Tests.Library;
 
@@ -33,6 +34,10 @@ public static class Seed
             await db.SaveChangesAsync();
             ids.Add(item.Id);
         }
+        // Seeding writes library rows straight to the DB, bypassing the jobs that
+        // normally invalidate the cached library queries - so invalidate here too,
+        // exactly as a finished job would.
+        scope.ServiceProvider.GetRequiredService<ILibraryCacheVersion>().Bump();
         return (inst.Id, ids.ToArray());
     }
 }

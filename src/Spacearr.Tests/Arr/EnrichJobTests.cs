@@ -70,6 +70,39 @@ public class EnrichJobTests : IClassFixture<ArrTestApp>
     }
 
     [Fact]
+    public async Task Unexpected_response_shape_is_recorded_and_the_other_instance_still_syncs()
+    {
+        using var app = new ArrTestApp();
+        // Only the "broken" host answers /api/v3/movie with an object instead of a list;
+        // the default (host-less) routes still serve the healthy instance normally.
+        app.Arr.Map("GET", "/api/v3/movie", "{}", host: "broken");
+
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
+        var secrets = scope.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var root = new RootFolder { Path = "/mnt/movies" };
+        db.RootFolders.Add(root);
+        var broken = new ArrInstance { Type = ArrType.Radarr, Name = "Broken", BaseUrl = "http://broken:7878", ApiKeyEncrypted = secrets.Protect("secret"), CreatedAt = DateTime.UtcNow };
+        var healthy = new ArrInstance { Type = ArrType.Radarr, Name = "Healthy", BaseUrl = "http://radarr:7878", ApiKeyEncrypted = secrets.Protect("secret"), CreatedAt = DateTime.UtcNow,
+            PathMappings = { new PathMapping { RemotePrefix = "/data/movies", LocalPrefix = "/mnt/movies" } } };
+        db.ArrInstances.AddRange(broken, healthy);
+        await db.SaveChangesAsync();
+        db.MediaFiles.Add(new MediaFile { Path = "/mnt/movies/Film (2020)/film.mkv", RootFolderId = root.Id, SizeBytes = 1, ModifiedAt = DateTime.UtcNow, ScannedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var job = scope.ServiceProvider.GetRequiredService<EnrichJob>();
+        var ctx = new JobContext(0, JobType.Enrich, scope.ServiceProvider, app.Services.GetRequiredService<IProgressHub>());
+        var (matched, _, errors) = await job.RunAsync(ctx, CancellationToken.None);
+
+        errors.Should().ContainSingle(e => e.StartsWith("Broken:") && e.Contains("expected a list"));
+        (await db.ArrInstances.AsNoTracking().SingleAsync(i => i.Id == broken.Id)).LastSyncError.Should().Contain("expected a list");
+        // The healthy instance in the same run must be completely unaffected.
+        matched.Should().Be(1);
+        (await db.ArrInstances.AsNoTracking().SingleAsync(i => i.Id == healthy.Id)).LastSyncError.Should().BeNull();
+        (await db.MediaItems.AsNoTracking().Where(i => i.ArrInstanceId == healthy.Id).ToListAsync()).Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task Failed_call_after_items_fetched_leaves_no_partial_upsert()
     {
         // Dedicated app/DB rather than the shared fixture, so remapping this

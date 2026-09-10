@@ -52,6 +52,18 @@ public class RootFolderEndpointTests : IClassFixture<TestApp>, IDisposable
         resolved!.Path.Should().Be(PathNormalizer.Normalize(_dir));
     }
 
+    [Fact]
+    public async Task Drive_relative_path_is_rejected()
+    {
+        // "C:foo" is rooted but not fully qualified: Windows resolves it against the
+        // process's current directory on drive C, which is not something a user can
+        // reason about - it must be rejected like any other relative path.
+        if (!OperatingSystem.IsWindows()) return;
+        var client = await AuthedClient.CreateAsync(_app);
+        var response = await client.PostAsJsonAsync("/api/v1/roots", new { path = "C:foo" });
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     private sealed record ValidateDto(bool Exists, string[] SampleFiles, int MediaFileCountSample);
     private sealed record RootDto(int Id, string Path, bool Enabled, DateTime? LastScanAt, bool Exists);
 }

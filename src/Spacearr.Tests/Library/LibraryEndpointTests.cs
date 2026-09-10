@@ -2,6 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Spacearr.Data;
+using Spacearr.Data.Entities;
+using Spacearr.Infrastructure;
+using Spacearr.Tests.Actions;
 using Spacearr.Tests.Arr;
 
 namespace Spacearr.Tests.Library;
@@ -63,5 +69,71 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
         // Item id 0 means "unmatched loose file" internally, not a real item - it must 404.
         var zero = await client.GetAsync("/api/v1/library/0");
         zero.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Stats_are_served_from_cache_until_a_job_finishes()
+    {
+        // A dedicated app so the cache state here is entirely this test's doing.
+        using var app = new ArrTestApp();
+        var client = await AuthedClient.CreateAsync(app);
+        var instanceId = await SeedRawAsync(app, files: 1);
+
+        var first = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library/stats?instanceId={instanceId}");
+        first.GetProperty("fileCount").GetInt32().Should().Be(1);
+
+        // A second file written straight to the DB, with no job in between: the answer
+        // must still come from the cache, proving the DB is not re-queried per request.
+        await SeedRawAsync(app, files: 1, instanceId: instanceId);
+        var cached = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library/stats?instanceId={instanceId}");
+        cached.GetProperty("fileCount").GetInt32().Should().Be(1, "the cached rows must be reused until a job invalidates them");
+
+        // Any finished job invalidates it. The instance is disabled, so this enrich
+        // run does no arr work at all - it just has to finish.
+        var enqueued = await client.PostAsync("/api/v1/jobs/enrich", null);
+        enqueued.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        var jobId = (await enqueued.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("jobId").GetInt32();
+        await ActionEndpointTests.WaitForJob(client, jobId);
+
+        var fresh = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library/stats?instanceId={instanceId}");
+        fresh.GetProperty("fileCount").GetInt32().Should().Be(2, "a finished job must invalidate the cached library rows");
+    }
+
+    /// <summary>
+    /// Writes library rows directly, without the cache-version bump Seed does - this
+    /// test needs data to appear behind the cache's back. The instance is disabled so
+    /// the enrich job below leaves these rows alone.
+    /// </summary>
+    private static async Task<int> SeedRawAsync(ArrTestApp app, int files, int? instanceId = null)
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
+        var secrets = scope.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var root = await db.RootFolders.FirstOrDefaultAsync();
+        if (root is null)
+        {
+            root = new RootFolder { Path = "/mnt/cache" };
+            db.RootFolders.Add(root);
+            await db.SaveChangesAsync();
+        }
+        if (instanceId is null)
+        {
+            var inst = new ArrInstance { Type = ArrType.Radarr, Name = "Cached", BaseUrl = "http://radarr:7878", ApiKeyEncrypted = secrets.Protect("secret"), Enabled = false, CreatedAt = DateTime.UtcNow };
+            db.ArrInstances.Add(inst);
+            await db.SaveChangesAsync();
+            instanceId = inst.Id;
+        }
+        var start = await db.MediaFiles.CountAsync();
+        for (var i = 0; i < files; i++)
+        {
+            var n = start + i + 1;
+            var file = new MediaFile { Path = $"/mnt/cache/C{n}.mkv", RootFolderId = root.Id, SizeBytes = 1_000_000 * n, ModifiedAt = DateTime.UtcNow, ScannedAt = DateTime.UtcNow,
+                DurationSeconds = 3600, Width = 1920, Height = 1080, FrameRate = 24, VideoCodec = "h264", BitDepth = 8, VideoBitrateBps = 3_000_000, OverallBitrateBps = 3_200_000, Container = "mkv" };
+            db.MediaFiles.Add(file);
+            await db.SaveChangesAsync();
+            db.MediaItems.Add(new MediaItem { ArrInstanceId = instanceId.Value, ExternalId = 500 + n, Kind = MediaKind.Movie, Title = $"C{n}", Year = 2021, MediaFileId = file.Id, ArrFileId = 600 + n, SyncedAt = DateTime.UtcNow });
+            await db.SaveChangesAsync();
+        }
+        return instanceId.Value;
     }
 }

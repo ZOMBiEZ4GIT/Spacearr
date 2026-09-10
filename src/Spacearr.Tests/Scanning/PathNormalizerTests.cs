@@ -11,6 +11,8 @@ public class PathNormalizerTests
     [InlineData("/", "/")]
     [InlineData(@"D:\", "D:/")]
     [InlineData("/data/movies/Film (2020)/film.mkv", "/data/movies/Film (2020)/film.mkv")]
+    [InlineData(@"\\nas\media\", "//nas/media")]
+    [InlineData("//nas//media", "//nas/media")]
     public void Normalize_examples(string input, string expected) =>
         PathNormalizer.Normalize(input).Should().Be(expected);
 

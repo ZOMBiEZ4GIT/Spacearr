@@ -79,14 +79,15 @@ public static class RootFolderEndpoints
     private static RootFolderResponse ToResponse(RootFolder r) => new(r.Id, r.Path, r.Enabled, r.LastScanAt, Directory.Exists(r.Path));
 
     /// <summary>
-    /// Rejects relative and traversal-only input (e.g. "..") up front via
-    /// Path.IsPathRooted, then resolves the rest through Path.GetFullPath so any
+    /// Rejects relative and traversal-only input (e.g. ".."), and drive-relative
+    /// input such as "C:foo" (rooted, but resolved against the process's current
+    /// directory on that drive), up front via Path.IsPathFullyQualified, then resolves the rest through Path.GetFullPath so any
     /// embedded ".." segments are collapsed before the path is persisted or used.
     /// </summary>
     private static bool TryResolveAbsolutePath(string? raw, out string resolved, out IResult? error)
     {
         var normalized = PathNormalizer.Normalize(raw ?? "");
-        if (normalized.Length == 0 || !Path.IsPathRooted(normalized))
+        if (normalized.Length == 0 || !Path.IsPathFullyQualified(normalized))
         {
             resolved = "";
             error = Results.BadRequest(new { error = "Enter an absolute path, e.g. /media/movies or D:\\Media." });

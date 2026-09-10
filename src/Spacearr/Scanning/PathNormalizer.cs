@@ -13,11 +13,17 @@ public static partial class PathNormalizer
     public static string Normalize(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) return "";
-        var p = MultiSlash().Replace(path.Trim().Replace('\\', '/'), "/");
+        var raw = path.Trim().Replace('\\', '/');
+        // A UNC root (\\server\share) becomes "//server/share": that leading double
+        // slash is meaningful, so remember it, collapse duplicate slashes on the rest,
+        // and put it back. Everything downstream (Key/Equal/StartsWithSegment) keeps
+        // working on the normalised form unchanged.
+        var unc = raw.StartsWith("//", StringComparison.Ordinal);
+        var p = MultiSlash().Replace(raw, "/");
         if (p.Length > 1 && p.EndsWith('/') && !(p.Length == 3 && p[1] == ':'))
             p = p.TrimEnd('/');
         if (p.Length == 2 && p[1] == ':') p += "/";
-        return p;
+        return unc ? "/" + p : p;
     }
 
     public static string Key(string path)

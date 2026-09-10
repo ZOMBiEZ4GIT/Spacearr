@@ -1,4 +1,5 @@
 using Spacearr.Arr;
+using Spacearr.Library;
 using Spacearr.Scanning;
 
 namespace Spacearr.Jobs;
@@ -12,6 +13,7 @@ public static class JobServiceExtensions
     public static IServiceCollection AddSpacearrJobs(this IServiceCollection services)
     {
         services.AddSingleton<IProgressHub, ProgressHub>();
+        services.AddSingleton<ILibraryCacheVersion, LibraryCacheVersion>();
         services.AddSingleton<IJobQueue, JobQueue>();
         services.AddSingleton<IJobFactories>(new JobFactories
         {

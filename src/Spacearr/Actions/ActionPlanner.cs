@@ -15,9 +15,10 @@ public sealed class ActionPlanner
     private readonly IMemoryCache _cache;
     private readonly ISettingsService _settings;
     private readonly ConfirmTokens _tokens;
+    private readonly ILibraryCacheVersion _cacheVersion;
 
-    public ActionPlanner(SpacearrDb db, IArrClientFactory factory, IMemoryCache cache, ISettingsService settings, ConfirmTokens tokens)
-    { _db = db; _factory = factory; _cache = cache; _settings = settings; _tokens = tokens; }
+    public ActionPlanner(SpacearrDb db, IArrClientFactory factory, IMemoryCache cache, ISettingsService settings, ConfirmTokens tokens, ILibraryCacheVersion cacheVersion)
+    { _db = db; _factory = factory; _cache = cache; _settings = settings; _tokens = tokens; _cacheVersion = cacheVersion; }
 
     public async Task<ActionPreview> PlanAsync(ActionRequest req, CancellationToken ct)
     {
@@ -36,7 +37,7 @@ public sealed class ActionPlanner
             if (inst.Type == ArrType.Sonarr && item.SeriesId is null) throw new ActionPlanException("This episode's series is unknown; run a scan and try again.");
             var profiles = await _cache.GetOrCreateAsync($"profiles:{inst.Id}", async e => { e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10); return await _factory.Create(inst).GetProfilesAsync(ct); });
             var target = profiles!.FirstOrDefault(p => p.Id == req.TargetProfileId) ?? throw new ActionPlanException("That quality profile does not exist on the arr app.");
-            var (rows, _) = await LibraryEndpoints.Load(_db, _settings, new LibraryFilter(null, null, 0, null), null, ct);
+            var (rows, _) = await LibraryEndpoints.Load(_db, _settings, _cache, _cacheVersion, new LibraryFilter(null, null, 0, null), null, ct);
             var row = rows.FirstOrDefault(r => r.ItemId == item.Id);
             if (row is not null) estimate = SavingsEstimator.Estimate(row, target.Name, rows);
 
@@ -66,8 +67,19 @@ public sealed class ActionPlanner
                 steps.Add(new ActionStep("Delete the file through Sonarr", "DELETE", $"/api/v3/episodefile/{item.ArrFileId}"));
                 if (req.Unmonitor)
                 {
-                    warning = "All episodes on this file will be unmonitored.";
-                    steps.Add(new ActionStep("Unmonitor the episode(s) so Sonarr does not re-download them", "PUT", "/api/v3/episode/{id}"));
+                    // Show the real episode ids the job will PUT to, one step each,
+                    // rather than a placeholder URL the user cannot check.
+                    var episodeIds = EpisodeIdsOf(item);
+                    if (episodeIds.Length == 0)
+                    {
+                        steps.Add(new ActionStep("No episode ids are known for this file; unmonitoring will be skipped", "PUT", "/api/v3/episode"));
+                    }
+                    else
+                    {
+                        warning = "All episodes on this file will be unmonitored.";
+                        foreach (var id in episodeIds)
+                            steps.Add(new ActionStep($"Unmonitor episode {id} so Sonarr does not re-download it", "PUT", $"/api/v3/episode/{id}"));
+                    }
                 }
             }
         }
@@ -76,6 +88,17 @@ public sealed class ActionPlanner
         var token = _tokens.Issue(clean);
         return new ActionPreview(clean, TitleFor(item), inst.Name, inst.Type, item.MediaFile.SizeBytes, estimate, warning, steps.ToArray(), token, _tokens.ExpiryFor(token));
     }
+
+    /// <summary>
+    /// Sonarr search and unmonitor both need episode ids, which EnrichJob stores on
+    /// MediaItem.EpisodeIds as a comma-separated string. Malformed entries (this is a
+    /// plain text column) are skipped rather than throwing, so one bad id never aborts
+    /// the plan or the action.
+    /// </summary>
+    internal static int[] EpisodeIdsOf(MediaItem item) =>
+        (item.EpisodeIds ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
+            .Where(v => v.HasValue).Select(v => v!.Value).ToArray();
 
     public static string TitleFor(MediaItem i) => i.Kind == MediaKind.Movie
         ? (i.Year is null ? i.Title : $"{i.Title} ({i.Year})")

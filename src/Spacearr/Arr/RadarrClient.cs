@@ -16,17 +16,17 @@ public sealed class RadarrClient : IArrClient
     }
 
     public async Task<IReadOnlyList<ArrProfile>> GetProfilesAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/qualityprofile", ct)).AsArray().Select(p => new ArrProfile(ArrHttp.Int(p!["id"]) ?? 0, ArrHttp.Str(p["name"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/qualityprofile", ct), "quality profiles").Select(p => new ArrProfile(ArrHttp.Int(p!["id"]) ?? 0, ArrHttp.Str(p["name"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrTag>> GetTagsAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/tag", ct)).AsArray().Select(t => new ArrTag(ArrHttp.Int(t!["id"]) ?? 0, ArrHttp.Str(t["label"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/tag", ct), "tags").Select(t => new ArrTag(ArrHttp.Int(t!["id"]) ?? 0, ArrHttp.Str(t["label"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrRootFolder>> GetRootFoldersAsync(CancellationToken ct) =>
-        (await _http.GetAsync("/api/v3/rootfolder", ct)).AsArray().Select(r => new ArrRootFolder(ArrHttp.Str(r!["path"]) ?? "")).ToList();
+        ArrHttp.Array(await _http.GetAsync("/api/v3/rootfolder", ct), "root folders").Select(r => new ArrRootFolder(ArrHttp.Str(r!["path"]) ?? "")).ToList();
 
     public async Task<IReadOnlyList<ArrItem>> GetItemsAsync(CancellationToken ct)
     {
-        var movies = (await _http.GetAsync("/api/v3/movie", ct)).AsArray();
+        var movies = ArrHttp.Array(await _http.GetAsync("/api/v3/movie", ct), "movies");
         var items = new List<ArrItem>();
         foreach (var m in movies)
         {
