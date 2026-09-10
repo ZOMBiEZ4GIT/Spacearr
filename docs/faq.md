@@ -19,7 +19,10 @@ It doesn't integrate with a media server at all, and doesn't need to — Spacear
 Re-encoding is a different problem with mature tools already solving it (Tdarr, Unmanic, FileFlows). Spacearr's job is to show you what's taking the space and let you ask the arr app for a different release — it never rewrites a media file itself.
 
 **Does it phone home?**
-No. No telemetry, no analytics, no update checker, no third-party fonts or CDN — fonts ship bundled via `@fontsource`. The only outbound traffic is to the Radarr/Sonarr instances you configure, including fetching their posters. Verify it yourself: watch the container's network connections, or read the code — the only HTTP client that talks outward is `ArrHttp`, and only to your own instances.
+No. No telemetry, no analytics, no update checker, no third-party fonts or CDN — fonts ship bundled via `@fontsource`. The only outbound traffic is to the Radarr/Sonarr instances you configure: the arr HTTP client (`ArrHttp`) for API calls, and the poster proxy (`Posters/PosterEndpoints.cs`) for cover art, both scoped to the instance URLs you entered. Verify it yourself: watch the container's network connections, or read the code — those two call sites are the only ones that make an outbound HTTP request.
+
+**Does Spacearr check that a Radarr/Sonarr URL is safe before connecting to it?**
+No. It trusts whatever URL and API key you give it when adding an instance, including a LAN address like `http://192.168.1.10:7878` or `http://localhost:8787` — there's no allowlist or check against internal/reserved address ranges. This is accepted for v1: you're the one typing in your own instances' addresses, the same trust boundary as any other tool that talks to a service on your network.
 
 **Windows/macOS native builds?**
 Docker is the first-class, tested path, and the only one with prebuilt images. `dotnet run --project src/Spacearr` (.NET 8 SDK, Node 20, `ffprobe` on `PATH`) works fine on Windows or macOS — there's just no installer for either in v1. UNC paths (`\\server\share`) aren't supported as scan roots on Windows hosts; map a drive letter instead.

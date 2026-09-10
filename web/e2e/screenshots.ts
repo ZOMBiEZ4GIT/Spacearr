@@ -13,7 +13,7 @@
  */
 import { chromium } from '@playwright/test';
 import { spawn, execFileSync, ChildProcess } from 'node:child_process';
-import { existsSync, mkdirSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, statSync, rmSync } from 'node:fs';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
@@ -277,6 +277,9 @@ async function main() {
     console.log('Screenshots written to', outDir);
   } finally {
     cleanup();
+    // The backend's temp config dir (db, keys, logs) is unique per run and never reused,
+    // unlike fixtureDir's media which is deliberately kept so re-runs skip re-encoding it.
+    try { rmSync(configDir, { recursive: true, force: true }); } catch { /* best effort */ }
   }
 }
 

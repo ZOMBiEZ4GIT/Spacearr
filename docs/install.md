@@ -25,7 +25,16 @@ services:
 
 ## Docker run
 
-Same image, ports, environment and volumes as the compose file above, as one `docker run ... --restart unless-stopped` command. Env vars: `SPACEARR_CONFIG_DIR` (default `/config`), `SPACEARR_PORT` (default `8787`), `PUID`, `PGID`, `UMASK`, `TZ`. On start the container chowns `/config` to `PUID:PGID`, then drops root via `su-exec`; with `--user <uid>` instead, that uid must already own `/config`. A healthcheck polls `GET /api/v1/system/status`.
+Same image, ports, environment and volumes as the compose file above, as one `docker run ... --restart unless-stopped` command. Env vars: `SPACEARR_CONFIG_DIR` (default `/config`), `SPACEARR_PORT` (default `8787`), `PUID`, `PGID`, `UMASK`, `TZ`. On start the container chowns `/config` to `PUID:PGID`, then drops root via `su-exec`; with `--user <uid>` instead, that uid must already own `/config` — the entrypoint only chowns as root, so a fresh, root-owned volume paired with `--user` fails to start (the app can't create `/config/spacearr.db`). Use `PUID`/`PGID` instead of `--user` unless you've pre-chowned the volume yourself. A healthcheck polls `GET /api/v1/system/status`.
+
+## Unraid
+
+Spacearr isn't in Community Applications yet. Until it is, add it by URL:
+
+1. Docker tab → **Template repositories** → add `https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docker/unraid/spacearr.xml` → **Save**.
+2. **Add Container** → search for **Spacearr** in the template dropdown.
+3. Defaults match a typical Unraid box: `PUID=99`, `PGID=100` (the `nobody`/`users` pair Unraid itself uses), config under `/mnt/user/appdata/spacearr`. The one field you must set yourself is **Media** — point it at the same path Radarr and Sonarr already use for your library (usually `/mnt/user/data`), mounted read-only; Spacearr matches disk files to arr items by path, so a mismatch here is the most common cause of "unmatched" blocks.
+4. Start the container, then open the WebUI link Unraid shows on the Docker tab.
 
 ## From source
 

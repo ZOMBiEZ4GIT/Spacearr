@@ -35,6 +35,12 @@ if (!builder.Environment.IsEnvironment("Testing"))
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
+// Caps every request body at 1 MiB. The API only ever accepts small JSON
+// payloads (credentials, settings, paths) - nothing it does legitimately
+// needs more than that, so this bounds how much an attacker (or a bug) can
+// make the server buffer or write per request.
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 1_048_576);
+
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
     o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -44,6 +50,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSpacearrAuth();
+builder.Services.AddSpacearrDataProtection(configRoot);
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSpacearrJobs();

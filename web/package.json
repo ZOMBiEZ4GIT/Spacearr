@@ -23,7 +23,7 @@
     "d3-hierarchy": "^3.1.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^6.30.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.2",
@@ -42,6 +42,6 @@
     "tsx": "^4.19.1",
     "typescript": "^5.5.4",
     "vite": "^5.4.8",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.9"
   }
 }

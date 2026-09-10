@@ -150,6 +150,21 @@ public class AuthTests : IClassFixture<TestApp>
         body.Should().NotContain("InvalidOperationException").And.NotContain("boom");
     }
 
+    [Fact]
+    public void Data_protection_keys_are_persisted_under_the_config_dir()
+    {
+        // Forces the host to actually start so AddSpacearrDataProtection has run.
+        _ = _app.Server;
+        Directory.Exists(Path.Combine(_app.ConfigDir, "keys")).Should().BeTrue();
+    }
+
+    // No automated test for the 1 MiB Kestrel request body limit configured in
+    // Program.cs: WebApplicationFactory's in-memory TestServer runs the ASP.NET
+    // Core pipeline directly and never goes through Kestrel, so it does not
+    // enforce Kestrel.Limits.MaxRequestBodySize (confirmed - a 2 MB body against
+    // /api/v1/auth/login here returns 401, not 413). This is verified by hand
+    // against the built container instead; see docs/launch-checklist.md.
+
     private sealed record MeDto(string Username, string ApiKey);
     private sealed record StatusDto(string Version, bool SetupComplete);
 }
