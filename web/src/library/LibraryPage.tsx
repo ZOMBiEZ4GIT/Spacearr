@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLibrary, useSettings, useStats, useTree } from '../api/hooks';
 import type { LibraryItem, ProfileEstimate, TreeLeaf, TreeNode } from '../api/types';
@@ -59,10 +59,15 @@ export default function LibraryPage() {
     setSelectedRow(null);
     set({ sel: leaf ? leaf.itemId : null });
   };
-  const clearSelection = () => { setSelectedRow(null); set({ sel: null }); };
+  const clearSelection = useCallback(() => { setSelectedRow(null); set({ sel: null }); }, [set]);
   const onZoom = (node: TreeNode) => {
     if (params.sel != null && !containsItem(node, params.sel)) clearSelection();
   };
+  // Stable identities for the props ActionDialog's effects read: it now reads them through
+  // refs internally, but keeping these memoised avoids handing a fresh closure to every prop
+  // consumer on every LibraryPage render regardless.
+  const closeAction = useCallback(() => setAction(null), []);
+  const doneAction = useCallback(() => { setAction(null); clearSelection(); }, [clearSelection]);
   const sel = params.sel;
   const unmatched = sel == null && selectedRow?.itemId === 0 ? selectedRow : null;
   const detailId = sel ?? (unmatched ? 0 : null);
@@ -101,7 +106,7 @@ export default function LibraryPage() {
           <DetailPanel key={detailId} itemId={detailId} item={unmatched} autoFocus={asDialog} onClose={clearSelection} onAction={(kind, profile) => setAction({ kind, itemId: detailId, profile })} />
         </div>
       )}
-      {action && <ActionDialog kind={action.kind} itemId={action.itemId} profile={action.profile} onClose={() => setAction(null)} onDone={() => { setAction(null); clearSelection(); }} />}
+      {action && <ActionDialog kind={action.kind} itemId={action.itemId} profile={action.profile} onClose={closeAction} onDone={doneAction} />}
     </div>
   );
 }
