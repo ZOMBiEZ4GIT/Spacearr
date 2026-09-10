@@ -17,11 +17,13 @@ Every post below follows the same order: one sentence of what it is, a screensho
 
 ## r/radarr
 
+**Reddit: submit as an image post using library-dark.png and paste the text below as the first comment; the raw URL is https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png**
+
 **Title:** Spacearr — the cooler looking WinDirStat for your arr stack (v0.1.0, self-hosted)
 
 Spacearr scans the media library behind Radarr and Sonarr and draws it as a treemap: block size is bytes, colour is bitrate heat, and you can reclaim space through Radarr's and Sonarr's own APIs.
 
-![Library view](https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png)
+https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png
 
 What it does:
 
@@ -66,11 +68,13 @@ Report bugs on [GitHub Discussions](https://github.com/ZOMBiEZ4GIT/Spacearr/disc
 
 ## r/sonarr
 
+**Reddit: submit as an image post using library-dark.png and paste the text below as the first comment; the raw URL is https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png**
+
 **Title:** Spacearr — the cooler looking WinDirStat for your arr stack (v0.1.0, self-hosted)
 
 Spacearr scans the media library behind Radarr and Sonarr and draws it as a treemap: block size is bytes, colour is bitrate heat, and you can reclaim space through Radarr's and Sonarr's own APIs.
 
-![Library view](https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png)
+https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/screenshots/library-dark.png
 
 What it does:
 

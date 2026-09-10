@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
 ```
 
-`docker compose up -d`, then open `http://localhost:8787`. The image is about 395 MB — most of that is `ffmpeg`, which provides `ffprobe`. The first page you see creates the admin account.
+`docker compose up -d`, then open `http://localhost:8787`. The image is about 385 MB — most of that is `ffmpeg`, which provides `ffprobe`. The first page you see creates the admin account.
 
 ## Docker run
 
@@ -52,6 +52,8 @@ Tests: `dotnet test src/Spacearr.Tests`; `cd web && npm test && npm run lint && 
 ## Upgrading
 
 Pull the new image tag and recreate the container (`docker compose pull && docker compose up -d`). The database migrates itself forward on startup, and refuses to start if `/config/spacearr.db` was written by a newer build than the one starting up. To roll back, restore `/config` from a backup taken before the upgrade.
+
+`develop` images are always versioned `0.0.0`, so they refuse to open a `/config` created by a release build (which is newer); point `develop` at its own config volume rather than switching a release install back and forth.
 
 ## Reverse proxy
 

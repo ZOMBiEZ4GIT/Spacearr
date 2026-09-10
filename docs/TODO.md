@@ -9,7 +9,7 @@ The fork-era phase checklist that used to live here (Phases 0–10, dating from 
 - [x] `SECURITY.md` with a reporting channel; the auth-gate test in CI.
 - [x] GitHub Actions: build + test on PR (`.github/workflows/ci.yml`); multi-arch image on tag (`.github/workflows/release.yml`).
 - [x] `docs/` user guide: install, connections and paths, heat explained, actions explained, FAQ.
-- [ ] Unraid CA template XML in `docker/unraid/` — not yet written.
+- [x] Unraid CA template XML in `docker/unraid/` — written; Community Applications submission is still pending.
 
 ## Considered for v1.1
 

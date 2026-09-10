@@ -15,7 +15,7 @@ Spacearr is developed with AI assistance (Claude, by Anthropic). This file says 
 
 **What that means for you**
 
-- The auth gate test (`Spacearr.Tests/Auth/AuthGateTests.cs`) enumerates every API route registered in the app and fails the build if any route other than `/api/v1/system/status`, `/api/v1/setup` and `/api/v1/auth/login` is reachable without a session or API key.
+- The auth gate test (`src/Spacearr.Tests/Auth/AuthGateTests.cs`) enumerates every API route registered in the app and fails the build if any route other than `/api/v1/system/status`, `/api/v1/setup` and `/api/v1/auth/login` is reachable without a session or API key.
 - No telemetry exists in the code, and the image makes no outbound calls except to your own Radarr/Sonarr.
 - Security reports are answered by a person; see [SECURITY.md](SECURITY.md).
 - Pull requests are welcome from people and from people using AI tools. Say which in the PR description. PRs without tests, or that cannot explain what they change, are closed.

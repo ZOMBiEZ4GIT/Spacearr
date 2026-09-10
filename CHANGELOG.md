@@ -22,7 +22,7 @@ Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the f
 
 ### Security
 
-- Authentication mandatory on every API route except the version/status check, enforced in CI by a test that enumerates every registered route.
+- Authentication mandatory on every API route except the version/status check and the login/setup endpoints (`GET /api/v1/system/status`, `POST /api/v1/setup`, `POST /api/v1/auth/login`), plus the SPA shell and its static assets, enforced in CI by a test that enumerates every registered route.
 - Arr API keys encrypted at rest with AES-256-GCM, key stored in `/config/secret.key` (mode 0600), never returned by the API.
 - Login lockout: five failed sign-ins within a minute locks out that account, and separately that source address, for a minute each.
 - Request bodies capped at 1 MiB.
@@ -41,6 +41,6 @@ Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the f
 - No UNC path support on Windows hosts.
 - It trusts the Radarr/Sonarr URLs you give it, including LAN addresses, without blocking or warning on them.
 - The poster cache under `/config/posters` is never pruned in v1.
-- The image is about 395 MB.
+- The image is about 385 MB.
 
 [0.1.0]: https://github.com/ZOMBiEZ4GIT/Spacearr/releases/tag/v0.1.0

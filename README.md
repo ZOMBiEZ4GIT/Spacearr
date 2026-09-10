@@ -48,9 +48,13 @@ services:
     restart: unless-stopped
 ```
 
-That's `docker-compose.yml` in this repo, verbatim. `docker compose up -d`, then open `http://localhost:8787`. The image is about 395 MB (most of that is ffmpeg, needed for `ffprobe`). The first page creates the admin account; sign-in is required for everything except the version/status check.
+That's `docker-compose.yml` in this repo, verbatim. `docker compose up -d`, then open `http://localhost:8787`. The image is about 385 MB (most of that is ffmpeg, needed for `ffprobe`). The first page creates the admin account; sign-in is required for everything except the version/status check.
 
 Mount your media at the **same path Radarr and Sonarr use** and no path mapping is needed. If the paths differ, the setup wizard suggests a mapping and shows how many files matched.
+
+### Unraid
+
+Spacearr isn't in Community Applications yet. Until it is, add the template repository by URL in the Docker tab: `https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docker/unraid/spacearr.xml`. Defaults are `PUID=99`, `PGID=100` (Unraid's own `nobody`/`users` pair); set the Media path to match the one Radarr and Sonarr already use for your library. Full steps in [docs/install.md#unraid](docs/install.md#unraid).
 
 ### From source
 
