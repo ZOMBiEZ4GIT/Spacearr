@@ -15,7 +15,12 @@ public sealed class ApiKeyAuthHandler : AuthenticationHandler<AuthenticationSche
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        string? key = Request.Headers["X-Api-Key"].FirstOrDefault() ?? Request.Query["apikey"].FirstOrDefault();
+        // ?apikey= is only honoured on the SSE stream, where EventSource
+        // cannot set request headers. Everywhere else the header is required,
+        // so keys never leak into browser history, referrers or access logs.
+        string? key = Request.Headers["X-Api-Key"].FirstOrDefault();
+        if (string.IsNullOrEmpty(key) && Request.Path.StartsWithSegments("/api/v1/events"))
+            key = Request.Query["apikey"].FirstOrDefault();
         if (string.IsNullOrEmpty(key)) return AuthenticateResult.NoResult();
         var user = await _users.FindByApiKeyAsync(key);
         if (user is null) return AuthenticateResult.Fail("Invalid API key");

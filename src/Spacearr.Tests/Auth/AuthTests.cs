@@ -98,6 +98,58 @@ public class AuthTests : IClassFixture<TestApp>
         login.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
+    [Fact]
+    public async Task Api_key_query_parameter_works_only_on_the_events_stream()
+    {
+        var cookieClient = await AuthedClient.CreateAsync(_app);
+        var me = await cookieClient.GetFromJsonAsync<MeDto>("/api/v1/auth/me");
+        var anon = _app.CreateClient();
+
+        // EventSource cannot set headers, so the SSE route accepts ?apikey=.
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var events = await anon.GetAsync($"/api/v1/events?apikey={me!.ApiKey}", HttpCompletionOption.ResponseHeadersRead, cts.Token);
+        events.StatusCode.Should().Be(HttpStatusCode.OK);
+        events.Content.Headers.ContentType!.MediaType.Should().Be("text/event-stream");
+        cts.Cancel();
+        events.Dispose();
+
+        // Everywhere else the query parameter must be ignored entirely.
+        var elsewhere = await anon.GetAsync($"/api/v1/auth/me?apikey={me.ApiKey}");
+        elsewhere.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Invalid_api_key_header_is_401()
+    {
+        await AuthedClient.CreateAsync(_app);
+        var client = _app.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", "not-a-real-key");
+        var response = await client.GetAsync("/api/v1/auth/me");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Login_is_case_insensitive_on_username()
+    {
+        using var fresh = new TestApp();
+        await AuthedClient.CreateAsync(fresh);
+        var login = await fresh.CreateClient().PostAsJsonAsync("/api/v1/auth/login",
+            new { username = AuthedClient.Username.ToUpperInvariant(), password = AuthedClient.Password });
+        login.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task Unhandled_exception_returns_the_generic_json_error()
+    {
+        var client = await AuthedClient.CreateAsync(_app);
+        var response = await client.GetAsync("/api/v1/test/throw");
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Be("""{"error":"Something went wrong. Check the Spacearr log."}""");
+        body.Should().NotContain("InvalidOperationException").And.NotContain("boom");
+    }
+
     private sealed record MeDto(string Username, string ApiKey);
     private sealed record StatusDto(string Version, bool SetupComplete);
 }

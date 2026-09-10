@@ -33,6 +33,13 @@ public sealed class JobRunner : BackgroundService
     // whole application down over one bad job; instead we mark the job
     // finished (best effort), publish a "finished" event where possible,
     // and move on to the next queued job.
+    //
+    // Scopes are deliberately split three ways: the runner's own bookkeeping
+    // writes each use a short-lived scope that is disposed immediately, and
+    // the job gets a scope of its own. That way the runner never holds a
+    // SpacearrDb (and therefore a SQLite connection and change tracker) open
+    // for the whole duration of a job, and the job's DbContext is never
+    // shared with - or invalidated by - the runner's writes.
     private async Task RunOneAsync(JobRequest request, CancellationToken stoppingToken)
     {
         using var jobCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
@@ -43,44 +50,52 @@ public sealed class JobRunner : BackgroundService
 
         try
         {
-            using var scope = _scopes.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
-            var job = await db.Jobs.SingleAsync(j => j.Id == request.JobId, stoppingToken);
-            job.Status = JobStatus.Running;
-            job.StartedAt = _clock.UtcNow;
-            await db.SaveChangesAsync(stoppingToken);
+            using (var startScope = _scopes.CreateScope())
+            {
+                var startDb = startScope.ServiceProvider.GetRequiredService<SpacearrDb>();
+                var job = await startDb.Jobs.SingleAsync(j => j.Id == request.JobId, stoppingToken);
+                job.Status = JobStatus.Running;
+                job.StartedAt = _clock.UtcNow;
+                await startDb.SaveChangesAsync(stoppingToken);
+            }
 
             string? summaryJson = null;
-            try
+            using (var jobScope = _scopes.CreateScope())
             {
-                var instance = request.Factory(scope.ServiceProvider);
-                var summary = await instance.RunAsync(new JobContext(job.Id, job.Type, scope.ServiceProvider, _hub), jobCts.Token);
-                summaryJson = JsonSerializer.Serialize(summary, JobJson.Options);
-                final = JobStatus.Succeeded;
-            }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                final = JobStatus.Failed;
-                error = "Interrupted by shutdown";
-            }
-            catch (OperationCanceledException) when (jobCts.IsCancellationRequested)
-            {
-                final = JobStatus.Cancelled;
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Job {JobId} ({Type}) failed", job.Id, job.Type);
-                error = ex.Message;
-                final = JobStatus.Failed;
+                try
+                {
+                    var instance = request.Factory(jobScope.ServiceProvider);
+                    var summary = await instance.RunAsync(new JobContext(request.JobId, request.Type, jobScope.ServiceProvider, _hub), jobCts.Token);
+                    summaryJson = JsonSerializer.Serialize(summary, JobJson.Options);
+                    final = JobStatus.Succeeded;
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    final = JobStatus.Failed;
+                    error = "Interrupted by shutdown";
+                }
+                catch (OperationCanceledException) when (jobCts.IsCancellationRequested)
+                {
+                    final = JobStatus.Cancelled;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError(ex, "Job {JobId} ({Type}) failed", request.JobId, request.Type);
+                    error = ex.Message;
+                    final = JobStatus.Failed;
+                }
             }
 
             try
             {
+                using var endScope = _scopes.CreateScope();
+                var endDb = endScope.ServiceProvider.GetRequiredService<SpacearrDb>();
+                var job = await endDb.Jobs.SingleAsync(j => j.Id == request.JobId, CancellationToken.None);
                 job.Status = final;
                 job.Summary = summaryJson;
                 job.Error = error;
                 job.FinishedAt = _clock.UtcNow;
-                await db.SaveChangesAsync(CancellationToken.None);
+                await endDb.SaveChangesAsync(CancellationToken.None);
             }
             catch (Exception ex)
             {

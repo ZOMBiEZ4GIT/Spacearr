@@ -5,18 +5,6 @@ using Spacearr.Data.Entities;
 
 namespace Spacearr.Jobs;
 
-public interface IJobFactories
-{
-    Func<IServiceProvider, IJob> Scan { get; }
-    Func<IServiceProvider, IJob> Enrich { get; }
-}
-
-public sealed class JobFactories : IJobFactories
-{
-    public Func<IServiceProvider, IJob> Scan { get; init; } = _ => new NoOpJob(JobType.Scan);
-    public Func<IServiceProvider, IJob> Enrich { get; init; } = _ => new NoOpJob(JobType.Enrich);
-}
-
 public sealed record JobResponse(int Id, JobType Type, JobStatus Status, JobTrigger Trigger, DateTime QueuedAt, DateTime? StartedAt, DateTime? FinishedAt, JobSummary? Summary, string? Error, ProgressEvent? Progress);
 public sealed record PageResponse<T>(T[] Items, int Total, int Page, int PageSize);
 

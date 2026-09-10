@@ -21,6 +21,7 @@ public sealed class SpacearrDb : DbContext
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<Setting>().HasKey(s => s.Key);
+        b.Entity<User>().Property(u => u.Username).UseCollation("NOCASE");
         b.Entity<User>().HasIndex(u => u.Username).IsUnique();
         b.Entity<User>().HasIndex(u => u.ApiKey).IsUnique();
         b.Entity<MediaFile>().HasIndex(f => f.Path).IsUnique();

@@ -25,11 +25,19 @@ public sealed class ProgressHub : IProgressHub
 
     public ProgressEvent? LastFor(int jobId) => _last.TryGetValue(jobId, out var e) ? e : null;
 
-    public async IAsyncEnumerable<ProgressEvent> Subscribe([EnumeratorCancellation] CancellationToken ct)
+    public IAsyncEnumerable<ProgressEvent> Subscribe(CancellationToken ct)
     {
+        // The channel is created and registered eagerly, before the iterator
+        // is first moved, so events published between Subscribe() returning
+        // and the caller's first MoveNextAsync() are buffered rather than lost.
         var id = Guid.NewGuid();
         var channel = Channel.CreateBounded<ProgressEvent>(new BoundedChannelOptions(256) { FullMode = BoundedChannelFullMode.DropOldest });
         _subscribers[id] = channel;
+        return Drain(id, channel, ct);
+    }
+
+    private async IAsyncEnumerable<ProgressEvent> Drain(Guid id, Channel<ProgressEvent> channel, [EnumeratorCancellation] CancellationToken ct)
+    {
         try
         {
             await foreach (var e in channel.Reader.ReadAllAsync(ct))

@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Spacearr.Auth;
@@ -12,9 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 var configRoot = ConfigPaths.Resolve(builder.Configuration);
 var paths = new ConfigPaths(configRoot);
 builder.Services.AddSingleton(paths);
-builder.Services.AddSingleton<Spacearr.Infrastructure.ISecretProtector, Spacearr.Infrastructure.SecretProtector>();
+builder.Services.AddSingleton<ISecretProtector, SecretProtector>();
 builder.Services.AddDbContext<SpacearrDb>(o =>
-    o.UseSqlite($"Data Source={paths.DatabasePath};Cache=Shared"));
+    o.UseSqlite($"Data Source={paths.DatabasePath};Default Timeout=30"));
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .MinimumLevel.Information()
@@ -29,65 +32,35 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
-    o.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase));
+    o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<Spacearr.Auth.IUserService, Spacearr.Auth.UserService>();
-builder.Services.AddScoped<Spacearr.Settings.ISettingsService, Spacearr.Settings.SettingsService>();
-builder.Services.AddSingleton<Spacearr.Auth.LoginThrottle>();
-builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(o =>
-    {
-        o.Cookie.Name = "Spacearr.Auth";
-        o.Cookie.HttpOnly = true;
-        o.Cookie.SameSite = SameSiteMode.Strict;
-        o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        o.SlidingExpiration = true;
-        o.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; };
-        o.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = StatusCodes.Status403Forbidden; return Task.CompletedTask; };
-    })
-    .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, Spacearr.Auth.ApiKeyAuthHandler>(Spacearr.Auth.ApiKeyAuthHandler.SchemeName, _ => { });
-builder.Services.AddAuthorization(o =>
-{
-    o.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder(
-            Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
-            Spacearr.Auth.ApiKeyAuthHandler.SchemeName)
-        .RequireAuthenticatedUser().Build();
-    o.FallbackPolicy = o.DefaultPolicy;
-});
-
-builder.Services.AddSingleton<Spacearr.Infrastructure.IClock, Spacearr.Infrastructure.SystemClock>();
-builder.Services.AddSingleton<Spacearr.Jobs.IProgressHub, Spacearr.Jobs.ProgressHub>();
-builder.Services.AddSingleton<Spacearr.Jobs.IJobQueue, Spacearr.Jobs.JobQueue>();
-builder.Services.AddSingleton<Spacearr.Jobs.IJobFactories, Spacearr.Jobs.JobFactories>();
-builder.Services.AddHostedService<Spacearr.Jobs.JobRunner>();
-builder.Services.AddHostedService<Spacearr.Jobs.ScanScheduler>();
+builder.Services.AddSpacearrAuth();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddSpacearrJobs();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
-    await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;");
-    await db.Database.MigrateAsync();
-    var appVersion = typeof(Program).Assembly.GetName().Version ?? new Version(0, 0, 0);
-    var stored = await db.Settings.FindAsync("schema.appVersion");
-    if (stored is not null && Version.TryParse(stored.Value, out var storedVersion) && storedVersion > appVersion)
-    {
-        throw new InvalidOperationException(
-            $"Database was created by Spacearr {storedVersion}, newer than this build {appVersion}. Refusing to start.");
-    }
-    if (stored is null) db.Settings.Add(new Spacearr.Data.Entities.Setting { Key = "schema.appVersion", Value = appVersion.ToString(3) });
-    else stored.Value = appVersion.ToString(3);
-    await db.SaveChangesAsync();
+await StartupTasks.MigrateAndGuardAsync(app.Services, typeof(Program).Assembly.GetName().Version ?? new Version(0, 0, 0));
 
-    var stale = await db.Jobs.Where(j => j.Status == Spacearr.Data.Entities.JobStatus.Running || j.Status == Spacearr.Data.Entities.JobStatus.Queued).ToListAsync();
-    foreach (var s in stale) { s.Status = Spacearr.Data.Entities.JobStatus.Failed; s.Error = "Interrupted by restart"; s.FinishedAt = DateTime.UtcNow; }
-    if (stale.Count > 0) await db.SaveChangesAsync();
-}
+// Every error this API returns - validation, conflict, or crash - uses the
+// same JSON shape: { "error": "<message>" }. Unhandled exceptions are logged
+// in full and reduced to a generic message, so no stack trace or internal
+// detail ever reaches the client.
+app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
+{
+    var feature = context.Features.Get<IExceptionHandlerFeature>();
+    var logger = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Spacearr.UnhandledException");
+    logger.LogError(feature?.Error, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
+
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    context.Response.ContentType = "application/json";
+    await context.Response.WriteAsJsonAsync(new { error = "Something went wrong. Check the Spacearr log." });
+}));
 
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
@@ -97,6 +70,13 @@ app.MapSystemEndpoints();
 app.MapAuthEndpoints();
 app.MapSettingsEndpoints();
 app.MapJobEndpoints();
+
+if (app.Environment.IsEnvironment("Testing"))
+{
+    // Exists only so the test suite can exercise the exception handler above
+    // against a real unhandled exception on a real authenticated route.
+    app.MapGet("/api/v1/test/throw", IResult () => throw new InvalidOperationException("boom")).RequireAuthorization();
+}
 
 app.Run();
 

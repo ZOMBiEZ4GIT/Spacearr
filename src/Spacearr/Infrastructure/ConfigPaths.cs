@@ -18,7 +18,7 @@ public sealed class ConfigPaths
     {
         var fromEnv = configuration["SPACEARR_CONFIG_DIR"];
         if (!string.IsNullOrWhiteSpace(fromEnv)) return fromEnv;
-        if (Directory.Exists("/config")) return "/config";
+        if (!OperatingSystem.IsWindows() && Directory.Exists("/config")) return "/config";
         if (OperatingSystem.IsWindows())
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spacearr");
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "spacearr");

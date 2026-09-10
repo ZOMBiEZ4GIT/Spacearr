@@ -12,7 +12,10 @@ public sealed record AppSettings(
     string HeatMode,
     string Theme)
 {
-    public static readonly string[] DefaultExtensions = { ".mkv", ".mp4", ".avi", ".m4v", ".ts", ".mov", ".wmv", ".webm", ".mpg" };
+    private static readonly string[] DefaultExtensionsSource = { ".mkv", ".mp4", ".avi", ".m4v", ".ts", ".mov", ".wmv", ".webm", ".mpg" };
+
+    /// <summary>A fresh copy each call - callers must never be able to mutate the shared defaults.</summary>
+    public static string[] DefaultExtensions => DefaultExtensionsSource.ToArray();
     public static AppSettings Defaults => new(6, DefaultExtensions, null, null, "relative", "dark");
 
     public string? Validate()
