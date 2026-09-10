@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Authors>Roland Taylor</Authors>
+    <Product>Spacearr</Product>
+    <Copyright>Copyright (c) 2026 Roland Taylor. GPL-3.0.</Copyright>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>
