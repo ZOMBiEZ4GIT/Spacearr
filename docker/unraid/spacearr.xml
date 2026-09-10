@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Spacearr</Name>
+  <Repository>ghcr.io/zombiez4git/spacearr:latest</Repository>
+  <Registry>https://github.com/ZOMBiEZ4GIT/Spacearr/pkgs/container/spacearr</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/ZOMBiEZ4GIT/Spacearr/discussions</Support>
+  <Project>https://github.com/ZOMBiEZ4GIT/Spacearr</Project>
+  <Overview>The cooler looking WinDirStat for your arr stack. Scans the library behind Radarr and Sonarr, draws it as a treemap coloured by bitrate heat, finds duplicates across instances, and reclaims space through the arr apps' own APIs with a preview before every action. Nothing leaves your network.</Overview>
+  <Category>Tools:Utilities MediaApp:Video</Category>
+  <WebUI>http://[IP]:[PORT:8787]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docker/unraid/spacearr.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/ZOMBiEZ4GIT/Spacearr/main/docs/icon.png</Icon>
+  <Config Name="WebUI port" Target="8787" Default="8787" Mode="tcp" Description="Port for the web interface" Type="Port" Display="always" Required="true" Mask="false">8787</Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/spacearr" Mode="rw" Description="Database, logs, poster cache" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/spacearr</Config>
+  <Config Name="Media" Target="/data" Default="/mnt/user/data" Mode="ro" Description="Your media, mounted at the same path Radarr and Sonarr use" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/data</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User id" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group id" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="UMASK" Target="UMASK" Default="002" Mode="" Description="" Type="Variable" Display="advanced" Required="false" Mask="false">002</Config>
+  <Config Name="TZ" Target="TZ" Default="Etc/UTC" Mode="" Description="Time zone" Type="Variable" Display="advanced" Required="false" Mask="false">Etc/UTC</Config>
+</Container>
