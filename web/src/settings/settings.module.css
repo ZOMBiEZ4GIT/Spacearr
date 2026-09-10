@@ -1,0 +1,17 @@
+.tabs { display: flex; gap: 4px; padding: var(--space-3) var(--space-4) 0; border-bottom: 1px solid var(--line); }
+.tab { padding: 8px 12px; border-radius: var(--radius) var(--radius) 0 0; color: var(--muted); text-decoration: none; }
+.tabActive { color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-bottom-color: var(--surface); margin-bottom: -1px; }
+.page { padding: var(--space-4); display: grid; gap: var(--space-4); max-width: 900px; }
+.grid { display: grid; gap: var(--space-3); }
+.row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.cardHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.badge { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 1px 6px; border-radius: 3px; }
+.radarr { background: #3b2f10; color: #f0c26a; }
+.sonarr { background: #0f2f3b; color: #7fd3f2; }
+:global([data-theme="light"]) .radarr, :global(:root:not([data-theme="dark"])) .radarr { background: #F6ECD6; color: #7A4F06; }
+.ok { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--danger); }
+.stepper { display: flex; gap: var(--space-3); font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--space-4); }
+.stepOn { color: var(--ink); font-weight: 600; }
+.table { width: 100%; border-collapse: collapse; }
+.table td, .table th { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.mono { font-family: var(--font-mono); font-size: var(--fs-sm); }
