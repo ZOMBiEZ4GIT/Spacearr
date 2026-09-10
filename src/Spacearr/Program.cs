@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Spacearr.Arr;
 using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSpacearrJobs();
 builder.Services.AddSpacearrScanning();
+builder.Services.AddSpacearrArr();
 
 var app = builder.Build();
 

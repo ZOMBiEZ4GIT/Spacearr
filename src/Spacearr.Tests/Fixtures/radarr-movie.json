@@ -1,0 +1,10 @@
+[
+  {
+    "id": 10, "title": "Film", "year": 2020, "monitored": true, "qualityProfileId": 5,
+    "tmdbId": 12345, "imdbId": "tt0000001", "tags": [2],
+    "images": [ { "coverType": "poster", "url": "/MediaCover/10/poster.jpg?lastWrite=1", "remoteUrl": "https://image.tmdb.org/t/p/original/poster.jpg" }, { "coverType": "fanart", "remoteUrl": "https://image.tmdb.org/t/p/original/fanart.jpg" } ],
+    "hasFile": true,
+    "movieFile": { "id": 77, "movieId": 10, "path": "/data/movies/Film (2020)/film.mkv", "size": 58234567890, "quality": { "quality": { "id": 19, "name": "Bluray-2160p" } } }
+  },
+  { "id": 11, "title": "No File", "year": 2021, "monitored": false, "qualityProfileId": 4, "tmdbId": 555, "tags": [], "images": [], "hasFile": false }
+]

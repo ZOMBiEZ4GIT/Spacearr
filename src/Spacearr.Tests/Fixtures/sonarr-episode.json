@@ -1,0 +1,4 @@
+[ { "id": 9001, "seriesId": 3, "seasonNumber": 1, "episodeNumber": 1, "title": "Pilot", "hasFile": true, "episodeFileId": 501, "monitored": true },
+  { "id": 9002, "seriesId": 3, "seasonNumber": 1, "episodeNumber": 2, "title": "Second", "hasFile": true, "episodeFileId": 501, "monitored": true },
+  { "id": 9003, "seriesId": 3, "seasonNumber": 1, "episodeNumber": 3, "title": "Third", "hasFile": true, "episodeFileId": 502, "monitored": true },
+  { "id": 9004, "seriesId": 3, "seasonNumber": 1, "episodeNumber": 4, "title": "Missing", "hasFile": false, "episodeFileId": 0, "monitored": true } ]
