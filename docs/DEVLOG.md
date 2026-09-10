@@ -91,3 +91,13 @@ Build: 0 errors, 0 warnings.
 All pages have empty states, loading states, and mock data fallbacks.
 
 ---
+
+## 2026-09-10 — Fork retired, standalone rebuild
+
+An audit found the March fork non-functional end to end (schema breakage, mock data on every page, action endpoints that could not bind, no recommendation engine, zero tests). Ecosystem research (docs/research/2026-09-10-arr-ecosystem-research.md) showed every successful arr companion is a standalone API client and that the community's 2026 launch bar is auth-by-default, no telemetry, AI disclosure and preview-first actions. Spacearr was rebuilt as a standalone ASP.NET Core 8 service with an embedded Vite/React app, porting the scanner and arr client code. Plans: docs/superpowers/plans/2026-09-10-0[1-4]-*.md.
+
+## 2026-09-11 — Launch docs and screenshots
+
+README, AI-DISCLOSURE.md, SECURITY.md, CONTRIBUTING.md and the docs/ user guide (install, connections and paths, heat, actions, FAQ) written against the actual code — every claim checked against the relevant source file rather than the plan that asked for it. Added `web/e2e/screenshots.ts`: a small fixture (three movies across two Radarr instances so one — "Gamma" — duplicates across them, plus a Sonarr instance with two series of two seasons each) generated with ffmpeg, driven through the real setup wizard, connections, scan and library UI with Playwright to capture `docs/screenshots/*.png` from the real app rather than mocked or hand-edited images. `docs/TODO.md` replaced with a v1 launch checklist.
+
+---
