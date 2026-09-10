@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Spacearr.Auth;
+using Spacearr.Scanning;
 
 namespace Spacearr.Settings;
 
@@ -9,7 +10,7 @@ public static class SettingsEndpoints
     {
         var group = app.MapGroup("/api/v1/settings").RequireAuthorization();
         group.MapGet("/", async (ISettingsService settings) => Results.Ok(await settings.GetAsync()));
-        group.MapPut("/", async (AppSettings incoming, ClaimsPrincipal principal, ISettingsService settings) =>
+        group.MapPut("/", async (AppSettings incoming, ClaimsPrincipal principal, ISettingsService settings, IToolLocator tools) =>
         {
             var error = incoming.Validate();
             if (error is not null) return Results.BadRequest(new { error });
@@ -32,6 +33,7 @@ public static class SettingsEndpoints
             }
 
             await settings.SaveAsync(incoming);
+            await tools.RefreshAsync();
             return Results.NoContent();
         });
         return app;

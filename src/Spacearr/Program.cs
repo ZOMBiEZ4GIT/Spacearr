@@ -7,6 +7,7 @@ using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
 using Spacearr.Jobs;
+using Spacearr.Scanning;
 using Spacearr.Settings;
 using Spacearr.System;
 
@@ -42,10 +43,12 @@ builder.Services.AddSpacearrAuth();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSpacearrJobs();
+builder.Services.AddSpacearrScanning();
 
 var app = builder.Build();
 
 await StartupTasks.MigrateAndGuardAsync(app.Services, typeof(Program).Assembly.GetName().Version ?? new Version(0, 0, 0));
+await app.Services.GetRequiredService<IToolLocator>().RefreshAsync();
 
 // Every error this API returns - validation, conflict, or crash - uses the
 // same JSON shape: { "error": "<message>" }. Unhandled exceptions are logged

@@ -26,4 +26,8 @@
     <ProjectReference Include="..\Spacearr\Spacearr.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
