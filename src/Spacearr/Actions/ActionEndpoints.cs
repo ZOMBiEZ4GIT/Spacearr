@@ -25,6 +25,7 @@ public static class ActionEndpoints
             if (!tokens.Validate(clean, req.ConfirmToken)) return Results.BadRequest(new { error = "Preview first: confirmation token missing or expired." });
             try { await planner.PlanAsync(clean, ct); } // re-validate against current state
             catch (ActionPlanException ex) { return Results.BadRequest(new { error = ex.Message }); }
+            catch (Spacearr.Arr.ArrException ex) { return Results.BadRequest(new { error = ex.Message }); }
             var jobId = await queue.EnqueueAsync(JobType.Action, JobTrigger.Manual, sp => ActivatorUtilities.CreateInstance<ActionJob>(sp, clean));
             return Results.Accepted(null, new { jobId });
         });

@@ -28,15 +28,14 @@ public sealed class ActionPlanner
         var steps = new List<ActionStep>();
         string? warning = null;
         SavingsEstimate? estimate = null;
-        string? targetName = null;
 
         if (req.Type == ActionType.Replace)
         {
             if (req.TargetProfileId is null) throw new ActionPlanException("Choose a target quality profile.");
             if (req.TargetProfileId == item.QualityProfileId) throw new ActionPlanException("That is already the current quality profile.");
+            if (inst.Type == ArrType.Sonarr && item.SeriesId is null) throw new ActionPlanException("This episode's series is unknown; run a scan and try again.");
             var profiles = await _cache.GetOrCreateAsync($"profiles:{inst.Id}", async e => { e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10); return await _factory.Create(inst).GetProfilesAsync(ct); });
             var target = profiles!.FirstOrDefault(p => p.Id == req.TargetProfileId) ?? throw new ActionPlanException("That quality profile does not exist on the arr app.");
-            targetName = target.Name;
             var (rows, _) = await LibraryEndpoints.Load(_db, _settings, new LibraryFilter(null, null, 0, null), null, ct);
             var row = rows.FirstOrDefault(r => r.ItemId == item.Id);
             if (row is not null) estimate = SavingsEstimator.Estimate(row, target.Name, rows);

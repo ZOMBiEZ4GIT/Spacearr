@@ -14,7 +14,7 @@ public sealed class ConfirmTokens
     public string Issue(ActionRequest r) => Issue(r, _clock.UtcNow.Add(Lifetime));
 
     public DateTime ExpiryFor(string token) =>
-        long.TryParse(token.Split('.')[0], out var ticks) ? new DateTime(ticks, DateTimeKind.Utc) : DateTime.MinValue;
+        long.TryParse(token.Split('.')[0], out var ticks) && IsValidTicks(ticks) ? new DateTime(ticks, DateTimeKind.Utc) : DateTime.MinValue;
 
     private string Issue(ActionRequest r, DateTime expires)
     {
@@ -27,12 +27,17 @@ public sealed class ConfirmTokens
     {
         if (string.IsNullOrEmpty(token)) return false;
         var parts = token.Split('.');
-        if (parts.Length != 2 || !long.TryParse(parts[0], out var ticks)) return false;
+        if (parts.Length != 2 || !long.TryParse(parts[0], out var ticks) || !IsValidTicks(ticks)) return false;
         var expires = new DateTime(ticks, DateTimeKind.Utc);
         if (expires < _clock.UtcNow) return false;
         var expected = Issue(r with { ConfirmToken = null }, expires);
         return CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(token));
     }
+
+    // A forged or malformed token can carry an out-of-range tick count; guard
+    // before constructing a DateTime from it so Validate/ExpiryFor return a
+    // clean false/MinValue instead of throwing ArgumentOutOfRangeException.
+    private static bool IsValidTicks(long ticks) => ticks >= 0 && ticks <= DateTime.MaxValue.Ticks;
 
     private static string Payload(ActionRequest r, DateTime expires) =>
         $"{r.Type}|{r.ItemId}|{r.TargetProfileId}|{r.Unmonitor}|{expires.Ticks}";
