@@ -93,6 +93,22 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
         m2Title.Should().Be("M2");
 
         m2Title.Should().NotBe(m1Title);
+
+        // Under the old ":"-delimited key, search="M1" + heatMode="x:y" hashed to the
+        // same string as search="M1:x" + heatMode="y" (both produce the tail
+        // "M1:x:y"), so the second request would wrongly be served the first request's
+        // cached (and still-fresh, within the 30s window) result. Prove the ':' is part
+        // of the search text, not a field separator, by making the two requests
+        // resolve to genuinely different answers against the M1..M6 seed.
+        var collisionA = await client.GetFromJsonAsync<JsonElement>(
+            $"/api/v1/library?instanceId={instanceId}&search=M1&heatMode={Uri.EscapeDataString("x:y")}");
+        collisionA.GetProperty("total").GetInt32().Should().Be(1, "search=\"M1\" matches the seeded title \"M1\"");
+
+        var collisionB = await client.GetFromJsonAsync<JsonElement>(
+            $"/api/v1/library?instanceId={instanceId}&search={Uri.EscapeDataString("M1:x")}&heatMode=y");
+        collisionB.GetProperty("total").GetInt32().Should().Be(0,
+            "no seeded title contains ':' so search=\"M1:x\" must match nothing, even though the old key " +
+            "collided this request with search=\"M1\", heatMode=\"x:y\" above");
     }
 
     [Fact]
