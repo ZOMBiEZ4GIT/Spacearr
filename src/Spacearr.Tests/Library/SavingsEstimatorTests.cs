@@ -7,7 +7,7 @@ namespace Spacearr.Tests.Library;
 public class SavingsEstimatorTests
 {
     private static LibraryRow Row(int id, long bytes, double duration, string quality) =>
-        new(id, 1, "R", ArrType.Radarr, MediaKind.Movie, $"M{id}", 2020, null, null, null, null, "HD", 4, quality, true, null, null, id, $"/x/{id}.mkv", bytes, duration, 1920, 1080, 24, "h264", 8, null, null, null, null, null, null);
+        new(id, 1, "R", ArrType.Radarr, MediaKind.Movie, $"M{id}", 2020, null, null, null, null, "HD", 4, quality, true, null, null, id, $"/x/{id}.mkv", bytes, duration, 1920, 1080, 24, "h264", 8, null, null, null, null, null, null, null, null);
 
     [Fact]
     public void Uses_library_median_when_enough_samples()

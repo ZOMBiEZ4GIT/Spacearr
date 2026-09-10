@@ -7,7 +7,7 @@ namespace Spacearr.Tests.Library;
 public class TreeBuilderTests
 {
     private static LibraryRow Row(int id, string title, long bytes, MediaKind kind = MediaKind.Movie, string? series = null, int? season = null, string codec = "h264") =>
-        new(id, 1, "R", ArrType.Radarr, kind, title, 2020, series is null ? null : 3, series, season, null, "HD", 4, "Bluray-1080p", true, null, null, id, $"/x/{id}.mkv", bytes, 3600, 1920, 1080, 24, codec, 8, null, 8_000_000, 8_200_000, "AAC 2.0", null, 0.16);
+        new(id, 1, "R", ArrType.Radarr, kind, title, 2020, series is null ? null : 3, series, season, null, "HD", 4, "Bluray-1080p", true, null, null, id, $"/x/{id}.mkv", bytes, 3600, 1920, 1080, 24, codec, 8, null, 8_000_000, 8_200_000, "AAC 2.0", null, 0.16, null, null);
 
     [Fact]
     public void Movies_are_leaves_and_episodes_nest_by_series_and_season()

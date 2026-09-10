@@ -11,7 +11,7 @@ public sealed record LibraryRow(
     string? QualityProfileName, int? QualityProfileId, string? QualityName, bool Monitored, string? Tags, string? PosterUrl,
     int FileId, string Path, long SizeBytes, double? DurationSeconds, int? Width, int? Height, double? FrameRate,
     string? VideoCodec, int? BitDepth, string? HdrFormat, long? VideoBitrateBps, long? OverallBitrateBps, string? AudioSummary, string? ProbeError,
-    double? Nbpp)
+    double? Nbpp, int? TmdbId, int? TvdbId)
 {
     /// <summary>
     /// Buckets on max(Height, Width * 9 / 16) rather than raw Height, so wide/cinema
@@ -67,12 +67,12 @@ public static class LibraryQueries
         i.QualityProfileName, i.QualityProfileId, i.QualityName, i.Monitored, i.Tags, i.PosterUrl,
         m.Id, m.Path, m.SizeBytes, m.DurationSeconds, m.Width, m.Height, m.FrameRate,
         m.VideoCodec, m.BitDepth, m.HdrFormat, m.VideoBitrateBps, m.OverallBitrateBps, m.AudioSummary, m.ProbeError,
-        Heat.NormalisedBpp(m.VideoBitrateBps, m.Width, m.Height, m.FrameRate, m.VideoCodec));
+        Heat.NormalisedBpp(m.VideoBitrateBps, m.Width, m.Height, m.FrameRate, m.VideoCodec), i.TmdbId, i.TvdbId);
 
     private static LibraryRow FromLooseFile(MediaFile m) => new(
         0, 0, "Unmatched", ArrType.Radarr, MediaKind.Movie, Path.GetFileName(m.Path), null,
         null, null, null, null, null, null, null, false, null, null,
         m.Id, m.Path, m.SizeBytes, m.DurationSeconds, m.Width, m.Height, m.FrameRate,
         m.VideoCodec, m.BitDepth, m.HdrFormat, m.VideoBitrateBps, m.OverallBitrateBps, m.AudioSummary, m.ProbeError,
-        Heat.NormalisedBpp(m.VideoBitrateBps, m.Width, m.Height, m.FrameRate, m.VideoCodec));
+        Heat.NormalisedBpp(m.VideoBitrateBps, m.Width, m.Height, m.FrameRate, m.VideoCodec), null, null);
 }

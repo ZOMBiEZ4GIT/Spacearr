@@ -14,15 +14,16 @@ public sealed record LibraryItemResponse(
     string? QualityProfileName, int? QualityProfileId, string? QualityName, bool Monitored, string? Tags, string? PosterUrl,
     int FileId, string Path, long SizeBytes, double? DurationSeconds, int? Width, int? Height, double? FrameRate,
     string? VideoCodec, int? BitDepth, string? HdrFormat, long? VideoBitrateBps, long? OverallBitrateBps, string? AudioSummary, string? ProbeError,
-    double? Nbpp, string? Resolution, double Heat, string Color)
+    double? Nbpp, int? TmdbId, int? TvdbId, string? Resolution, double Heat, string Color)
 {
     public static LibraryItemResponse From(LibraryRow r, double heat) => new(
         r.ItemId, r.InstanceId, r.InstanceName, r.InstanceType, r.Kind, r.Title, r.Year, r.SeriesId, r.SeriesTitle, r.SeasonNumber, r.Episodes,
         r.QualityProfileName, r.QualityProfileId, r.QualityName, r.Monitored, r.Tags, r.PosterUrl, r.FileId, r.Path, r.SizeBytes, r.DurationSeconds,
         r.Width, r.Height, r.FrameRate, r.VideoCodec, r.BitDepth, r.HdrFormat, r.VideoBitrateBps, r.OverallBitrateBps, r.AudioSummary, r.ProbeError,
-        r.Nbpp, r.Resolution, double.IsNaN(heat) ? -1 : heat, Spacearr.Library.Heat.Color(heat));
+        r.Nbpp, r.TmdbId, r.TvdbId, r.Resolution, double.IsNaN(heat) ? -1 : heat, Spacearr.Library.Heat.Color(heat));
 }
 
+public sealed record DuplicateGroupResponse(string Key, string Title, LibraryItemResponse[] Members, long WastedBytes, int KeepLargestId, int KeepSmallestId);
 public sealed record ProfileEstimate(int Id, string Name, SavingsEstimate Estimate);
 public sealed record LibraryDetailResponse(LibraryItemResponse Item, ProfileEstimate[] Profiles);
 public sealed record Bucket(string Name, long Bytes, int Count);
@@ -110,6 +111,16 @@ public static class LibraryEndpoints
             }
             return Results.Ok(new LibraryDetailResponse(item, profiles));
         });
+
+        app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
+        {
+            var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var heatByFile = rows.Select((r, i) => (r.FileId, heat[i])).ToDictionary(x => x.FileId, x => x.Item2);
+            var groups = DuplicateFinder.Find(rows).Select(g => new DuplicateGroupResponse(
+                g.Key, g.Title, g.Members.Select(m => LibraryItemResponse.From(m, heatByFile[m.FileId])).ToArray(), g.WastedBytes,
+                g.Members.OrderByDescending(m => m.SizeBytes).First().ItemId, g.Members.OrderBy(m => m.SizeBytes).First().ItemId));
+            return Results.Ok(groups);
+        }).RequireAuthorization();
 
         return app;
     }

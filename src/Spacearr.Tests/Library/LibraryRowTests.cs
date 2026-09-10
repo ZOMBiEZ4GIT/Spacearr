@@ -7,7 +7,7 @@ namespace Spacearr.Tests.Library;
 public class LibraryRowTests
 {
     private static LibraryRow Row(int? width, int? height) =>
-        new(1, 1, "R", ArrType.Radarr, MediaKind.Movie, "M", 2020, null, null, null, null, "HD", 4, "Bluray-1080p", true, null, null, 1, "/x/1.mkv", 1, 3600, width, height, 24, "h264", 8, null, 8_000_000, 8_200_000, "AAC 2.0", null, 0.16);
+        new(1, 1, "R", ArrType.Radarr, MediaKind.Movie, "M", 2020, null, null, null, null, "HD", 4, "Bluray-1080p", true, null, null, 1, "/x/1.mkv", 1, 3600, width, height, 24, "h264", 8, null, 8_000_000, 8_200_000, "AAC 2.0", null, 0.16, null, null);
 
     [Theory]
     [InlineData(1920, 804, "1080p")]   // 2.39:1 cinema master: raw height alone would misbucket as 720p
