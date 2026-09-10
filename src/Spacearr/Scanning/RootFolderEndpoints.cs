@@ -21,8 +21,8 @@ public static class RootFolderEndpoints
 
         group.MapPost("/", async (RootFolderRequest req, SpacearrDb db) =>
         {
-            var path = PathNormalizer.Normalize(req.Path ?? "");
-            if (path.Length == 0 || !Directory.Exists(path)) return Results.BadRequest(new { error = "That folder does not exist or Spacearr cannot see it. Inside Docker, check the volume is mounted." });
+            if (!TryResolveAbsolutePath(req.Path, out var path, out var pathError)) return pathError!;
+            if (!Directory.Exists(path)) return Results.BadRequest(new { error = "That folder does not exist or Spacearr cannot see it. Inside Docker, check the volume is mounted." });
             var all = await db.RootFolders.ToListAsync();
             if (all.Any(r => PathNormalizer.Equal(r.Path, path))) return Results.BadRequest(new { error = "That folder is already listed." });
             var root = new RootFolder { Path = path, Enabled = req.Enabled };
@@ -35,7 +35,7 @@ public static class RootFolderEndpoints
         {
             var root = await db.RootFolders.FindAsync(id);
             if (root is null) return Results.NotFound();
-            var path = PathNormalizer.Normalize(req.Path ?? "");
+            if (!TryResolveAbsolutePath(req.Path, out var path, out var pathError)) return pathError!;
             if (!Directory.Exists(path)) return Results.BadRequest(new { error = "That folder does not exist or Spacearr cannot see it." });
             root.Path = path;
             root.Enabled = req.Enabled;
@@ -55,8 +55,8 @@ public static class RootFolderEndpoints
 
         group.MapPost("/validate", async (ValidatePathRequest req, IFileDiscovery discovery, ISettingsService settings) =>
         {
-            var path = PathNormalizer.Normalize(req.Path ?? "");
-            if (path.Length == 0 || !Directory.Exists(path)) return Results.Ok(new ValidatePathResponse(false, Array.Empty<string>(), 0));
+            if (!TryResolveAbsolutePath(req.Path, out var path, out var pathError)) return pathError!;
+            if (!Directory.Exists(path)) return Results.Ok(new ValidatePathResponse(false, Array.Empty<string>(), 0));
             var ext = new HashSet<string>((await settings.GetAsync()).Extensions, StringComparer.OrdinalIgnoreCase);
             var sample = new List<string>();
             var count = 0;
@@ -77,4 +77,32 @@ public static class RootFolderEndpoints
     }
 
     private static RootFolderResponse ToResponse(RootFolder r) => new(r.Id, r.Path, r.Enabled, r.LastScanAt, Directory.Exists(r.Path));
+
+    /// <summary>
+    /// Rejects relative and traversal-only input (e.g. "..") up front via
+    /// Path.IsPathRooted, then resolves the rest through Path.GetFullPath so any
+    /// embedded ".." segments are collapsed before the path is persisted or used.
+    /// </summary>
+    private static bool TryResolveAbsolutePath(string? raw, out string resolved, out IResult? error)
+    {
+        var normalized = PathNormalizer.Normalize(raw ?? "");
+        if (normalized.Length == 0 || !Path.IsPathRooted(normalized))
+        {
+            resolved = "";
+            error = Results.BadRequest(new { error = "Enter an absolute path, e.g. /media/movies or D:\\Media." });
+            return false;
+        }
+        try
+        {
+            resolved = PathNormalizer.Normalize(Path.GetFullPath(normalized));
+            error = null;
+            return true;
+        }
+        catch (Exception ex) when (ex is ArgumentException or PathTooLongException or NotSupportedException)
+        {
+            resolved = "";
+            error = Results.BadRequest(new { error = "Enter an absolute path, e.g. /media/movies or D:\\Media." });
+            return false;
+        }
+    }
 }

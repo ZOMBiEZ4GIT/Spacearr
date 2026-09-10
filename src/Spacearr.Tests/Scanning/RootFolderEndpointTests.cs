@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Spacearr.Scanning;
 
 namespace Spacearr.Tests.Scanning;
 
@@ -16,6 +17,9 @@ public class RootFolderEndpointTests : IClassFixture<TestApp>, IDisposable
     {
         var client = await AuthedClient.CreateAsync(_app);
         File.WriteAllBytes(Path.Combine(_dir, "x.mkv"), new byte[2_000_000]);
+
+        var relative = await client.PostAsJsonAsync("/api/v1/roots", new { path = ".." });
+        relative.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         var validate = await client.PostAsJsonAsync("/api/v1/roots/validate", new { path = _dir });
         var v = await validate.Content.ReadFromJsonAsync<ValidateDto>();
@@ -40,6 +44,12 @@ public class RootFolderEndpointTests : IClassFixture<TestApp>, IDisposable
 
         var del = await client.DeleteAsync($"/api/v1/roots/{root.Id}");
         del.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var traversalPath = Path.Combine(_dir, "sub", "..");
+        var traversal = await client.PostAsJsonAsync("/api/v1/roots", new { path = traversalPath });
+        traversal.StatusCode.Should().Be(HttpStatusCode.Created);
+        var resolved = await traversal.Content.ReadFromJsonAsync<RootDto>();
+        resolved!.Path.Should().Be(PathNormalizer.Normalize(_dir));
     }
 
     private sealed record ValidateDto(bool Exists, string[] SampleFiles, int MediaFileCountSample);
