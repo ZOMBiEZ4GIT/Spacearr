@@ -5,6 +5,7 @@ export class PosterCache {
   private queued = new Set<number>();
   private queue: number[] = [];
   private inflight = 0;
+  private raf = 0;
   private onLoad: () => void;
   private maxInflight: number;
 
@@ -22,6 +23,12 @@ export class PosterCache {
     return null;
   }
 
+  /** Coalesces the repaints from a burst of finished loads into a single frame. */
+  private notify() {
+    if (this.raf) return;
+    this.raf = requestAnimationFrame(() => { this.raf = 0; this.onLoad(); });
+  }
+
   private pump() {
     while (this.inflight < this.maxInflight && this.queue.length > 0) {
       const id = this.queue.shift()!;
@@ -30,7 +37,7 @@ export class PosterCache {
       const img = new Image();
       this.images.set(id, img);
       this.inflight++;
-      img.onload = () => { this.inflight--; this.onLoad(); this.pump(); };
+      img.onload = () => { this.inflight--; this.notify(); this.pump(); };
       img.onerror = () => { this.inflight--; this.failed.add(id); this.images.delete(id); this.pump(); };
       img.src = `/api/v1/posters/${id}`;
     }

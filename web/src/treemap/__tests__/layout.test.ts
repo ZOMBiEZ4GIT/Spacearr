@@ -1,4 +1,4 @@
-import { layoutTree, hitTest } from '../layout';
+import { layoutTree, hitTest, resolvePath } from '../layout';
 import type { TreeNode } from '../../api/types';
 
 const leaf = (name: string, bytes: number, itemId: number): TreeNode => ({ name, bytes, children: null, leaf: { itemId, fileId: itemId, heat: 0.5, color: '#888', posterUrl: null, quality: null, codec: null, resolution: null, instanceId: 1, instanceName: 'R' } });
@@ -36,5 +36,21 @@ describe('layout', () => {
     const show = rects.find((r) => r.node.name === 'Show')!;
     expect(show.collapsed).toBe(true);
     expect(rects.some((r) => r.node.name === 'E1')).toBe(false);
+  });
+});
+
+describe('resolvePath', () => {
+  it('resolves a name path to nodes', () => {
+    const p = resolvePath(tree, ['Show', 'Season 1']);
+    expect(p.map((n) => n.name)).toEqual(['Library', 'Show', 'Season 1']);
+  });
+
+  it('stops at the deepest resolvable prefix when the tree changed', () => {
+    expect(resolvePath(tree, ['Show', 'Season 9']).map((n) => n.name)).toEqual(['Library', 'Show']);
+    expect(resolvePath(tree, ['Gone']).map((n) => n.name)).toEqual(['Library']);
+  });
+
+  it('never descends into a leaf', () => {
+    expect(resolvePath(tree, ['Big']).map((n) => n.name)).toEqual(['Library']);
   });
 });

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TreeLeaf, TreeNode } from '../api/types';
 import { categoryColor, heatColor, supportsOklch } from '../lib/heat';
 import { formatBytes } from '../lib/format';
-import { hitTest, layoutTree, type LayoutRect } from './layout';
+import { hitTest, layoutTree, resolvePath, type LayoutRect } from './layout';
 import { paintBase, paintOverlay, type PaintOptions, type PaintTheme } from './renderer';
 import { PosterCache } from './posters';
 import Tooltip, { type TooltipData } from './Tooltip';
@@ -16,6 +16,7 @@ interface Props {
   selectedItemId: number | null;
   showPosters?: boolean;
   onSelect: (leaf: TreeLeaf | null, name: string) => void;
+  onZoom?: (node: TreeNode, path: TreeNode[]) => void;
   onHover?: (leaf: TreeLeaf | null, name: string, rect: LayoutRect | null) => void;
 }
 
@@ -26,6 +27,7 @@ const cssVar = (name: string) => getComputedStyle(document.documentElement).getP
 function readTheme(): PaintTheme & { fontFamily: string; monoFamily: string } {
   return {
     surface: cssVar('--surface') || '#fff',
+    surface2: cssVar('--surface-2') || '#eee',
     ink: cssVar('--ink') || '#000',
     muted: cssVar('--muted') || '#666',
     accent: cssVar('--accent') || '#b07410',
@@ -50,27 +52,32 @@ function useThemeVars() {
   return vars;
 }
 
-export default function Treemap({ tree, colorBy, selectedItemId, showPosters = true, onSelect, onHover }: Props) {
+export default function Treemap({ tree, colorBy, selectedItemId, showPosters = true, onSelect, onZoom, onHover }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const baseRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const [path, setPath] = useState<TreeNode[]>([]);
+  // The zoom is stored as node names, not node objects, so it survives a refetch that replaces the tree.
+  const [zoomNames, setZoomNames] = useState<string[]>([]);
   const [hovered, setHovered] = useState<LayoutRect | null>(null);
   const [focusIndex, setFocusIndex] = useState<number>(-1);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const [posterTick, bump] = useState(0);
+  const lastHitRef = useRef<LayoutRect | null>(null);
   const posters = useMemo(() => new PosterCache(() => bump((n) => n + 1)), []);
   const animRef = useRef<{ from: Map<TreeNode, LayoutRect>; start: number } | null>(null);
   const vars = useThemeVars();
 
+  // A new tree keeps the zoom: re-resolve the deepest prefix of the name path that still exists.
+  const path = useMemo<TreeNode[]>(() => (tree ? resolvePath(tree, zoomNames) : []), [tree, zoomNames]);
+  const zoomRoot = path[path.length - 1];
+
   useEffect(() => {
-    setPath(tree ? [tree] : []);
     setFocusIndex(-1);
     setHovered(null);
     setTooltip(null);
+    lastHitRef.current = null;
   }, [tree]);
-  const zoomRoot = path[path.length - 1];
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -118,7 +125,7 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
     showPosters,
     fontFamily: vars.fontFamily,
     monoFamily: vars.monoFamily,
-    theme: { surface: vars.surface, ink: vars.ink, muted: vars.muted, accent: vars.accent, line: vars.line },
+    theme: { surface: vars.surface, surface2: vars.surface2, ink: vars.ink, muted: vars.muted, accent: vars.accent, line: vars.line },
   }), [dpr, colorFor, posters, showPosters, vars, posterTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const focused = focusIndex >= 0 ? navLeaves[focusIndex] ?? null : null;
@@ -132,19 +139,19 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
   useEffect(() => {
     const canvas = baseRef.current;
     if (!canvas || size.width === 0 || size.height === 0) return;
-    canvas.width = Math.round(size.width * dpr);
-    canvas.height = Math.round(size.height * dpr);
+    const bw = Math.round(size.width * dpr), bh = Math.round(size.height * dpr);
+    if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const anim = animRef.current;
-    animRef.current = null;
-    if (!anim || reduceMotion()) { paintBase(ctx, rects, baseOpts); return; }
+    if (!anim || reduceMotion()) { animRef.current = null; paintBase(ctx, rects, baseOpts); return; }
     let raf = 0;
     let cancelled = false;
     const step = (now: number) => {
       if (cancelled) return;
       const t = Math.min(1, (now - anim.start) / ZOOM_MS);
-      if (t >= 1) { paintBase(ctx, rects, baseOpts); return; }
+      // The anim record is only cleared once it has actually finished, so a repaint mid-zoom resumes it.
+      if (t >= 1) { animRef.current = null; paintBase(ctx, rects, baseOpts); return; }
       const e = 1 - Math.pow(1 - t, 3);
       const interpolated = rects.map((r) => {
         const f = anim.from.get(r.node);
@@ -170,16 +177,21 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
     if (ctx) paintOverlay(ctx, rects, overlayOpts);
   }, [rects, size, overlayOpts, dpr]);
 
-  const zoomTo = useCallback((node: TreeNode, newPath: TreeNode[]) => {
+  const zoomTo = useCallback((names: string[]) => {
     const from = new Map<TreeNode, LayoutRect>();
     rects.forEach((r) => from.set(r.node, r));
     animRef.current = { from, start: performance.now() };
-    setPath(newPath);
+    setZoomNames(names);
     setHovered(null);
     setTooltip(null);
     setFocusIndex(-1);
-    onSelect(null, node.name);
-  }, [rects, onSelect]);
+    lastHitRef.current = null;
+    // Zooming is navigation, not selection: the current selection is left alone.
+    if (onZoom && tree) {
+      const next = resolvePath(tree, names);
+      onZoom(next[next.length - 1], next);
+    }
+  }, [rects, onZoom, tree]);
 
   const pointAt = (e: React.MouseEvent) => {
     const b = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -191,25 +203,31 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
     const hit = hitTest(rects, x, y);
     setHovered((prev) => (prev === hit ? prev : hit));
     setTooltip(hit ? { name: hit.node.name, bytes: hit.node.bytes, leaf: hit.node.leaf, x, y } : null);
-    onHover?.(hit?.node.leaf ?? null, hit?.node.name ?? '', hit);
+    if (lastHitRef.current !== hit) {
+      lastHitRef.current = hit;
+      onHover?.(hit?.node.leaf ?? null, hit?.node.name ?? '', hit);
+    }
   };
 
   const clearHover = () => {
     setHovered(null);
     setTooltip(null);
-    onHover?.(null, '', null);
+    if (lastHitRef.current !== null) {
+      lastHitRef.current = null;
+      onHover?.(null, '', null);
+    }
   };
 
   const onClick = (e: React.MouseEvent) => {
     const { x, y } = pointAt(e);
     const hit = hitTest(rects, x, y);
     if (!hit) return;
-    if (hit.isGroup) { zoomTo(hit.node, [...path, hit.node]); return; }
+    if (hit.isGroup) { zoomTo([...zoomNames.slice(0, path.length - 1), hit.node.name]); return; }
     onSelect(hit.node.leaf, hit.node.name);
   };
 
   const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape' && path.length > 1) { e.preventDefault(); zoomTo(path[path.length - 2], path.slice(0, -1)); return; }
+    if (e.key === 'Escape' && path.length > 1) { e.preventDefault(); zoomTo(zoomNames.slice(0, path.length - 2)); return; }
     if (navLeaves.length === 0) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
@@ -224,14 +242,12 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
     }
   };
 
-  const empty = !tree || !tree.children || tree.children.length === 0;
+  // Only an actually-empty tree gets the empty state; while `tree` is undefined the page owns the loading UI.
+  const empty = !!tree && (!tree.children || tree.children.length === 0);
   return (
-    <div className={s.wrap} ref={wrapRef}>
-      {path.length > 1 && (
-        <div className={s.crumbBar}>
-          <Breadcrumb path={path} onZoomTo={(i) => zoomTo(path[i], path.slice(0, i + 1))} />
-        </div>
-      )}
+    <div className={s.root}>
+      {path.length > 1 && <Breadcrumb path={path} onZoomTo={(i) => zoomTo(zoomNames.slice(0, i))} />}
+      <div className={s.wrap} ref={wrapRef}>
       <canvas ref={baseRef} className={s.canvas} aria-hidden="true" />
       <canvas
         ref={overlayRef}
@@ -248,6 +264,7 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
       {tooltip && <Tooltip data={tooltip} bounds={size} />}
       <div className={s.live} aria-live="polite">{focused ? `${focused.node.name}, ${formatBytes(focused.node.bytes)}` : ''}</div>
       {empty && <div className={s.empty}>Nothing scanned yet. Add a library folder and run a scan.</div>}
+      </div>
     </div>
   );
 }

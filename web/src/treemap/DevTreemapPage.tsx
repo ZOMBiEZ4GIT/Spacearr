@@ -114,6 +114,7 @@ export default function DevTreemapPage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [label, setLabel] = useState('');
   const [posters, setPosters] = useState(false);
+  const [zoom, setZoom] = useState('Library');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 8, padding: 12 }}>
@@ -127,6 +128,7 @@ export default function DevTreemapPage() {
         </label>
         <Legend colorBy={colorBy} heatMode="relative" categories={['h264', 'hevc', 'mpeg2']} />
         <span className="muted" data-testid="dev-selection">{label || 'nothing selected'}</span>
+        <span className="muted" data-testid="dev-zoom">zoom: {zoom}</span>
       </div>
       <div style={{ flex: 1, minHeight: 400, border: '1px solid var(--line)' }}>
         <Treemap
@@ -135,7 +137,8 @@ export default function DevTreemapPage() {
           heatMode="relative"
           selectedItemId={selected}
           showPosters={posters}
-          onSelect={(l, name) => { setSelected(l?.itemId ?? null); setLabel(l ? `selected: ${name}` : name ? `zoomed: ${name}` : ''); }}
+          onSelect={(l, name) => { setSelected(l?.itemId ?? null); setLabel(l ? `selected: ${name}` : 'nothing selected'); }}
+          onZoom={(node, p) => setZoom(p.map((n) => n.name).join(' / ') + (node ? '' : ''))}
         />
       </div>
     </div>

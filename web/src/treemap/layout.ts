@@ -5,7 +5,7 @@ export interface LayoutRect { x0: number; y0: number; x1: number; y1: number; de
 export interface Padding { outer: number; top: number; inner: number }
 const MIN_GROUP = 24;
 
-export function layoutTree(root: TreeNode, width: number, height: number, padding: Padding = { outer: 2, top: 18, inner: 1 }): LayoutRect[] {
+export function layoutTree(root: TreeNode, width: number, height: number, padding: Padding = { outer: 2, top: 18, inner: 1.5 }): LayoutRect[] {
   const h = hierarchy<TreeNode>(root, (n) => n.children ?? undefined).sum((n) => (n.children ? 0 : n.bytes)).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
   treemap<TreeNode>().tile(treemapSquarify).size([width, height]).paddingOuter(padding.outer).paddingInner(padding.inner).paddingTop((d) => (d.children ? padding.top : 0))(h);
   const out: LayoutRect[] = [];
@@ -29,4 +29,20 @@ export function hitTest(rects: LayoutRect[], x: number, y: number): LayoutRect |
     if (!best || r.depth > best.depth || (r.depth === best.depth && !r.isGroup)) best = r;
   }
   return best;
+}
+
+/**
+ * Resolves a zoom path expressed as node names against a (possibly refreshed) tree,
+ * stopping at the deepest prefix that still exists. Always returns at least the root.
+ */
+export function resolvePath(root: TreeNode, names: string[]): TreeNode[] {
+  const out: TreeNode[] = [root];
+  let cur = root;
+  for (const name of names) {
+    const next = cur.children?.find((c) => c.name === name && c.children);
+    if (!next) break;
+    out.push(next);
+    cur = next;
+  }
+  return out;
 }

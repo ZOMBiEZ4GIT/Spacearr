@@ -3,12 +3,14 @@ import type { TreeLeaf } from '../api/types';
 import type { PosterCache } from './posters';
 import { formatBytes } from '../lib/format';
 
-export interface PaintTheme { surface: string; ink: string; muted: string; accent: string; line: string }
+export interface PaintTheme { surface: string; surface2: string; ink: string; muted: string; accent: string; line: string }
 export interface PaintOptions {
   dpr: number; colorFor: (leaf: TreeLeaf) => string; hovered: LayoutRect | null; focused: LayoutRect | null; selectedItemId: number | null;
   posters: PosterCache; showPosters: boolean; fontFamily: string; monoFamily: string;
   theme: PaintTheme;
 }
+
+const SCRIM = 34;
 
 function ellipsis(ctx: CanvasRenderingContext2D, text: string, max: number): string {
   if (max <= 0) return '';
@@ -26,12 +28,14 @@ export function paintBase(ctx: CanvasRenderingContext2D, rects: LayoutRect[], o:
     const w = r.x1 - r.x0, h = r.y1 - r.y0;
     if (w <= 0 || h <= 0) continue;
     if (r.isGroup) {
-      ctx.fillStyle = o.theme.surface;
+      // Nested groups sit on a darker plate so the hierarchy reads at a glance.
+      ctx.fillStyle = r.depth >= 2 ? o.theme.surface2 : o.theme.surface;
       ctx.fillRect(r.x0, r.y0, w, h);
       ctx.strokeStyle = o.theme.line; ctx.lineWidth = 1; ctx.strokeRect(r.x0 + 0.5, r.y0 + 0.5, w - 1, h - 1);
       if (h >= 16 && w >= 30) {
+        const indent = r.depth >= 2 ? 10 : 4;
         ctx.fillStyle = o.theme.ink; ctx.font = `600 12px ${o.fontFamily}`; ctx.textBaseline = 'middle';
-        ctx.fillText(ellipsis(ctx, `${r.node.name}  ${formatBytes(r.node.bytes)}`, w - 8), r.x0 + 4, r.y0 + 9);
+        ctx.fillText(ellipsis(ctx, `${r.node.name}  ${formatBytes(r.node.bytes)}`, w - indent - 4), r.x0 + indent, r.y0 + 9);
       }
       continue;
     }
@@ -61,10 +65,18 @@ export function paintBase(ctx: CanvasRenderingContext2D, rects: LayoutRect[], o:
       ctx.restore();
     }
     if (w >= 64 && h >= 34) {
-      ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(r.x0, r.y1 - 30, w, 30);
-      ctx.fillStyle = '#fff'; ctx.font = `600 12px ${o.fontFamily}`; ctx.textBaseline = 'alphabetic';
+      // A gradient scrim rather than a flat bar, so the heat colour still reads under the label.
+      const scrim = ctx.createLinearGradient(0, r.y1 - SCRIM, 0, r.y1);
+      scrim.addColorStop(0, 'rgba(0,0,0,0)');
+      scrim.addColorStop(1, 'rgba(0,0,0,0.72)');
+      ctx.fillStyle = scrim; ctx.fillRect(r.x0, r.y1 - SCRIM, w, SCRIM);
+      ctx.textBaseline = 'alphabetic';
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 1; ctx.shadowOffsetY = 1;
+      ctx.fillStyle = '#fff'; ctx.font = `600 12px ${o.fontFamily}`;
       ctx.fillText(ellipsis(ctx, r.node.name, w - 10), r.x0 + 5, r.y1 - 16);
-      ctx.font = `11px ${o.monoFamily}`; ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.restore();
+      ctx.font = `10.5px ${o.monoFamily}`; ctx.fillStyle = 'rgba(255,255,255,0.7)';
       ctx.fillText(formatBytes(r.node.bytes), r.x0 + 5, r.y1 - 4);
     }
   }

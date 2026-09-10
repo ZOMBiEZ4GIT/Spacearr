@@ -1,5 +1,5 @@
 const stops: [number, [number, number, number]][] = [
-  [0, [56, 0.12, 155]], [0.4, [74, 0.14, 90]], [0.7, [68, 0.17, 55]], [1, [60, 0.19, 25]],
+  [0, [56, 0.12, 155]], [0.4, [75, 0.15, 100]], [0.7, [68, 0.17, 55]], [1, [60, 0.19, 25]],
 ];
 export const UNKNOWN = 'oklch(55% 0.01 200)';
 const fmt = (l: number, c: number, h: number) => `oklch(${+l.toFixed(1)}% ${+c.toFixed(3)} ${+h.toFixed(1)})`;
