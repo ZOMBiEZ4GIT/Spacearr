@@ -8,7 +8,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers: body === undefined ? {} : { 'content-type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (res.status === 401) window.dispatchEvent(new Event('spacearr:unauthorized'));
+  if (res.status === 401) window.dispatchEvent(new CustomEvent('spacearr:unauthorized', { detail: { path } }));
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
     try { const j = await res.json(); if (j && typeof j.error === 'string') message = j.error; } catch { /* not json */ }

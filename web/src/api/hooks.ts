@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from './client';
+import { stopEvents } from './events';
 import type * as T from './types';
 
 const qs = (p: object) => {
@@ -27,9 +28,30 @@ function useInvalidating<TArgs = void, TResult = void>(fn: (a: TArgs) => Promise
   const qc = useQueryClient();
   return useMutation({ mutationFn: fn, onSuccess: () => keys.forEach((k) => qc.invalidateQueries({ queryKey: [k] })) });
 }
-export const useLogin = () => useInvalidating((b: { username: string; password: string }) => api.post('/api/v1/auth/login', b), ['me', 'status']);
+export const useLogin = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (b: { username: string; password: string }) => api.post('/api/v1/auth/login', b),
+    onSuccess: () => {
+      // Drop the cached error first so a successful login never renders a stale
+      // isError from the pre-login /auth/me 401 while the refetch is in flight.
+      qc.removeQueries({ queryKey: ['me'] });
+      qc.invalidateQueries({ queryKey: ['me'] });
+      qc.invalidateQueries({ queryKey: ['status'] });
+    },
+  });
+};
 export const useSetup = () => useInvalidating((b: { username: string; password: string }) => api.post<T.Me>('/api/v1/setup', b), ['status']);
-export const useLogout = () => useInvalidating(() => api.post('/api/v1/auth/logout'), ['me']);
+export const useLogout = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post('/api/v1/auth/logout'),
+    onSuccess: () => {
+      stopEvents();
+      qc.removeQueries({ queryKey: ['me'] });
+    },
+  });
+};
 export const useSaveSettings = () => useInvalidating((s: T.AppSettings) => api.put('/api/v1/settings', s), ['settings', 'status']);
 export const useTestConnection = () => useMutation({ mutationFn: (b: { type: T.ArrType; baseUrl: string; apiKey: string }) => api.post<T.TestResult>('/api/v1/instances/test', b) });
 export const useTestInstance = () => useMutation({ mutationFn: (id: number) => api.post<T.TestResult>(`/api/v1/instances/${id}/test`) });

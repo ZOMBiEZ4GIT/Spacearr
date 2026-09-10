@@ -7,12 +7,18 @@ const listeners = new Set<Listener>();
 let progress: Record<number, ProgressEvent> = {};
 let source: EventSource | null = null;
 let backoff = 1000;
+let stopped = true;
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 function emit() { listeners.forEach((l) => l()); }
 
 export function startEvents(qc: QueryClient) {
-  if (source) return;
+  stopped = false;
+  // Guard the window between onerror nulling `source` and the reconnect timer firing:
+  // if either a source is already open or a reconnect is already scheduled, do nothing.
+  if (source || reconnectTimer) return;
   const connect = () => {
+    if (stopped) return;
     source = new EventSource('/api/v1/events');
     source.addEventListener('progress', (e) => {
       const ev = JSON.parse((e as MessageEvent).data) as ProgressEvent;
@@ -28,14 +34,19 @@ export function startEvents(qc: QueryClient) {
     source.onopen = () => { backoff = 1000; };
     source.onerror = () => {
       source?.close(); source = null;
-      setTimeout(connect, backoff);
+      if (stopped) return;
+      reconnectTimer = setTimeout(() => { reconnectTimer = null; connect(); }, backoff);
       backoff = Math.min(backoff * 2, 30_000);
     };
   };
   connect();
 }
 
-export function stopEvents() { source?.close(); source = null; }
+export function stopEvents() {
+  stopped = true;
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  source?.close(); source = null;
+}
 
 const subscribe = (l: Listener) => { listeners.add(l); return () => { listeners.delete(l); }; };
 const getSnapshot = () => progress;
