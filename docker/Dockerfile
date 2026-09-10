@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.title="Spacearr" \
       org.opencontainers.image.description="The cooler looking WinDirStat for your arr stack" \
       org.opencontainers.image.source="https://github.com/ZOMBiEZ4GIT/Spacearr" \
       org.opencontainers.image.licenses="GPL-3.0"
-RUN apk add --no-cache ffmpeg mediainfo su-exec tzdata icu-libs \
+RUN apk add --no-cache ffmpeg mediainfo su-exec tzdata \
     && addgroup -g 1000 spacearr && adduser -D -u 1000 -G spacearr spacearr
 ENV SPACEARR_CONFIG_DIR=/config SPACEARR_PORT=8787 PUID=1000 PGID=1000 UMASK=002 TZ=Etc/UTC \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 ASPNETCORE_ENVIRONMENT=Production

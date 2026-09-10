@@ -1,9 +1,19 @@
 import { createServer, Server } from 'node:http';
 import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { files, libraryDir } from './fixture';
 
-// A tiny 1x1 PNG served for every /MediaCover/* poster request, for both fake apps below.
+// A tiny 1x1 PNG served for every /MediaCover/* poster request that has no per-item
+// poster file (the smoke test fixture below never sets `posterPath`); the screenshot
+// fixture (web/e2e/screenshots.ts) sets `posterPath` on every item to a distinct,
+// generated 300x450 JPEG instead so the treemap and detail panel render real-looking art.
 const png1x1 = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+const fallbackPoster = { buf: png1x1, contentType: 'image/png' };
+
+function loadPoster(posterPath?: string): { buf: Buffer; contentType: string } {
+  if (!posterPath || !existsSync(posterPath)) return fallbackPoster;
+  return { buf: readFileSync(posterPath), contentType: 'image/jpeg' };
+}
 
 function json(res: import('node:http').ServerResponse, body: unknown, status = 200) {
   res.writeHead(status, { 'content-type': 'application/json' });
@@ -16,6 +26,8 @@ export const defaultProfiles: FakeProfile[] = [{ id: 4, name: 'HD-1080p' }, { id
 export interface FakeMovie {
   id: number; title: string; year: number; tmdbId: number; qualityProfileId: number; qualityName: string;
   path: string; sizeBytes: number;
+  /** Absolute path to a pre-rendered poster image; falls back to a 1x1 PNG when absent. */
+  posterPath?: string;
 }
 
 export interface RadarrFixtureOptions {
@@ -26,6 +38,7 @@ export interface RadarrFixtureOptions {
  * and with a second, differently-configured instance by the screenshot generator. */
 export function startRadarrFake(opts: RadarrFixtureOptions): Server {
   const profiles = opts.profiles ?? defaultProfiles;
+  const posters = new Map(opts.movies.map((f) => [f.id, loadPoster(f.posterPath)]));
   const movies = opts.movies.map((f) => ({
     id: f.id, title: f.title, year: f.year, monitored: true, qualityProfileId: f.qualityProfileId, tmdbId: f.tmdbId, tags: [],
     images: [{ coverType: 'poster', url: `/MediaCover/${f.id}/poster.jpg` }],
@@ -45,6 +58,12 @@ export function startRadarrFake(opts: RadarrFixtureOptions): Server {
     if (m && req.method === 'PUT') return json(res, {});
     if (p.startsWith('/api/v3/moviefile/') && req.method === 'DELETE') return json(res, {});
     if (p === '/api/v3/command') return json(res, { id: 1 });
+    const cover = p.match(/^\/MediaCover\/(\d+)\/poster\.jpg$/);
+    if (cover) {
+      const poster = posters.get(Number(cover[1])) ?? fallbackPoster;
+      res.writeHead(200, { 'content-type': poster.contentType });
+      return res.end(poster.buf);
+    }
     if (p.startsWith('/MediaCover/')) { res.writeHead(200, { 'content-type': 'image/png' }); return res.end(png1x1); }
     res.writeHead(404); res.end();
   });
@@ -57,6 +76,8 @@ export interface FakeEpisode { id: number; episodeNumber: number; seasonNumber: 
 export interface FakeSeries {
   id: number; title: string; year: number; tvdbId: number; qualityProfileId: number; monitored: boolean;
   files: FakeEpisodeFile[]; episodes: FakeEpisode[];
+  /** Absolute path to a pre-rendered poster image; falls back to a 1x1 PNG when absent. */
+  posterPath?: string;
 }
 
 export interface SonarrFixtureOptions {
@@ -67,6 +88,7 @@ export interface SonarrFixtureOptions {
  * system/status, series, episode?seriesId=, episodefile?seriesId=, qualityprofile, rootfolder. */
 export function startSonarrFake(opts: SonarrFixtureOptions): Server {
   const profiles = opts.profiles ?? defaultProfiles;
+  const posters = new Map(opts.series.map((s) => [s.id, loadPoster(s.posterPath)]));
   const series = opts.series.map((s) => ({
     id: s.id, title: s.title, year: s.year, tvdbId: s.tvdbId, imdbId: null, monitored: s.monitored, qualityProfileId: s.qualityProfileId, tags: [],
     images: [{ coverType: 'poster', url: `/MediaCover/${s.id}/poster.jpg` }],
@@ -103,6 +125,12 @@ export function startSonarrFake(opts: SonarrFixtureOptions): Server {
     const em = p.match(/^\/api\/v3\/episode\/(\d+)$/);
     if (em && req.method === 'PUT') return json(res, {});
     if (p === '/api/v3/command') return json(res, { id: 1 });
+    const cover = p.match(/^\/MediaCover\/(\d+)\/poster\.jpg$/);
+    if (cover) {
+      const poster = posters.get(Number(cover[1])) ?? fallbackPoster;
+      res.writeHead(200, { 'content-type': poster.contentType });
+      return res.end(poster.buf);
+    }
     if (p.startsWith('/MediaCover/')) { res.writeHead(200, { 'content-type': 'image/png' }); return res.end(png1x1); }
     res.writeHead(404); res.end();
   });

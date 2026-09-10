@@ -11,6 +11,7 @@ export function formatBitrate(bps?: number | null): string {
 }
 export function formatDuration(s?: number | null): string {
   if (s == null || s <= 0) return '—';
+  if (s < 60) return `${Math.round(s)}s`;
   const h = Math.floor(s / 3600); const m = Math.round((s % 3600) / 60);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }

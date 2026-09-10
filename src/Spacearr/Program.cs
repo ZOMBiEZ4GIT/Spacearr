@@ -26,6 +26,14 @@ builder.Services.AddDbContext<SpacearrDb>(o =>
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .MinimumLevel.Information()
+    // Data Protection keys live at /config/keys, mode 0600 (and the directory
+    // itself is 0700 on non-Windows - see AddSpacearrDataProtection), so the
+    // "No XML encryptor configured" warning ASP.NET Core logs on every start
+    // is expected, not a misconfiguration: at-rest encryption of the keyring
+    // needs a certificate, which v1 doesn't ask users to provision, and the
+    // filesystem permissions are the actual protection. Silence it so it
+    // doesn't read as a bug report waiting to happen.
+    .MinimumLevel.Override("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", Serilog.Events.LogEventLevel.Error)
     .WriteTo.Console()
     .WriteTo.File(Path.Combine(paths.LogDirectory, "spacearr-.log"), rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7));
 

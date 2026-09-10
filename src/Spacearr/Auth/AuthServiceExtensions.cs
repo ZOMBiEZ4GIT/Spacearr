@@ -18,6 +18,10 @@ public static class AuthServiceExtensions
     {
         var keysDirectory = new DirectoryInfo(Path.Combine(configDir, "keys"));
         keysDirectory.Create();
+        if (!OperatingSystem.IsWindows())
+        {
+            File.SetUnixFileMode(keysDirectory.FullName, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
         services.AddDataProtection()
             .PersistKeysToFileSystem(keysDirectory)
             .SetApplicationName("Spacearr");

@@ -16,4 +16,8 @@ describe('format', () => {
     expect(formatDuration(2880)).toBe('48m');
     expect(formatDuration(undefined)).toBe('—');
   });
+  it('duration under a minute renders as seconds, not 0m', () => {
+    expect(formatDuration(45)).toBe('45s');
+    expect(formatDuration(9)).toBe('9s');
+  });
 });
