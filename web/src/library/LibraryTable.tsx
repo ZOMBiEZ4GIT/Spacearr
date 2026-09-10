@@ -11,7 +11,7 @@ const cols: [LibraryUiParams['sort'] | null, string, string][] = [['title', 'Tit
 export const episodeLabel = (i: Pick<LibraryItem, 'seriesTitle' | 'seasonNumber' | 'episodes'>) =>
   `${i.seriesTitle} · S${String(i.seasonNumber).padStart(2, '0')}E${(i.episodes ?? '').split(',').map((e) => e.trim().padStart(2, '0')).join('-E')}`;
 
-export default function LibraryTable({ items, total, selected, selectedFileId, sort, order, onSort, onSelect, onMore }: { items: LibraryItem[]; total: number; selected: number | null; selectedFileId: number | null; sort: string; order: string; onSort: (c: LibraryUiParams['sort']) => void; onSelect: (i: LibraryItem) => void; onMore: () => void }) {
+export default function LibraryTable({ items, total, hasMore, selected, selectedFileId, sort, order, onSort, onSelect, onMore }: { items: LibraryItem[]; total: number; hasMore: boolean; selected: number | null; selectedFileId: number | null; sort: string; order: string; onSort: (c: LibraryUiParams['sort']) => void; onSelect: (i: LibraryItem) => void; onMore: () => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const head = useRef<HTMLTableSectionElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -78,7 +78,11 @@ export default function LibraryTable({ items, total, selected, selectedFileId, s
           {end < items.length && <tr aria-hidden="true" style={{ height: (items.length - end) * ROW }}><td colSpan={7} /></tr>}
         </tbody>
       </table>
-      {items.length < total && <div style={{ padding: 10, textAlign: 'center' }}><span className="muted">Showing {items.length.toLocaleString()} of {total.toLocaleString()} · </span><button className="btn" onClick={onMore}>Load more</button></div>}
+      {/* Driven by the infinite query's own hasNextPage, not a comparison against `total` - a
+          page shorter than requested is always the last one even if `total` disagrees (e.g. it
+          changed between requests), and comparing lengths here could otherwise show a button
+          that calls onMore for a page the query has already decided doesn't exist. */}
+      {hasMore && <div style={{ padding: 10, textAlign: 'center' }}><span className="muted">Showing {items.length.toLocaleString()} of {total.toLocaleString()} · </span><button className="btn" onClick={onMore}>Load more</button></div>}
     </div>
   );
 }

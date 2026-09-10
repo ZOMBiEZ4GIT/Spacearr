@@ -21,14 +21,20 @@ export default function ActivityPage() {
       <div className={s.cardHead}><h1>Activity</h1><div className={s.row}><button className="btn" onClick={() => enrich.mutate()}>Match titles only</button><button className="btn btn-primary" onClick={() => scan.mutate()}>Scan now</button></div></div>
       <section className={`card ${s.grid}`}>
         <h2>Jobs</h2>
-        <table className={s.table}><thead><tr><th>Type</th><th>Trigger</th><th>Status</th><th>Started</th><th>Took</th><th>Summary</th><th /></tr></thead>
-          <tbody>{jobs.data?.items.map((j) => <JobRow key={j.id} j={j} onCancel={() => cancel.mutate(j.id)} />)}</tbody></table>
-        <div className={s.row}><button className="btn" disabled={page === 1} onClick={() => setPage(page - 1)}>Newer</button><button className="btn" disabled={!jobs.data || page * jobs.data.pageSize >= jobs.data.total} onClick={() => setPage(page + 1)}>Older</button></div>
+        {jobs.isError && <p className="error" role="alert">Could not load jobs. {jobs.error instanceof Error ? jobs.error.message : ''}</p>}
+        {!jobs.isError && (
+          <>
+            <table className={s.table}><thead><tr><th>Type</th><th>Trigger</th><th>Status</th><th>Started</th><th>Took</th><th>Summary</th><th /></tr></thead>
+              <tbody>{jobs.data?.items.map((j) => <JobRow key={j.id} j={j} onCancel={() => cancel.mutate(j.id)} />)}</tbody></table>
+            <div className={s.row}><button className="btn" disabled={page === 1} onClick={() => setPage(page - 1)}>Newer</button><button className="btn" disabled={!jobs.data || page * jobs.data.pageSize >= jobs.data.total} onClick={() => setPage(page + 1)}>Older</button></div>
+          </>
+        )}
       </section>
       <section className={`card ${s.grid}`}>
         <h2>Actions</h2>
-        {log.data?.items.length === 0 && <p className="muted">No actions yet. Actions you confirm from the library appear here.</p>}
-        {log.data && log.data.items.length > 0 && (
+        {log.isError && <p className="error" role="alert">Could not load the action log. {log.error instanceof Error ? log.error.message : ''}</p>}
+        {!log.isError && log.data?.items.length === 0 && <p className="muted">No actions yet. Actions you confirm from the library appear here.</p>}
+        {!log.isError && log.data && log.data.items.length > 0 && (
           <table className={s.table}><thead><tr><th>When</th><th>Action</th><th>Title</th><th>Freed</th><th>Quality</th><th>Outcome</th><th>Detail</th></tr></thead>
             <tbody>{log.data.items.map((a) => (
               <tr key={a.id}><td className="muted">{relative(a.at)}</td><td>{a.type}</td><td>{a.title}</td><td className={s.mono}>{formatBytes(a.sizeBytesBefore)}</td>

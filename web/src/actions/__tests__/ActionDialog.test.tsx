@@ -81,6 +81,31 @@ describe('ActionDialog', () => {
     await screen.findByRole('status');
   });
 
+  it('enables Close from the polled job status even when no SSE finished event ever arrives', async () => {
+    // This is Important finding #1: the SSE store (useJobProgress) is never started in this test
+    // (startEvents is never called), so `progress` stays undefined throughout - exactly the
+    // "connection dropped mid-job" scenario. Only the polled useJob query, reaching a terminal
+    // status, may enable Close here.
+    fetchMock.mockImplementation((url: string) => {
+      if (url.endsWith('/actions/preview')) return Promise.resolve(json({ request: { type: 'delete', itemId: 9 }, title: 'Reel (2018)', instanceName: 'Movies', instanceType: 'radarr', bytesFreedNow: 500_000_000, estimate: null, warning: null, steps: [{ description: 'Delete the file through Radarr', method: 'DELETE', path: '/y' }], confirmToken: 'tok5', expiresAt: '2026-09-10T12:10:00Z' }));
+      if (url.endsWith('/actions/execute')) return Promise.resolve(json({ jobId: 77 }, 202));
+      if (url.endsWith('/jobs/77')) {
+        return Promise.resolve(json({ id: 77, type: 'action', status: 'succeeded', trigger: 'manual', queuedAt: '2026-09-10T12:00:00Z', startedAt: '2026-09-10T12:00:01Z', finishedAt: '2026-09-10T12:00:02Z', summary: null, error: null, progress: null }));
+      }
+      return Promise.resolve(json({}, 404));
+    });
+    const qc = new QueryClient();
+    render(<QueryClientProvider client={qc}><ActionDialog kind="delete" itemId={9} onClose={() => {}} onDone={() => {}} /></QueryClientProvider>);
+    await screen.findByText('Reel (2018)');
+    const confirm = screen.getByRole('button', { name: /Delete/ });
+    await waitFor(() => expect(confirm).toBeEnabled(), { timeout: 3000 });
+    fireEvent.click(confirm);
+    await screen.findByRole('status');
+    const close = screen.getByRole('button', { name: 'Close' });
+    await waitFor(() => expect(close).toBeEnabled(), { timeout: 3000 });
+    expect(screen.getByRole('status')).toHaveTextContent('Done.');
+  });
+
   it('renders the subtitle and path when provided, to disambiguate identically titled copies', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (url.endsWith('/actions/preview')) return Promise.resolve(json({ request: { type: 'delete', itemId: 8 }, title: 'Arrival (2016)', instanceName: 'Movies', instanceType: 'radarr', bytesFreedNow: 1_360_818, estimate: null, warning: null, steps: [{ description: 'Delete the file through Radarr', method: 'DELETE', path: '/y' }], confirmToken: 'tok4', expiresAt: '2026-09-10T12:10:00Z' }));

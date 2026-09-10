@@ -17,6 +17,10 @@ export function startEvents(qc: QueryClient) {
   // Guard the window between onerror nulling `source` and the reconnect timer firing:
   // if either a source is already open or a reconnect is already scheduled, do nothing.
   if (source || reconnectTimer) return;
+  const scheduleReconnect = () => {
+    reconnectTimer = setTimeout(() => { reconnectTimer = null; connect(); }, backoff);
+    backoff = Math.min(backoff * 2, 30_000);
+  };
   const connect = () => {
     if (stopped) return;
     source = new EventSource('/api/v1/events');
@@ -31,12 +35,41 @@ export function startEvents(qc: QueryClient) {
       emit();
       ['jobs', 'library', 'tree', 'stats', 'duplicates', 'instances', 'roots', 'actionLog', 'item'].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
     });
-    source.onopen = () => { backoff = 1000; };
+    source.onopen = () => {
+      backoff = 1000;
+      // /api/v1/events has no replay: a (re)connect may have missed a job's `finished` event
+      // entirely, so a fresh connection - not just the first one - must re-synchronise rather
+      // than trust what's cached. Refetch the polled sources of truth...
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['job'] });
+      // ...and drop any progress-store entry that's still claiming to be in progress: it can
+      // only be trusted while the connection that's updating it stays open, and this one just
+      // (re)opened, so any such entry predates it and may already be stale (e.g. ScanPill
+      // rendering "Scanning" for ever off a job that actually finished while disconnected).
+      if (Object.values(progress).some((p) => p.kind === 'progress')) {
+        progress = Object.fromEntries(Object.entries(progress).filter(([, p]) => p.kind === 'finished'));
+        emit();
+      }
+    };
     source.onerror = () => {
       source?.close(); source = null;
       if (stopped) return;
-      reconnectTimer = setTimeout(() => { reconnectTimer = null; connect(); }, backoff);
-      backoff = Math.min(backoff * 2, 30_000);
+      // EventSource surfaces a 401 as the same generic error as any transport blip, so a logged-out
+      // tab would otherwise reconnect (and get another silent 401) for ever. Probe once with a real
+      // fetch - a cheap, already-authenticated endpoint - before scheduling a reconnect: a confirmed
+      // 401 means the session is gone, so dispatch the same 'spacearr:unauthorized' event client.ts
+      // uses (the app's existing handler takes it from there) and stop, instead of looping.
+      fetch('/api/v1/auth/me', { credentials: 'same-origin' })
+        .then((res) => {
+          if (stopped) return;
+          if (res.status === 401) {
+            window.dispatchEvent(new CustomEvent('spacearr:unauthorized', { detail: { path: '/api/v1/events' } }));
+            stopEvents();
+            return;
+          }
+          scheduleReconnect();
+        })
+        .catch(() => { if (!stopped) scheduleReconnect(); });
     };
   };
   connect();

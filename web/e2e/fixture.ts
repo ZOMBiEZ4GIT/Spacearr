@@ -10,7 +10,17 @@ export const files = [
 ];
 
 export function ensureFixture(): boolean {
-  try { execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' }); } catch { return false; }
+  try {
+    execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+  } catch (err) {
+    // In CI (Plan 4), a missing ffmpeg must fail the run, not report green with zero golden-path
+    // coverage via a silent test.skip. Left as a soft skip everywhere else (e.g. local dev
+    // without ffmpeg installed) so default behaviour is unchanged.
+    if (process.env.SPACEARR_E2E_REQUIRE_FFMPEG === '1') {
+      throw new Error(`SPACEARR_E2E_REQUIRE_FFMPEG=1 but ffmpeg is not on PATH: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    return false;
+  }
   for (const f of files) {
     const path = join(libraryDir, f.rel);
     if (existsSync(path)) continue;

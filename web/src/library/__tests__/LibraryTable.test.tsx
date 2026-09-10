@@ -26,7 +26,7 @@ beforeAll(() => {
 
 const props = {
   items: [item(1, 'Alpha'), item(2, 'Beta')],
-  total: 2, selected: null, selectedFileId: null, sort: 'size', order: 'desc',
+  total: 2, hasMore: false, selected: null, selectedFileId: null, sort: 'size', order: 'desc',
   onSort: () => {}, onSelect: () => {}, onMore: () => {},
 };
 
@@ -57,5 +57,22 @@ describe('LibraryTable', () => {
     const selected = screen.getAllByRole('row').filter((r) => r.getAttribute('aria-selected') === 'true');
     expect(selected).toHaveLength(1);
     expect(selected[0].textContent).toContain('Beta');
+  });
+
+  // Important finding #2: "Load more" must reflect the infinite query's own hasNextPage, not a
+  // comparison against `total` (which a short last page can disagree with once total is out of
+  // date) - otherwise the button can be visible while calling onMore does nothing.
+  it('shows Load more only when hasMore is true, regardless of how items compares to total', () => {
+    const { rerender } = render(<LibraryTable {...props} total={500} hasMore={false} />);
+    expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
+    rerender(<LibraryTable {...props} total={500} hasMore />);
+    expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument();
+  });
+
+  it('calls onMore when Load more is clicked', () => {
+    const onMore = vi.fn();
+    render(<LibraryTable {...props} total={500} hasMore onMore={onMore} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    expect(onMore).toHaveBeenCalledTimes(1);
   });
 });

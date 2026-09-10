@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useLibrary, useSettings, useStats, useTree } from '../api/hooks';
+import { useLibraryPages, useSettings, useStats, useTree } from '../api/hooks';
 import type { LibraryItem, ProfileEstimate, TreeLeaf, TreeNode } from '../api/types';
 import Treemap from '../treemap/Treemap';
 import Toolbar from './Toolbar';
@@ -35,7 +35,6 @@ export default function LibraryPage() {
   const { params, set } = useLibraryParams();
   const settings = useSettings();
   const heatMode = params.heatMode ?? settings.data?.heatMode ?? 'relative';
-  const [pages, setPages] = useState(1);
   const [action, setAction] = useState<{ kind: 'delete' | 'replace'; itemId: number; profile?: ProfileEstimate } | null>(null);
   // The row behind the current selection. Unmatched files have no id to put in the URL and no
   // detail endpoint, so their facts come from the list row itself.
@@ -43,14 +42,16 @@ export default function LibraryPage() {
   const common = { instanceId: params.instanceId ?? undefined, kind: params.kind ?? undefined, heatMode };
   const tree = useTree({ ...common, minBytes: params.minBytes, colorBy: params.colorBy });
   const stats = useStats(common);
-  const list = useLibrary({ ...common, minBytes: params.minBytes, search: params.search || undefined, sort: params.sort, order: params.order, page: 1, pageSize: 500 * pages });
+  // A fixed 500-row page, accumulated as `fetchNextPage` is called - the filters/sort object is
+  // part of the query key, so react-query itself resets the accumulated pages back to one
+  // whenever any of them change; no manual "reset to page 1" effect needed.
+  const list = useLibraryPages({ ...common, minBytes: params.minBytes, search: params.search || undefined, sort: params.sort, order: params.order });
+  const listItems = useMemo(() => list.data?.pages.flatMap((pg) => pg.items) ?? [], [list.data]);
+  const listTotal = list.data?.pages[0]?.total ?? 0;
   const categories = useMemo(() => {
     const st = stats.data; if (!st) return [];
     return (params.colorBy === 'quality' ? st.byQuality : params.colorBy === 'codec' ? st.byCodec : params.colorBy === 'resolution' ? st.byResolution : params.colorBy === 'instance' ? st.byInstance : []).map((b) => b.name);
   }, [stats.data, params.colorBy]);
-
-  // Any change of filter or ordering makes the accumulated pages meaningless: start again at one.
-  useEffect(() => { setPages(1); }, [params.instanceId, params.kind, params.minBytes, params.search, params.sort, params.order, heatMode]);
 
   const select = (i: LibraryItem) => { setSelectedRow(i); set({ sel: i.itemId || null }); };
   const onTreeSelect = (leaf: TreeLeaf | null) => {
@@ -95,14 +96,14 @@ export default function LibraryPage() {
         </div>
         <div className={s.treemap}><Treemap tree={tree.data} colorBy={params.colorBy} selectedItemId={sel} showPosters={params.posters} onSelect={onTreeSelect} onZoom={onZoom} /></div>
         <div className={s.lower}>
-          <LibraryTable items={list.data?.items ?? []} total={list.data?.total ?? 0} selected={sel} selectedFileId={unmatched?.fileId ?? null} sort={params.sort} order={params.order}
-            onSort={(c) => set({ sort: c, order: c === params.sort && params.order === 'desc' ? 'asc' : 'desc' })} onSelect={select} onMore={() => setPages((p) => p + 1)} />
+          <LibraryTable items={listItems} total={listTotal} hasMore={list.hasNextPage ?? false} selected={sel} selectedFileId={unmatched?.fileId ?? null} sort={params.sort} order={params.order}
+            onSort={(c) => set({ sort: c, order: c === params.sort && params.order === 'desc' ? 'asc' : 'desc' })} onSelect={select} onMore={() => list.fetchNextPage()} />
           <StatsRail stats={stats.data} onSelect={select} />
         </div>
       </div>
       {asDialog && <button type="button" className={s.backdrop} aria-label="Close details" onClick={clearSelection} />}
       {open && (
-        <div className={s.detailCol} role={asDialog ? 'dialog' : undefined} aria-modal={asDialog || undefined} aria-label={asDialog ? 'Details' : undefined}>
+        <div className={s.detailCol} role={asDialog ? 'dialog' : undefined} aria-label={asDialog ? 'Details' : undefined}>
           <DetailPanel key={detailId} itemId={detailId} item={unmatched} autoFocus={asDialog} onClose={clearSelection} onAction={(kind, profile) => setAction({ kind, itemId: detailId, profile })} />
         </div>
       )}
