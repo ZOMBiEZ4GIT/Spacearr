@@ -25,3 +25,11 @@ a { color: var(--accent-ink); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--space-4); }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--fs-xs); font-family: var(--font-mono); background: var(--surface-2); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+.auth-page { min-height: 100%; display: grid; place-items: center; padding: var(--space-5); }
+.auth-card { width: min(420px, 100%); display: grid; gap: var(--space-4); }
+.auth-card h1 { margin: 0; font-size: var(--fs-2xl); letter-spacing: -0.01em; }
+
+.scan-pill { display: inline-grid; gap: 4px; min-width: 180px; font-size: var(--fs-sm); text-decoration: none; color: var(--ink); }
+.scan-bar { display: block; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+.scan-bar > span { display: block; height: 100%; background: var(--accent); transition: width .3s ease; }
