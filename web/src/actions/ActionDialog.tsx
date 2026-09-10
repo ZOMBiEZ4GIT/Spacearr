@@ -6,9 +6,16 @@ import { ApiError } from '../api/client';
 import { formatBytes } from '../lib/format';
 import s from './actions.module.css';
 
-interface Props { kind: 'delete' | 'replace'; itemId: number; profile?: ProfileEstimate; onClose: () => void; onDone: () => void }
+interface Props {
+  kind: 'delete' | 'replace'; itemId: number; profile?: ProfileEstimate;
+  // Disambiguates which physical copy is being actioned - essential when two queued items share a
+  // title (the duplicates "Keep this" flow). Left undefined by callers (e.g. the Library detail
+  // flow) that only ever act on a single, unambiguous item.
+  subtitle?: string; path?: string;
+  onClose: () => void; onDone: () => void;
+}
 
-export default function ActionDialog({ kind, itemId, profile, onClose, onDone }: Props) {
+export default function ActionDialog({ kind, itemId, profile, subtitle, path, onClose, onDone }: Props) {
   const preview = usePreviewAction();
   const execute = useExecuteAction();
   const [unmonitor, setUnmonitor] = useState(false);
@@ -124,6 +131,8 @@ export default function ActionDialog({ kind, itemId, profile, onClose, onDone }:
     <div className={s.backdrop} onMouseDown={(e) => { if (jobIdRef.current !== undefined || confirmLatchRef.current) return; if (e.target === e.currentTarget) onClose(); }}>
       <div className={s.dialog} role="dialog" aria-modal="true" aria-labelledby="action-title" tabIndex={-1} ref={dialogRef}>
         <h2 id="action-title">{kind === 'delete' ? 'Delete file' : `Replace with ${profile?.name ?? 'a smaller release'}`}</h2>
+        {subtitle && <p className="muted" style={{ margin: 0 }}>{subtitle}</p>}
+        {path && <p className={`mono ${s.path}`} style={{ margin: 0 }}>{path}</p>}
         {!data && !error && <p className="muted">{repreviewing ? 'Preview expired, refreshing…' : 'Checking with the arr app…'}</p>}
         {error && <p className="error" role="alert">{error}</p>}
         {data && !jobId && (

@@ -80,4 +80,20 @@ describe('ActionDialog', () => {
     resolveExecute(json({ jobId: 43 }, 202));
     await screen.findByRole('status');
   });
+
+  it('renders the subtitle and path when provided, to disambiguate identically titled copies', async () => {
+    fetchMock.mockImplementation((url: string) => {
+      if (url.endsWith('/actions/preview')) return Promise.resolve(json({ request: { type: 'delete', itemId: 8 }, title: 'Arrival (2016)', instanceName: 'Movies', instanceType: 'radarr', bytesFreedNow: 1_360_818, estimate: null, warning: null, steps: [{ description: 'Delete the file through Radarr', method: 'DELETE', path: '/y' }], confirmToken: 'tok4', expiresAt: '2026-09-10T12:10:00Z' }));
+      return Promise.resolve(json({}, 404));
+    });
+    const qc = new QueryClient();
+    render(<QueryClientProvider client={qc}>
+      <ActionDialog kind="delete" itemId={8} subtitle="WEBDL-720p · 720p · H264 · 1 MB" path="/media/Arrival (2016)/Arrival.2016.720p.WEBDL.x264.mkv" onClose={() => {}} onDone={() => {}} />
+    </QueryClientProvider>);
+    // Rendered from props alone, independent of the async preview - visible even before
+    // "Arrival (2016)" (the preview's own title, identical for both queued copies) resolves.
+    expect(screen.getByText('WEBDL-720p · 720p · H264 · 1 MB')).toBeInTheDocument();
+    expect(screen.getByText('/media/Arrival (2016)/Arrival.2016.720p.WEBDL.x264.mkv')).toBeInTheDocument();
+    await screen.findByText('Arrival (2016)');
+  });
 });
