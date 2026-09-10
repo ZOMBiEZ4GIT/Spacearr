@@ -8,6 +8,7 @@ TestResults/
 # Node
 web/node_modules/
 web/dist/
+src/Spacearr/wwwroot/
 
 # Spacearr runtime data (never commit a database or logs)
 config/

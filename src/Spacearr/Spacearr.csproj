@@ -16,4 +16,21 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Spacearr.Tests" />
   </ItemGroup>
+  <PropertyGroup>
+    <WebRoot>$(MSBuildProjectDirectory)/../../web</WebRoot>
+  </PropertyGroup>
+  <Target Name="BuildWeb" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release' And '$(SkipWeb)' != 'true'">
+    <Exec Command="npm ci" WorkingDirectory="$(WebRoot)" />
+    <Exec Command="npm run build" WorkingDirectory="$(WebRoot)" />
+  </Target>
+  <Target Name="EnsureWebPlaceholder" BeforeTargets="Build" Condition="!Exists('$(MSBuildProjectDirectory)/wwwroot/index.html')">
+    <MakeDir Directories="$(MSBuildProjectDirectory)/wwwroot" />
+    <WriteLinesToFile File="$(MSBuildProjectDirectory)/wwwroot/index.html" Lines="&lt;!doctype html&gt;&lt;title&gt;Spacearr&lt;/title&gt;&lt;p&gt;Web app not built. Run npm run build in /web.&lt;/p&gt;" Overwrite="true" />
+  </Target>
+  <ItemGroup>
+    <!-- The Web SDK already globs wwwroot/** into Content by default; Update (not
+         Include) avoids MSBuild NETSDK1022 duplicate-item errors while still
+         forcing PreserveNewest so a rebuilt SPA is copied to the output dir. -->
+    <Content Update="wwwroot/**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

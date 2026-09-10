@@ -71,6 +71,8 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 }));
 
 app.UseSerilogRequestLogging();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 // The OpenAPI document describes every route in the app, so it sits behind the same
@@ -92,6 +94,16 @@ if (app.Environment.IsEnvironment("Testing"))
     // against a real unhandled exception on a real authenticated route.
     app.MapGet("/api/v1/test/throw", IResult () => throw new InvalidOperationException("boom")).RequireAuthorization();
 }
+
+// Serves the React SPA for any route that isn't an API endpoint (so deep
+// links like /library/123 resolve to index.html and client-side routing can
+// take over), and a JSON 404 for unmatched /api paths instead of HTML.
+app.MapFallback(async ctx =>
+{
+    if (ctx.Request.Path.StartsWithSegments("/api")) { ctx.Response.StatusCode = 404; await ctx.Response.WriteAsJsonAsync(new { error = "Not found" }); return; }
+    ctx.Response.ContentType = "text/html";
+    await ctx.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot"), "index.html"));
+}).AllowAnonymous();
 
 app.Run();
 
