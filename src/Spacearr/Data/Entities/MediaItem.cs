@@ -13,6 +13,7 @@ public sealed class MediaItem
     public string? SeriesTitle { get; set; }
     public int? SeasonNumber { get; set; }
     public string? EpisodeNumbers { get; set; }
+    public string? EpisodeIds { get; set; }
     public int? QualityProfileId { get; set; }
     public string? QualityProfileName { get; set; }
     public string? QualityName { get; set; }

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Spacearr.Actions;
 using Spacearr.Arr;
 using Spacearr.Auth;
 using Spacearr.Data;
@@ -47,6 +48,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSpacearrJobs();
 builder.Services.AddSpacearrScanning();
 builder.Services.AddSpacearrArr();
+builder.Services.AddSpacearrActions();
 
 var app = builder.Build();
 
@@ -79,6 +81,7 @@ app.MapJobEndpoints();
 app.MapRootFolderEndpoints();
 app.MapInstanceEndpoints();
 app.MapLibraryEndpoints();
+app.MapActionEndpoints();
 
 if (app.Environment.IsEnvironment("Testing"))
 {

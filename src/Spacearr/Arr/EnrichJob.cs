@@ -68,6 +68,7 @@ public sealed class EnrichJob : IJob, IEnrichRunner
                     row.Title = item.Title; row.Year = item.Year;
                     row.SeriesId = item.SeriesId; row.SeriesTitle = item.SeriesTitle; row.SeasonNumber = item.SeasonNumber;
                     row.EpisodeNumbers = item.EpisodeNumbers.Length == 0 ? null : string.Join(',', item.EpisodeNumbers);
+                    row.EpisodeIds = item.EpisodeIds.Length == 0 ? null : string.Join(',', item.EpisodeIds);
                     row.QualityProfileId = item.QualityProfileId; row.QualityName = item.QualityName;
                     row.QualityProfileName = item.QualityProfileId is int pid && profiles.TryGetValue(pid, out var pname) ? pname : null;
                     row.Monitored = item.Monitored;
