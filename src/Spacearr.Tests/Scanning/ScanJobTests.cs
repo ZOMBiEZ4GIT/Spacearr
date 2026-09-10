@@ -24,8 +24,15 @@ public class ScanJobTests : IDisposable
     {
         private readonly FakeProber _prober;
         public ScanTestApp(FakeProber prober) => _prober = prober;
-        protected override void ConfigureTestServices(IServiceCollection services) =>
+        protected override void ConfigureTestServices(IServiceCollection services)
+        {
             services.AddSingleton<IMediaProber>(_prober);
+            // Registered for every test (not just the one that uses it): with
+            // SkipEnabled left false it behaves exactly like the real
+            // FileDiscovery, so this is a no-op for tests that never touch it.
+            services.AddSingleton<FlakyFileDiscovery>();
+            services.AddSingleton<IFileDiscovery>(sp => sp.GetRequiredService<FlakyFileDiscovery>());
+        }
     }
 
     public void Dispose()
@@ -179,5 +186,35 @@ public class ScanJobTests : IDisposable
         await RunScan();
         var file = (await Files()).Single();
         file.VideoBitrateBps.Should().Be(40_000_000L * 8 / 100 - 128_000);
+    }
+
+    [Fact]
+    public async Task Unreadable_subdirectory_excludes_its_root_from_cleanup_but_not_from_LastScanAt()
+    {
+        await AddRoot();
+        Make("a.mkv", 2_000_000);
+        Make("sub/b.mkv", 2_000_000);
+
+        var first = await RunScan();
+        first.FilesAdded.Should().Be(2);
+
+        var discovery = _app.Services.GetRequiredService<FlakyFileDiscovery>();
+        discovery.SkipEnabled = true;
+        discovery.SkipSubdirectory = Path.Combine(_root, "sub");
+
+        var second = await RunScan();
+        second.FilesRemoved.Should().Be(0);
+        second.Errors.Should().Contain(e => e.Contains("Skipped cleanup"));
+        (await Files()).Select(f => Path.GetFileName(f.Path)).Should().Contain("b.mkv");
+
+        // The guard must not disable cleanup permanently: once the subdirectory
+        // is readable again (flag off) and the file is genuinely gone, cleanup
+        // removes it as usual.
+        discovery.SkipEnabled = false;
+        File.Delete(Path.Combine(_root, "sub", "b.mkv"));
+
+        var third = await RunScan();
+        third.FilesRemoved.Should().Be(1);
+        (await Files()).Select(f => Path.GetFileName(f.Path)).Should().NotContain("b.mkv");
     }
 }

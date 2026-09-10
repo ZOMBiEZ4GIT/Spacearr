@@ -4,7 +4,7 @@ public sealed record DiscoveredFile(string Path, long SizeBytes, DateTime Modifi
 
 public interface IFileDiscovery
 {
-    IEnumerable<DiscoveredFile> Enumerate(string root, IReadOnlySet<string> extensions, CancellationToken ct);
+    IEnumerable<DiscoveredFile> Enumerate(string root, IReadOnlySet<string> extensions, CancellationToken ct, Action<string>? onUnreadable = null);
 }
 
 public sealed class FileDiscovery : IFileDiscovery
@@ -13,7 +13,7 @@ public sealed class FileDiscovery : IFileDiscovery
     private readonly ILogger<FileDiscovery> _log;
     public FileDiscovery(ILogger<FileDiscovery> log) => _log = log;
 
-    public IEnumerable<DiscoveredFile> Enumerate(string root, IReadOnlySet<string> extensions, CancellationToken ct)
+    public IEnumerable<DiscoveredFile> Enumerate(string root, IReadOnlySet<string> extensions, CancellationToken ct, Action<string>? onUnreadable = null)
     {
         // Match case-insensitively regardless of the comparer the caller's set was
         // built with, so the contract holds even for a case-sensitive HashSet.
@@ -38,6 +38,7 @@ public sealed class FileDiscovery : IFileDiscovery
             catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
             {
                 _log.LogWarning("Skipping unreadable directory {Dir}: {Message}", dir, ex.Message);
+                onUnreadable?.Invoke(dir);
                 continue;
             }
             foreach (var sub in subdirs)
@@ -57,6 +58,7 @@ public sealed class FileDiscovery : IFileDiscovery
                 catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
                 {
                     _log.LogDebug("Skipping directory with unreadable attributes {Dir}: {Message}", sub, ex.Message);
+                    onUnreadable?.Invoke(sub);
                     continue;
                 }
                 pending.Push(sub);

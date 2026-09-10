@@ -48,17 +48,31 @@ public sealed class ScanJob : IJob
         // Phase 1: discover. Only roots that actually existed this run go into
         // enumeratedRootIds - a root whose directory is temporarily missing (an
         // unmounted NAS, say) must never be treated as "scanned empty", or phase 4
-        // below would delete every MediaFile row that lives under it.
+        // below would delete every MediaFile row that lives under it. A root that
+        // existed but hit an unreadable subtree (permissions, a transient I/O error)
+        // is scanned as best-effort - its LastScanAt still advances - but it is
+        // additionally excluded from cleanup below, since the partial file list
+        // FileDiscovery returned for it would otherwise make the unreachable files
+        // look orphaned and delete their rows.
         var rawDiscovered = new List<(RootFolder Root, DiscoveredFile File)>();
         var enumeratedRootIds = new HashSet<int>();
+        var unreadableCountByRootId = new Dictionary<int, int>();
         for (var i = 0; i < roots.Count; i++)
         {
             ctx.Report("discover", i, roots.Count, roots[i].Path);
             if (!Directory.Exists(roots[i].Path)) { errors.Add($"Root folder not found: {roots[i].Path}"); continue; }
-            enumeratedRootIds.Add(roots[i].Id);
-            foreach (var f in _discovery.Enumerate(roots[i].Path, extensions, ct)) rawDiscovered.Add((roots[i], f));
+            var root = roots[i];
+            enumeratedRootIds.Add(root.Id);
+            var unreadable = 0;
+            foreach (var f in _discovery.Enumerate(root.Path, extensions, ct, _ => unreadable++)) rawDiscovered.Add((root, f));
+            if (unreadable > 0)
+            {
+                unreadableCountByRootId[root.Id] = unreadable;
+                errors.Add($"Skipped cleanup for {root.Path}: {unreadable} unreadable director{(unreadable == 1 ? "y" : "ies")}");
+            }
         }
         ctx.Report("discover", roots.Count, roots.Count);
+        var cleanupRootIds = new HashSet<int>(enumeratedRootIds.Where(id => !unreadableCountByRootId.ContainsKey(id)));
 
         // Overlapping/nested roots (e.g. <tmp> and <tmp>/sub) can discover the same
         // file twice, once per root. MediaFile.Path is unique, so a duplicate would
@@ -130,11 +144,12 @@ public sealed class ScanJob : IJob
         }
         await _db.SaveChangesAsync(ct);
 
-        // Phase 4: remove orphans, but only under roots that were actually
-        // enumerated this run (see the enumeratedRootIds comment above), and via
-        // ExecuteDeleteAsync so this never has to load the rows into the tracker.
+        // Phase 4: remove orphans, but only under roots that were fully and cleanly
+        // enumerated this run (see the enumeratedRootIds/cleanupRootIds comment
+        // above), and via ExecuteDeleteAsync so this never has to load the rows
+        // into the tracker.
         var orphanIds = existingByKey
-            .Where(kv => !seenKeys.Contains(kv.Key) && enumeratedRootIds.Contains(kv.Value.RootFolderId))
+            .Where(kv => !seenKeys.Contains(kv.Key) && cleanupRootIds.Contains(kv.Value.RootFolderId))
             .Select(kv => kv.Value.Id)
             .ToList();
         var removed = 0;
