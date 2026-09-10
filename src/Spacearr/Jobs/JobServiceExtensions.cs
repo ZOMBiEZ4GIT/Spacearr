@@ -1,3 +1,5 @@
+using Spacearr.Scanning;
+
 namespace Spacearr.Jobs;
 
 public static class JobServiceExtensions
@@ -10,7 +12,10 @@ public static class JobServiceExtensions
     {
         services.AddSingleton<IProgressHub, ProgressHub>();
         services.AddSingleton<IJobQueue, JobQueue>();
-        services.AddSingleton<IJobFactories, JobFactories>();
+        services.AddSingleton<IJobFactories>(new JobFactories
+        {
+            Scan = sp => sp.GetRequiredService<ScanJob>(),
+        });
         services.AddHostedService<JobRunner>();
         services.AddHostedService<ScanScheduler>();
         return services;
