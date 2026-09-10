@@ -35,7 +35,7 @@ What it does not do:
 - It does not delete from disk itself. Deletions go through Radarr's `moviefile` / Sonarr's `episodefile` endpoints, so the arr app's own view of your library stays in sync.
 - It does not talk to Plex, Jellyfin or Emby, and it does not know what has been watched. Maintainerr and Janitorr do that.
 - It has no rules engine and never acts on its own. Scanning runs on a schedule (default every 6 hours); actions never do. Every action is a person clicking a preview and then a confirm.
-- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](docs/faq.md) for the full list of v1 limits.
+- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](https://github.com/ZOMBiEZ4GIT/Spacearr/blob/main/docs/faq.md) for the full list of v1 limits.
 - It trusts the URLs you give it for Radarr and Sonarr, including addresses on your own LAN (`http://192.168.1.x`, `http://localhost:...`), and does not try to block or warn on them. That's accepted for v1 - Spacearr assumes you're the one configuring your own instances.
 - The poster cache under `/config/posters` is never pruned in v1. It only grows as instances and items change; deleting it is safe (posters are refetched on demand) if disk use ever matters to you.
 
@@ -84,7 +84,7 @@ What it does not do:
 - It does not delete from disk itself. Deletions go through Radarr's `moviefile` / Sonarr's `episodefile` endpoints, so the arr app's own view of your library stays in sync.
 - It does not talk to Plex, Jellyfin or Emby, and it does not know what has been watched. Maintainerr and Janitorr do that.
 - It has no rules engine and never acts on its own. Scanning runs on a schedule (default every 6 hours); actions never do. Every action is a person clicking a preview and then a confirm.
-- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](docs/faq.md) for the full list of v1 limits.
+- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](https://github.com/ZOMBiEZ4GIT/Spacearr/blob/main/docs/faq.md) for the full list of v1 limits.
 - It trusts the URLs you give it for Radarr and Sonarr, including addresses on your own LAN (`http://192.168.1.x`, `http://localhost:...`), and does not try to block or warn on them. That's accepted for v1 - Spacearr assumes you're the one configuring your own instances.
 - The poster cache under `/config/posters` is never pruned in v1. It only grows as instances and items change; deleting it is safe (posters are refetched on demand) if disk use ever matters to you.
 
@@ -135,7 +135,7 @@ What it does not do:
 - It does not delete from disk itself. Deletions go through Radarr's `moviefile` / Sonarr's `episodefile` endpoints, so the arr app's own view of your library stays in sync.
 - It does not talk to Plex, Jellyfin or Emby, and it does not know what has been watched. Maintainerr and Janitorr do that.
 - It has no rules engine and never acts on its own. Scanning runs on a schedule (default every 6 hours); actions never do. Every action is a person clicking a preview and then a confirm.
-- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](docs/faq.md) for the full list of v1 limits.
+- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](https://github.com/ZOMBiEZ4GIT/Spacearr/blob/main/docs/faq.md) for the full list of v1 limits.
 - It trusts the URLs you give it for Radarr and Sonarr, including addresses on your own LAN (`http://192.168.1.x`, `http://localhost:...`), and does not try to block or warn on them. That's accepted for v1 - Spacearr assumes you're the one configuring your own instances.
 - The poster cache under `/config/posters` is never pruned in v1. It only grows as instances and items change; deleting it is safe (posters are refetched on demand) if disk use ever matters to you.
 
@@ -192,7 +192,7 @@ What it does not do:
 - It does not delete from disk itself. Deletions go through Radarr's `moviefile` / Sonarr's `episodefile` endpoints, so the arr app's own view of your library stays in sync.
 - It does not talk to Plex, Jellyfin or Emby, and it does not know what has been watched. Maintainerr and Janitorr do that.
 - It has no rules engine and never acts on its own. Scanning runs on a schedule (default every 6 hours); actions never do. Every action is a person clicking a preview and then a confirm.
-- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](docs/faq.md) for the full list of v1 limits.
+- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](https://github.com/ZOMBiEZ4GIT/Spacearr/blob/main/docs/faq.md) for the full list of v1 limits.
 - It trusts the URLs you give it for Radarr and Sonarr, including addresses on your own LAN (`http://192.168.1.x`, `http://localhost:...`), and does not try to block or warn on them. That's accepted for v1 - Spacearr assumes you're the one configuring your own instances.
 - The poster cache under `/config/posters` is never pruned in v1. It only grows as instances and items change; deleting it is safe (posters are refetched on demand) if disk use ever matters to you.
 
@@ -251,7 +251,7 @@ What it does not do:
 - It does not delete from disk itself. Deletions go through Radarr's `moviefile` / Sonarr's `episodefile` endpoints, so the arr app's own view of your library stays in sync.
 - It does not talk to Plex, Jellyfin or Emby, and it does not know what has been watched. Maintainerr and Janitorr do that.
 - It has no rules engine and never acts on its own. Scanning runs on a schedule (default every 6 hours); actions never do. Every action is a person clicking a preview and then a confirm.
-- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](docs/faq.md) for the full list of v1 limits.
+- No automatic or scheduled deletions, no bulk replace, no sub-path reverse proxy (root only), no UNC path support on Windows hosts. See [the FAQ](https://github.com/ZOMBiEZ4GIT/Spacearr/blob/main/docs/faq.md) for the full list of v1 limits.
 - It trusts the URLs you give it for Radarr and Sonarr, including addresses on your own LAN (`http://192.168.1.x`, `http://localhost:...`), and does not try to block or warn on them. That's accepted for v1 - Spacearr assumes you're the one configuring your own instances.
 - The poster cache under `/config/posters` is never pruned in v1. It only grows as instances and items change; deleting it is safe (posters are refetched on demand) if disk use ever matters to you.
 
