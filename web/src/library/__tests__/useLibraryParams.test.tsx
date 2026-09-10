@@ -15,4 +15,17 @@ describe('useLibraryParams', () => {
     act(() => result.current.set({ sel: null }));
     expect(result.current.params.sel).toBeNull();
   });
+
+  it('falls back to the defaults for values that are not in the whitelist', () => {
+    const url = '/library?colorBy=rainbow&heatMode=warm&sort=bogus&order=sideways&kind=book&minBytes=-5&sel=NaN&instanceId=abc';
+    const { result } = renderHook(() => useLibraryParams(), { wrapper: ({ children }) => <MemoryRouter initialEntries={[url]}>{children}</MemoryRouter> });
+    expect(result.current.params.colorBy).toBe('heat');
+    expect(result.current.params.heatMode).toBeNull();
+    expect(result.current.params.sort).toBe('size');
+    expect(result.current.params.order).toBe('desc');
+    expect(result.current.params.kind).toBeNull();
+    expect(result.current.params.minBytes).toBe(0);
+    expect(result.current.params.sel).toBeNull();
+    expect(result.current.params.instanceId).toBeNull();
+  });
 });

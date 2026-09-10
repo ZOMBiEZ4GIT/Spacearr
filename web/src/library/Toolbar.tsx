@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInstances } from '../api/hooks';
 import Legend from '../treemap/Legend';
 import type { LibraryUiParams } from './useLibraryParams';
@@ -9,7 +9,23 @@ const sizes: [number, string][] = [[0, 'Any size'], [1e9, 'â‰¥ 1 GB'], [5e9, 'â‰
 export default function Toolbar({ params, set, heatMode, categories }: { params: LibraryUiParams; set: (p: Partial<LibraryUiParams>) => void; heatMode: 'relative' | 'absolute'; categories: string[] }) {
   const instances = useInstances();
   const [search, setSearch] = useState(params.search);
-  useEffect(() => { const t = setTimeout(() => { if (search !== params.search) set({ search }); }, 250); return () => clearTimeout(t); }, [search, params.search, set]);
+  // `set` is rebuilt on every search-param change, so the debounce reads it through a ref:
+  // depending on it directly would restart the timer on every keystroke's own URL write.
+  const setRef = useRef(set);
+  useEffect(() => { setRef.current = set; });
+  // The URL is the source of truth: adopt a search that changed elsewhere (a link, Back), but
+  // never clobber what the user is mid-way through typing.
+  const pushed = useRef(params.search);
+  useEffect(() => {
+    if (params.search === pushed.current) return;
+    pushed.current = params.search;
+    setSearch(params.search);
+  }, [params.search]);
+  useEffect(() => {
+    if (search === params.search) return;
+    const t = setTimeout(() => { pushed.current = search; setRef.current({ search }); }, 250);
+    return () => clearTimeout(t);
+  }, [search, params.search]);
   return (
     <div className={s.toolbar} role="toolbar" aria-label="Library filters">
       <select id="tb-instance" aria-label="Connection" value={params.instanceId ?? ''} onChange={(e) => set({ instanceId: e.target.value ? Number(e.target.value) : null })}>
@@ -31,7 +47,7 @@ export default function Toolbar({ params, set, heatMode, categories }: { params:
       <input id="tb-search" type="search" placeholder="Search titles" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search titles" />
       <label className={s.seg} style={{ padding: '4px 8px', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={params.posters} onChange={(e) => set({ posters: e.target.checked })} /> Posters</label>
       <div className={s.spacer} />
-      <Legend colorBy={params.colorBy} heatMode={heatMode} categories={categories} />
+      <div className={s.legendWrap}><Legend colorBy={params.colorBy} heatMode={heatMode} categories={categories} /></div>
     </div>
   );
 }

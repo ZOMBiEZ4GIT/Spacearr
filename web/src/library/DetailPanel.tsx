@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useInstances, useItem } from '../api/hooks';
 import type { LibraryItem, ProfileEstimate } from '../api/types';
 import { formatBitrate, formatBytes, formatDuration } from '../lib/format';
@@ -10,10 +10,13 @@ import s from './library.module.css';
  * `itemId` 0 means the file is not matched to any title. `/api/v1/library/0` 404s, so the
  * caller hands the row it already has through `item` and the detail endpoint is never called.
  */
-export default function DetailPanel({ itemId, item, onClose, onAction }: { itemId: number; item?: LibraryItem | null; onClose: () => void; onAction: (kind: 'delete' | 'replace', profile?: ProfileEstimate) => void }) {
+export default function DetailPanel({ itemId, item, autoFocus = false, onClose, onAction }: { itemId: number; item?: LibraryItem | null; autoFocus?: boolean; onClose: () => void; onAction: (kind: 'delete' | 'replace', profile?: ProfileEstimate) => void }) {
   const detail = useItem(itemId > 0 ? itemId : undefined);
   const instances = useInstances();
   const [posterOk, setPosterOk] = useState(true);
+  // As a drawer the panel takes focus, so the keyboard lands inside it rather than behind it.
+  // A callback ref, not an effect: the button only exists once the detail has loaded.
+  const closeRef = useCallback((el: HTMLButtonElement | null) => { if (el && autoFocus) el.focus(); }, [autoFocus]);
   const it = itemId > 0 ? detail.data?.item : item ?? undefined;
   const profiles = detail.data?.profiles ?? [];
   if (itemId > 0 && detail.isLoading) return <div className={s.detail}><span className="muted">Loading…</span></div>;
@@ -23,7 +26,7 @@ export default function DetailPanel({ itemId, item, onClose, onAction }: { itemI
   const openHref = inst ? (inst.type === 'radarr' && it.tmdbId ? `${inst.baseUrl}/movie/${it.tmdbId}` : inst.baseUrl) : null;
   return (
     <div className={s.detail} role="region" aria-label="Details">
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}><strong>Details</strong><button className="btn" onClick={onClose} aria-label="Close details">✕</button></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}><strong>Details</strong><button ref={closeRef} className="btn" onClick={onClose} aria-label="Close details">✕</button></div>
       <div className={s.detailHead}>
         {posterOk && it.posterUrl && <img className={s.poster} src={`/api/v1/posters/${it.itemId}`} alt="" onError={() => setPosterOk(false)} />}
         <div><h2 style={{ margin: 0, fontSize: 'var(--fs-lg)' }}>{title}</h2>{it.kind === 'episode' && it.itemId !== 0 && <div className="muted">{it.title}</div>}<div className="muted">{it.instanceName}{it.tags ? ` · ${it.tags}` : ''}</div></div>

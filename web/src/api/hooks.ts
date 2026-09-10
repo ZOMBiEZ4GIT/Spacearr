@@ -19,7 +19,7 @@ export const useRoots = () => useQuery({ queryKey: ['roots'], queryFn: () => api
 export const useJobs = (page = 1) => useQuery({ queryKey: ['jobs', page], queryFn: () => api.get<T.Page<T.Job>>(`/api/v1/jobs?page=${page}&pageSize=25`) });
 export const useLibrary = (p: T.LibraryParams) => useQuery({ queryKey: ['library', p], queryFn: () => api.get<T.Page<T.LibraryItem>>(`/api/v1/library${qs(p)}`), placeholderData: (prev) => prev });
 export const useTree = (p: T.TreeParams) => useQuery({ queryKey: ['tree', p], queryFn: () => api.get<T.TreeNode>(`/api/v1/library/tree${qs(p)}`), placeholderData: (prev) => prev });
-export const useStats = (p: Pick<T.LibraryParams, 'instanceId' | 'kind' | 'heatMode'>) => useQuery({ queryKey: ['stats', p], queryFn: () => api.get<T.LibraryStats>(`/api/v1/library/stats${qs(p)}`) });
+export const useStats = (p: Pick<T.LibraryParams, 'instanceId' | 'kind' | 'heatMode'>) => useQuery({ queryKey: ['stats', p], queryFn: () => api.get<T.LibraryStats>(`/api/v1/library/stats${qs(p)}`), placeholderData: (prev) => prev });
 export const useItem = (id?: number) => useQuery({ queryKey: ['item', id], queryFn: () => api.get<T.LibraryDetail>(`/api/v1/library/${id}`), enabled: !!id });
 export const useDuplicates = (p: Pick<T.LibraryParams, 'instanceId' | 'kind'>) => useQuery({ queryKey: ['duplicates', p], queryFn: () => api.get<T.DuplicateGroup[]>(`/api/v1/duplicates${qs(p)}`) });
 export const useActionLog = (page = 1) => useQuery({ queryKey: ['actionLog', page], queryFn: () => api.get<T.Page<T.ActionLogEntry>>(`/api/v1/actions/log?page=${page}&pageSize=50`) });

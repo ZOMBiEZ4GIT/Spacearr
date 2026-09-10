@@ -13,5 +13,6 @@
 .tooltip { position: absolute; z-index: 2; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-panel); padding: 8px 10px; font-size: var(--fs-sm); max-width: 280px; }
 .tooltip strong { display: block; margin-bottom: 4px; }
 .legend { display: flex; align-items: center; gap: 10px; font-size: var(--fs-xs); color: var(--muted); flex-wrap: wrap; }
-.bar { width: 140px; height: 8px; border-radius: 4px; }
+/* The gradient is the legend: it must survive being squeezed in a crowded toolbar. */
+.bar { width: 140px; min-width: 90px; flex: 0 1 140px; height: 8px; border-radius: 4px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }

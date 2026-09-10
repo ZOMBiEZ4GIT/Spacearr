@@ -1,20 +1,34 @@
-.page { display: grid; grid-template-rows: auto minmax(280px, 58%) minmax(0, 1fr); height: 100%; }
-.page.withDetail { grid-template-columns: minmax(0, 1fr) 380px; }
-.page.withDetail > .toolbar, .page.withDetail > .treemap, .page.withDetail > .lower { grid-column: 1; }
-.detailCol { grid-column: 2; grid-row: 1 / span 3; border-left: 1px solid var(--line); background: var(--surface); overflow: auto; }
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface); }
+/* The detail panel is a sibling column of the whole page, never a row spanner: a spanning
+   item would stretch the treemap row to its own content height and starve the table. */
+.frame { display: grid; grid-template-columns: minmax(0, 1fr); height: 100%; min-height: 0; }
+.frame.withDetail { grid-template-columns: minmax(0, 1fr) 380px; }
+/* Fractional rows only size against a definite height, which .content now provides. */
+.page { display: grid; grid-template-rows: auto auto minmax(280px, 3fr) minmax(220px, 2fr); height: 100%; min-height: 0; }
+.detailCol { border-left: 1px solid var(--line); background: var(--surface); overflow: auto; min-height: 0; }
+.backdrop { display: none; }
+.toolbar { grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface); overflow-x: auto; }
+.toolbar > * { flex: 0 0 auto; }
+/* The legend is the first thing allowed to lose room, and it stays on one line. */
+.legendWrap { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+.legendWrap > * { flex-wrap: nowrap; white-space: nowrap; }
+/* The unmatched/unreadable warnings live in the rail; when the rail is hidden they surface here. */
+.notes { grid-row: 2; display: none; }
 .toolbar select, .toolbar input { padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ground); color: var(--ink); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .seg button { border: 0; background: var(--ground); padding: 5px 10px; cursor: pointer; color: var(--ink); font: inherit; }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
-.spacer { flex: 1; }
-.treemap { min-height: 0; border-bottom: 1px solid var(--line); }
-.lower { display: grid; grid-template-columns: minmax(0, 1fr) 300px; min-height: 0; }
+.spacer { flex: 1 1 0; min-width: 0; }
+.treemap { grid-row: 3; min-height: 0; border-bottom: 1px solid var(--line); }
+.lower { grid-row: 4; display: grid; grid-template-columns: minmax(0, 1fr) 300px; min-height: 0; }
 .tableWrap { overflow: auto; position: relative; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
-.table th { position: sticky; top: 0; background: var(--surface); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; z-index: 1; }
+.table th { position: sticky; top: 0; background: var(--surface); text-align: left; padding: 0; border-bottom: 1px solid var(--line); font-weight: 600; user-select: none; white-space: nowrap; z-index: 1; }
+.table th > span, .table th > button { display: block; width: 100%; padding: 6px 10px; text-align: inherit; font: inherit; font-weight: 600; color: inherit; background: none; border: 0; }
+.table th > button { cursor: pointer; }
+.table th > button:hover { background: var(--surface-2); }
 .table td { padding: 0 10px; height: 40px; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
-.table tr { cursor: pointer; }
+.table tbody tr { cursor: pointer; }
+.table tbody tr:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .table tr:hover td { background: var(--surface-2); }
 .table tr[aria-selected="true"] td { background: var(--accent-soft); }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
@@ -46,5 +60,13 @@
 .profileRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ground); cursor: pointer; text-align: left; color: var(--ink); font: inherit; }
 .profileRow:hover { border-color: var(--accent); }
 .save { color: var(--good); font-family: var(--font-mono); }
-@media (max-width: 1279px) { .page.withDetail { grid-template-columns: 1fr; } .detailCol { position: fixed; right: 0; top: 0; bottom: 0; width: min(420px, 100%); z-index: 5; box-shadow: var(--shadow-panel); } }
-@media (max-width: 1100px) { .lower { grid-template-columns: 1fr; } .rail { display: none; } }
+@media (max-width: 1279px) {
+  .frame.withDetail { grid-template-columns: minmax(0, 1fr); }
+  .detailCol { position: fixed; right: 0; top: 0; bottom: 0; width: min(420px, 100%); z-index: 6; box-shadow: var(--shadow-panel); }
+  .backdrop { display: block; position: fixed; inset: 0; z-index: 5; background: rgba(0, 0, 0, 0.32); border: 0; }
+}
+@media (max-width: 1100px) {
+  .lower { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+  .notes:not(:empty) { display: grid; gap: 2px; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface); font-size: var(--fs-sm); }
+}

@@ -13,37 +13,69 @@ export const episodeLabel = (i: Pick<LibraryItem, 'seriesTitle' | 'seasonNumber'
 
 export default function LibraryTable({ items, total, selected, selectedFileId, sort, order, onSort, onSelect, onMore }: { items: LibraryItem[]; total: number; selected: number | null; selectedFileId: number | null; sort: string; order: string; onSort: (c: LibraryUiParams['sort']) => void; onSelect: (i: LibraryItem) => void; onMore: () => void }) {
   const wrap = useRef<HTMLDivElement>(null);
+  const head = useRef<HTMLTableSectionElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [height, setHeight] = useState(600);
-  useEffect(() => { const el = wrap.current; if (!el) return; const ro = new ResizeObserver(([e]) => setHeight(e.contentRect.height)); ro.observe(el); return () => ro.disconnect(); }, []);
+  // The header is sticky, so it covers the top `headH` pixels of the scroll port: rows under it
+  // are not really visible, and both the window and scroll-into-view have to allow for that.
+  const [headH, setHeadH] = useState(0);
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => { setHeight(e.contentRect.height); setHeadH(head.current?.offsetHeight ?? 0); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   useEffect(() => {
     if (selected == null || !wrap.current) return;
     const idx = items.findIndex((i) => i.itemId === selected);
     if (idx < 0) return;
-    const top = idx * ROW; const el = wrap.current;
-    if (top < el.scrollTop || top + ROW > el.scrollTop + el.clientHeight) el.scrollTo({ top: top - el.clientHeight / 2 });
-  }, [selected, items]);
+    const el = wrap.current;
+    const top = headH + idx * ROW;
+    if (top < el.scrollTop + headH || top + ROW > el.scrollTop + el.clientHeight) {
+      el.scrollTo({ top: Math.max(0, idx * ROW - (el.clientHeight - headH) / 2) });
+    }
+  }, [selected, items, headH]);
+  const view = Math.max(0, height - headH);
   const start = Math.max(0, Math.floor(scrollTop / ROW) - 20);
-  const end = Math.min(items.length, Math.ceil((scrollTop + height) / ROW) + 20);
+  const end = Math.min(items.length, Math.ceil((scrollTop + view) / ROW) + 20);
+  const isSelected = (i: LibraryItem) => (i.itemId !== 0 ? i.itemId === selected : i.fileId === selectedFileId);
   return (
     <div className={s.tableWrap} ref={wrap} onScroll={(e) => setScrollTop((e.target as HTMLDivElement).scrollTop)}>
-      <table className={s.table} aria-rowcount={total}>
-        <thead><tr>{cols.map(([key, label, cls]) => <th key={label} className={cls} onClick={() => key && onSort(key)} aria-sort={key === sort ? (order === 'asc' ? 'ascending' : 'descending') : undefined}>{label}{key === sort ? (order === 'asc' ? ' ↑' : ' ↓') : ''}</th>)}</tr></thead>
+      <table className={s.table} role="grid" aria-rowcount={total}>
+        <thead ref={head}>
+          <tr role="row">
+            {cols.map(([key, label, cls]) => (
+              <th key={label} className={cls} role="columnheader" aria-sort={key === sort ? (order === 'asc' ? 'ascending' : 'descending') : undefined}>
+                {key
+                  ? <button type="button" onClick={() => onSort(key)}>{label}{key === sort ? (order === 'asc' ? ' ↑' : ' ↓') : ''}</button>
+                  : <span>{label}</span>}
+              </th>
+            ))}
+          </tr>
+        </thead>
         <tbody>
-          {start > 0 && <tr style={{ height: start * ROW }}><td colSpan={7} /></tr>}
+          {start > 0 && <tr aria-hidden="true" style={{ height: start * ROW }}><td colSpan={7} /></tr>}
           {items.slice(start, end).map((i) => (
-            <tr key={`${i.itemId}-${i.fileId}`} aria-selected={i.itemId !== 0 ? i.itemId === selected : i.fileId === selectedFileId} onClick={() => onSelect(i)}>
-              <td>{i.kind === 'episode' ? episodeLabel(i) : i.year ? `${i.title} (${i.year})` : i.title}
+            <tr
+              key={`${i.itemId}-${i.fileId}`}
+              role="row"
+              tabIndex={0}
+              aria-selected={isSelected(i)}
+              onClick={() => onSelect(i)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(i); } }}
+            >
+              <td role="gridcell">{i.kind === 'episode' ? episodeLabel(i) : i.year ? `${i.title} (${i.year})` : i.title}
                 <span className={s.sub}>{i.kind === 'episode' ? i.title : i.path.split(/[/\\]/).pop()}</span></td>
-              <td className={s.num}>{formatBytes(i.sizeBytes)}</td>
-              <td className={s.num}>{i.heat >= 0 ? <><span className={s.swatch} style={{ background: heatColor(i.heat) }} />{Math.round(i.heat * 100)}</> : '—'}</td>
-              <td>{i.qualityName ?? '—'}</td>
-              <td>{i.videoCodec?.toUpperCase() ?? '—'}{i.hdrFormat ? ` · ${i.hdrFormat}` : ''}</td>
-              <td>{i.resolution ?? '—'}</td>
-              <td>{i.instanceName}</td>
+              <td role="gridcell" className={s.num}>{formatBytes(i.sizeBytes)}</td>
+              <td role="gridcell" className={s.num}>{i.heat >= 0 ? <><span className={s.swatch} style={{ background: heatColor(i.heat) }} />{Math.round(i.heat * 100)}</> : '—'}</td>
+              <td role="gridcell">{i.qualityName ?? '—'}</td>
+              <td role="gridcell">{i.videoCodec?.toUpperCase() ?? '—'}{i.hdrFormat ? ` · ${i.hdrFormat}` : ''}</td>
+              <td role="gridcell">{i.resolution ?? '—'}</td>
+              <td role="gridcell">{i.instanceName}</td>
             </tr>
           ))}
-          {end < items.length && <tr style={{ height: (items.length - end) * ROW }}><td colSpan={7} /></tr>}
+          {end < items.length && <tr aria-hidden="true" style={{ height: (items.length - end) * ROW }}><td colSpan={7} /></tr>}
         </tbody>
       </table>
       {items.length < total && <div style={{ padding: 10, textAlign: 'center' }}><span className="muted">Showing {items.length.toLocaleString()} of {total.toLocaleString()} · </span><button className="btn" onClick={onMore}>Load more</button></div>}
