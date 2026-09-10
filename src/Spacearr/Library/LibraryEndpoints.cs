@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Spacearr.Arr;
@@ -138,7 +141,7 @@ public static class LibraryEndpoints
         SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, LibraryFilter filter, string? heatMode, CancellationToken ct)
     {
         var mode = heatMode ?? (await settings.GetAsync()).HeatMode;
-        var key = $"library:{version.Current}:{filter.InstanceId}:{filter.Kind}:{filter.MinBytes}:{filter.Search}:{mode}";
+        var key = CacheKey(version.Current, filter, mode);
         return await cache.GetOrCreateAsync(key, async e =>
         {
             e.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
@@ -147,5 +150,19 @@ public static class LibraryEndpoints
             var heat = mode == "absolute" ? nbpp.Select(v => v is null ? double.NaN : Heat.AbsoluteHeat(v.Value)).ToArray() : Heat.RelativeHeat(nbpp);
             return (Rows: rows, Heat: heat);
         });
+    }
+
+    /// <summary>
+    /// Builds the memoisation cache key from a JSON-serialised, then SHA-256-hashed,
+    /// encoding of every input that affects the result. A plain string built with ":"
+    /// separators would let crafted free-text values (search, heatMode) collide across
+    /// requests - e.g. search="a" + heatMode="b:c" hashing the same as search="a:b" +
+    /// heatMode="c" - and one caller could then be served another caller's cached rows.
+    /// </summary>
+    private static string CacheKey(int version, LibraryFilter filter, string mode)
+    {
+        var payload = JsonSerializer.Serialize(new { version, filter.InstanceId, filter.Kind, filter.MinBytes, filter.Search, mode });
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(payload)));
+        return $"library:{hash}";
     }
 }

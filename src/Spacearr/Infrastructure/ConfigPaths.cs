@@ -6,12 +6,14 @@ public sealed class ConfigPaths
     public string DatabasePath => Path.Combine(Root, "spacearr.db");
     public string LogDirectory => Path.Combine(Root, "logs");
     public string SecretKeyPath => Path.Combine(Root, "secret.key");
+    public string PosterCacheDirectory => Path.Combine(Root, "posters");
 
     public ConfigPaths(string root)
     {
         Root = Path.GetFullPath(root);
         Directory.CreateDirectory(Root);
         Directory.CreateDirectory(LogDirectory);
+        Directory.CreateDirectory(PosterCacheDirectory);
     }
 
     public static string Resolve(IConfiguration configuration)

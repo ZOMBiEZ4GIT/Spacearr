@@ -72,6 +72,30 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
     }
 
     [Fact]
+    public async Task Different_search_values_get_distinct_cached_results()
+    {
+        // The library cache key used to be built by string-interpolating free-text
+        // filter values with ":" separators, so two different (search, heatMode) pairs
+        // could hash to the same key and one caller could be served another caller's
+        // cached rows. Two requests differing only in `search` must get their own,
+        // correct results.
+        var (instanceId, _) = await Seed.LibraryAsync(_app);
+        var client = await AuthedClient.CreateAsync(_app);
+
+        var m1 = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library?instanceId={instanceId}&search=M1");
+        m1.GetProperty("total").GetInt32().Should().Be(1);
+        var m1Title = m1.GetProperty("items")[0].GetProperty("title").GetString();
+        m1Title.Should().Be("M1");
+
+        var m2 = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library?instanceId={instanceId}&search=M2");
+        m2.GetProperty("total").GetInt32().Should().Be(1);
+        var m2Title = m2.GetProperty("items")[0].GetProperty("title").GetString();
+        m2Title.Should().Be("M2");
+
+        m2Title.Should().NotBe(m1Title);
+    }
+
+    [Fact]
     public async Task Stats_are_served_from_cache_until_a_job_finishes()
     {
         // A dedicated app so the cache state here is entirely this test's doing.
