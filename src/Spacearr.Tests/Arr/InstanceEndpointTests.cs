@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Spacearr.Data;
+using Spacearr.Data.Entities;
 
 namespace Spacearr.Tests.Arr;
 
@@ -73,6 +76,47 @@ public class InstanceEndpointTests : IClassFixture<ArrTestApp>
 
         (await client.DeleteAsync($"/api/v1/instances/{inst.Id}/mappings/{mapping!.Id}")).StatusCode.Should().Be(HttpStatusCode.NoContent);
         Directory.Delete(Path.GetDirectoryName(local)!, true);
+    }
+
+    [Fact]
+    public async Task Profiles_cache_is_invalidated_after_put()
+    {
+        var client = await AuthedClient.CreateAsync(_app);
+        var inst = await (await client.PostAsJsonAsync("/api/v1/instances", new { type = "radarr", name = "CacheTest", baseUrl = "http://radarr:7878", apiKey = "secret" })).Content.ReadFromJsonAsync<InstanceDto>();
+
+        var first = await client.GetFromJsonAsync<ProfileDto[]>($"/api/v1/instances/{inst!.Id}/profiles");
+        first.Should().Contain(p => p.Name == "Ultra-HD");
+
+        _app.Arr.Map("GET", "/api/v3/qualityprofile", """[{"id":99,"name":"Rescanned"}]""");
+        try
+        {
+            var put = await client.PutAsJsonAsync($"/api/v1/instances/{inst.Id}", new { type = "radarr", name = "CacheTest", baseUrl = "http://radarr:7878", enabled = true, apiKey = "" });
+            put.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var second = await client.GetFromJsonAsync<ProfileDto[]>($"/api/v1/instances/{inst.Id}/profiles");
+            second.Should().ContainSingle(p => p.Id == 99 && p.Name == "Rescanned", "the PUT must invalidate the cached profiles for this instance");
+        }
+        finally
+        {
+            _app.Arr.Map("GET", "/api/v3/qualityprofile", FakeArrHandler.Fixture("radarr-qualityprofile.json"));
+        }
+    }
+
+    [Fact]
+    public async Task Suggest_tolerates_a_bare_root_path_instead_of_throwing()
+    {
+        var client = await AuthedClient.CreateAsync(_app);
+        var inst = await (await client.PostAsJsonAsync("/api/v1/instances", new { type = "radarr", name = "BareRoot", baseUrl = "http://radarr:7878", apiKey = "secret" })).Content.ReadFromJsonAsync<InstanceDto>();
+
+        using (var scope = _app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
+            db.RootFolders.Add(new RootFolder { Path = "/" });
+            await db.SaveChangesAsync();
+        }
+
+        var response = await client.PostAsync($"/api/v1/instances/{inst!.Id}/mappings/suggest", null);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     private sealed record TestDto(bool Ok, string? Error, string? Version, string? AppName, string[] RootFolders, ProfileDto[] Profiles);

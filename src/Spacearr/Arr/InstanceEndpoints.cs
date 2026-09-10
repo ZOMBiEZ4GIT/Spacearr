@@ -33,7 +33,7 @@ public static class InstanceEndpoints
             return Results.Created($"/api/v1/instances/{inst.Id}", (await ListAsync(db, inst.Id)).Single());
         });
 
-        group.MapPut("/{id:int}", async (int id, InstanceRequest req, SpacearrDb db, ISecretProtector secrets) =>
+        group.MapPut("/{id:int}", async (int id, InstanceRequest req, SpacearrDb db, ISecretProtector secrets, IMemoryCache cache) =>
         {
             var inst = await db.ArrInstances.FindAsync(id);
             if (inst is null) return Results.NotFound();
@@ -42,21 +42,23 @@ public static class InstanceEndpoints
             inst.Type = req.Type; inst.Name = req.Name.Trim(); inst.BaseUrl = req.BaseUrl.Trim().TrimEnd('/'); inst.Enabled = req.Enabled;
             if (!string.IsNullOrWhiteSpace(req.ApiKey)) inst.ApiKeyEncrypted = secrets.Protect(req.ApiKey.Trim());
             await db.SaveChangesAsync();
+            cache.Remove($"profiles:{id}");
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id:int}", async (int id, SpacearrDb db) =>
+        group.MapDelete("/{id:int}", async (int id, SpacearrDb db, IMemoryCache cache) =>
         {
             var inst = await db.ArrInstances.FindAsync(id);
             if (inst is null) return Results.NotFound();
             db.ArrInstances.Remove(inst);
             await db.SaveChangesAsync();
+            cache.Remove($"profiles:{id}");
             return Results.NoContent();
         });
 
         group.MapPost("/test", async (TestRequest req, IArrClientFactory factory, CancellationToken ct) =>
         {
-            if (!IsHttpUrl(req.BaseUrl)) return Results.Ok(new TestResponse(false, "Enter a full URL such as http://radarr:7878.", null, null, Array.Empty<string>(), Array.Empty<ArrProfile>()));
+            if (!IsHttpUrl(req.BaseUrl)) return Results.Ok(new TestResponse(false, "Enter a full URL such as http://radarr:7878. Inside Docker, use the container name rather than localhost.", null, null, Array.Empty<string>(), Array.Empty<ArrProfile>()));
             return Results.Ok(await TestAsync(factory.Create(req.Type, req.BaseUrl, req.ApiKey ?? ""), ct));
         });
 
@@ -119,8 +121,9 @@ public static class InstanceEndpoints
             foreach (var arrRoot in arrRoots.Select(r => PathNormalizer.Normalize(r.Path)))
             {
                 if (localRoots.Any(l => PathNormalizer.Equal(l, arrRoot))) continue; // same view of the disk, no mapping needed
-                var leaf = arrRoot.Split('/').Last(s => s.Length > 0);
-                var candidates = localRoots.Where(l => string.Equals(l.Split('/').Last(s => s.Length > 0), leaf, StringComparison.OrdinalIgnoreCase)).ToList();
+                var leaf = arrRoot.Split('/').LastOrDefault(s => s.Length > 0);
+                if (leaf is null) continue; // bare root ("/" or "C:/"), no leaf segment to match on
+                var candidates = localRoots.Where(l => string.Equals(l.Split('/').LastOrDefault(s => s.Length > 0), leaf, StringComparison.OrdinalIgnoreCase)).ToList();
                 if (candidates.Count == 0) continue;
                 foreach (var c in candidates) suggestions.Add(new MappingSuggestion(arrRoot, c, candidates.Count == 1 ? "high" : "low"));
             }
