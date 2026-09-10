@@ -19,6 +19,16 @@ public sealed class LoginThrottle
     {
         _failures.AddOrUpdate(key, _ => (1, DateTime.UtcNow), (_, e) =>
             DateTime.UtcNow - e.WindowStart > Window ? (1, DateTime.UtcNow) : (e.Count + 1, e.WindowStart));
+
+        if (_failures.Count > 1000)
+        {
+            var now = DateTime.UtcNow;
+            foreach (var k in _failures.Keys)
+            {
+                if (_failures.TryGetValue(k, out var e) && now - e.WindowStart > Window)
+                    _failures.TryRemove(k, out _);
+            }
+        }
     }
 
     public void Reset(string key) => _failures.TryRemove(key, out _);

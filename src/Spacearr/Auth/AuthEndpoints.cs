@@ -6,7 +6,7 @@ namespace Spacearr.Auth;
 
 public sealed record SetupRequest(string Username, string Password);
 public sealed record LoginRequest(string Username, string Password);
-public sealed record ChangePasswordRequest(string NewPassword);
+public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 public sealed record MeResponse(string Username, string ApiKey);
 
 public static class AuthEndpoints
@@ -24,12 +24,22 @@ public static class AuthEndpoints
 
         app.MapPost("/api/v1/auth/login", async (LoginRequest req, HttpContext http, IUserService users, LoginThrottle throttle) =>
         {
-            var key = http.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
-                      ?? http.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            if (throttle.IsLocked(key)) return Results.StatusCode(StatusCodes.Status429TooManyRequests);
+            var userKey = $"user:{(req.Username ?? "").Trim().ToLowerInvariant()}";
+            var ipKey = $"ip:{http.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
+            if (throttle.IsLocked(userKey) || throttle.IsLocked(ipKey))
+            {
+                http.Response.Headers.RetryAfter = "60";
+                return Results.StatusCode(StatusCodes.Status429TooManyRequests);
+            }
             var user = await users.ValidateAsync(req.Username ?? "", req.Password ?? "");
-            if (user is null) { throttle.RecordFailure(key); return Results.Unauthorized(); }
-            throttle.Reset(key);
+            if (user is null)
+            {
+                throttle.RecordFailure(userKey);
+                throttle.RecordFailure(ipKey);
+                return Results.Unauthorized();
+            }
+            throttle.Reset(userKey);
+            throttle.Reset(ipKey);
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -55,11 +65,19 @@ public static class AuthEndpoints
         });
 
         group.MapPost("/apikey/regenerate", async (ClaimsPrincipal principal, IUserService users) =>
-            Results.Ok(new { apiKey = await users.RegenerateApiKeyAsync(UserId(principal)) }));
+        {
+            if (IsApiKeyCaller(principal)) return CookieOnly();
+            return Results.Ok(new { apiKey = await users.RegenerateApiKeyAsync(UserId(principal)) });
+        });
 
         group.MapPost("/password", async (ChangePasswordRequest req, ClaimsPrincipal principal, IUserService users) =>
         {
+            if (IsApiKeyCaller(principal)) return CookieOnly();
             if (req.NewPassword is null || req.NewPassword.Length < 10) return Results.BadRequest(new { error = "Password must be at least 10 characters." });
+            var user = await users.FindByIdAsync(UserId(principal));
+            if (user is null) return Results.Unauthorized();
+            var verified = await users.ValidateAsync(user.Username, req.CurrentPassword ?? "");
+            if (verified is null) return Results.Json(new { error = "Current password is incorrect." }, statusCode: StatusCodes.Status401Unauthorized);
             await users.ChangePasswordAsync(UserId(principal), req.NewPassword);
             return Results.NoContent();
         });
@@ -69,4 +87,10 @@ public static class AuthEndpoints
 
     public static int UserId(ClaimsPrincipal principal) =>
         int.Parse(principal.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    private static bool IsApiKeyCaller(ClaimsPrincipal principal) =>
+        principal.Identity?.AuthenticationType == ApiKeyAuthHandler.SchemeName;
+
+    private static IResult CookieOnly() =>
+        Results.Json(new { error = "Sign in with your password to change account settings." }, statusCode: StatusCodes.Status403Forbidden);
 }
