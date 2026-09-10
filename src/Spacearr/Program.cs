@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
 using Spacearr.System;
@@ -32,6 +33,29 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<Spacearr.Auth.IUserService, Spacearr.Auth.UserService>();
+builder.Services.AddSingleton<Spacearr.Auth.LoginThrottle>();
+builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(o =>
+    {
+        o.Cookie.Name = "Spacearr.Auth";
+        o.Cookie.HttpOnly = true;
+        o.Cookie.SameSite = SameSiteMode.Strict;
+        o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        o.SlidingExpiration = true;
+        o.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; };
+        o.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = StatusCodes.Status403Forbidden; return Task.CompletedTask; };
+    })
+    .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, Spacearr.Auth.ApiKeyAuthHandler>(Spacearr.Auth.ApiKeyAuthHandler.SchemeName, _ => { });
+builder.Services.AddAuthorization(o =>
+{
+    o.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder(
+            Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
+            Spacearr.Auth.ApiKeyAuthHandler.SchemeName)
+        .RequireAuthenticatedUser().Build();
+    o.FallbackPolicy = o.DefaultPolicy;
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -52,8 +76,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseSerilogRequestLogging();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseSwagger(o => o.RouteTemplate = "api/docs/{documentName}/openapi.json");
 app.MapSystemEndpoints();
+app.MapAuthEndpoints();
 
 app.Run();
 
