@@ -9,7 +9,6 @@ public static class ScanningServiceExtensions
         services.AddSingleton<IMediaProber, FfprobeProber>();
         services.AddSingleton<IFileDiscovery, FileDiscovery>();
         services.AddScoped<ScanJob>();
-        services.AddScoped<IEnrichRunner, NoEnrichRunner>();
         return services;
     }
 }

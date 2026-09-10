@@ -13,12 +13,6 @@ public interface IEnrichRunner
     Task<(int Matched, int Unmatched, string[] Errors)> RunAsync(JobContext ctx, CancellationToken ct);
 }
 
-public sealed class NoEnrichRunner : IEnrichRunner
-{
-    public Task<(int Matched, int Unmatched, string[] Errors)> RunAsync(JobContext ctx, CancellationToken ct) =>
-        Task.FromResult((0, 0, Array.Empty<string>()));
-}
-
 public sealed class ScanJob : IJob
 {
     private const int Parallelism = 4;
