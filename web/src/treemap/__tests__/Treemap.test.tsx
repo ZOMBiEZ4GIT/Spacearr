@@ -61,6 +61,17 @@ describe('Treemap', () => {
     expect(screen.getByRole('img').getAttribute('aria-label')).toContain('Treemap of Show');
   });
 
+  it('zooms straight to a nested group when its header is clicked from the root', () => {
+    const tree = makeTree(60);
+    const onZoom = vi.fn();
+    render(<Treemap tree={tree} colorBy="heat" selectedItemId={null} onSelect={() => {}} onZoom={onZoom} />);
+
+    clickNode(tree, 'Season 1', true);
+    expect(onZoom).toHaveBeenCalledTimes(1);
+    expect(onZoom.mock.calls[0][1].map((n: TreeNode) => n.name)).toEqual(['Library', 'Show', 'Season 1']);
+    expect(screen.getByRole('img').getAttribute('aria-label')).toContain('Treemap of Season 1');
+  });
+
   it('keeps the zoom when the tree is replaced by a refetch', () => {
     const tree = makeTree(300);
     const { rerender } = render(<Treemap tree={tree} colorBy="heat" selectedItemId={null} onSelect={() => {}} />);

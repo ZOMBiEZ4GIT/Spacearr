@@ -5,6 +5,7 @@ import RequireAuth from '../auth/RequireAuth';
 import SetupPage from '../auth/SetupPage';
 import LoginPage from '../auth/LoginPage';
 import FirstRunWizard from '../setup/FirstRunWizard';
+import LibraryPage from '../library/LibraryPage';
 import SettingsLayout from '../settings/SettingsLayout';
 import ConnectionsPage from '../settings/ConnectionsPage';
 import ScanningPage from '../settings/ScanningPage';
@@ -24,7 +25,7 @@ export default function AppRoutes() {
         <Route path="/setup/wizard" element={<FirstRunWizard />} />
         <Route element={<Shell />}>
           <Route path="/" element={<Navigate to="/library" replace />} />
-          <Route path="/library" element={<Placeholder name="Library" />} />
+          <Route path="/library" element={<LibraryPage />} />
           <Route path="/duplicates" element={<Placeholder name="Duplicates" />} />
           <Route path="/activity" element={<Placeholder name="Activity" />} />
           {DevTreemapPage && <Route path="/dev/treemap" element={<Suspense fallback={null}><DevTreemapPage /></Suspense>} />}

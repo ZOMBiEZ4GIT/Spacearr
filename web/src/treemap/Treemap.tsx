@@ -222,7 +222,14 @@ export default function Treemap({ tree, colorBy, selectedItemId, showPosters = t
     const { x, y } = pointAt(e);
     const hit = hitTest(rects, x, y);
     if (!hit) return;
-    if (hit.isGroup) { zoomTo([...zoomNames.slice(0, path.length - 1), hit.node.name]); return; }
+    if (hit.isGroup) {
+      // The hit may be several levels below the current zoom root (a nested group header is drawn
+      // inside its parent), so walk the rect's ancestor chain rather than appending a single name.
+      const branch: string[] = [];
+      for (let r: LayoutRect | null = hit; r; r = r.parent) branch.unshift(r.node.name);
+      zoomTo([...zoomNames.slice(0, path.length - 1), ...branch]);
+      return;
+    }
     onSelect(hit.node.leaf, hit.node.name);
   };
 
