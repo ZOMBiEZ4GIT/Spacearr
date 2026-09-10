@@ -47,14 +47,18 @@ public static class TreeBuilder
     }
 
     private static TreeNode Leaf(string name, LibraryRow r, double heat, string colorBy, ISet<int>? dups) =>
-        new(name, r.SizeBytes, null, new TreeLeaf(r.ItemId, r.FileId, heat, ColorFor(r, heat, colorBy, dups), r.PosterUrl, r.QualityName, r.VideoCodec, r.Resolution, r.InstanceId, r.InstanceName));
+        new(name, r.SizeBytes, null, new TreeLeaf(r.ItemId, r.FileId, Wire(heat), ColorFor(r, heat, colorBy, dups), r.PosterUrl, r.QualityName, r.VideoCodec, r.Resolution, r.InstanceId, r.InstanceName));
+
+    // NaN (unreadable) can't be written as JSON; -1 is the wire value the web app
+    // already treats as unreadable, same as LibraryItemResponse.
+    private static double Wire(double heat) => double.IsNaN(heat) ? -1 : heat;
 
     private static TreeNode Other(List<(LibraryRow Row, double Heat, int Index)> folded, string colorBy)
     {
         var bytes = folded.Sum(f => f.Row.SizeBytes);
         var known = folded.Where(f => !double.IsNaN(f.Heat)).ToList();
         var heat = known.Count == 0 || bytes == 0 ? double.NaN : known.Sum(f => f.Heat * f.Row.SizeBytes) / known.Sum(f => f.Row.SizeBytes);
-        return new TreeNode($"Other ({folded.Count} files)", bytes, null, new TreeLeaf(0, 0, heat, colorBy == "heat" ? Heat.Color(heat) : Heat.UnknownColor, null, null, null, null, 0, ""));
+        return new TreeNode($"Other ({folded.Count} files)", bytes, null, new TreeLeaf(0, 0, Wire(heat), colorBy == "heat" ? Heat.Color(heat) : Heat.UnknownColor, null, null, null, null, 0, ""));
     }
 
     public static string ColorFor(LibraryRow r, double heat, string colorBy, ISet<int>? dups) => colorBy switch

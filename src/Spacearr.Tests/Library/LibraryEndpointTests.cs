@@ -42,6 +42,33 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
         overflowBody.GetProperty("items").GetArrayLength().Should().BeLessOrEqualTo(6);
     }
 
+    [Theory]
+    [InlineData("/api/v1/library")]
+    [InlineData("/api/v1/library/tree")]
+    [InlineData("/api/v1/library/stats")]
+    [InlineData("/api/v1/duplicates")]
+    public async Task Kind_filter_accepts_the_camel_case_value_the_web_app_sends(string path)
+    {
+        // Responses serialise MediaKind as "movie"/"episode" and the web app sends that
+        // back, but minimal-API enum binding is case-sensitive - ?kind=movie was a 400.
+        var (instanceId, _) = await Seed.LibraryAsync(_app);
+        var client = await AuthedClient.CreateAsync(_app);
+        foreach (var kind in new[] { "movie", "episode", "Movie" })
+            (await client.GetAsync($"{path}?instanceId={instanceId}&kind={kind}")).StatusCode.Should().Be(HttpStatusCode.OK, $"kind={kind}");
+        (await client.GetAsync($"{path}?instanceId={instanceId}&kind=film")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Kind_filter_restricts_to_that_kind()
+    {
+        var (instanceId, _) = await Seed.LibraryAsync(_app);
+        var client = await AuthedClient.CreateAsync(_app);
+        var movies = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library?instanceId={instanceId}&kind=movie");
+        var episodes = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library?instanceId={instanceId}&kind=episode");
+        movies.GetProperty("items").EnumerateArray().Should().OnlyContain(i => i.GetProperty("kind").GetString() == "movie");
+        (movies.GetProperty("total").GetInt32() + episodes.GetProperty("total").GetInt32()).Should().Be(6);
+    }
+
     [Fact]
     public async Task Tree_and_stats_and_detail()
     {

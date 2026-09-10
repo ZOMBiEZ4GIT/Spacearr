@@ -34,6 +34,11 @@ builder.Host.UseSerilog((ctx, lc) => lc
     // filesystem permissions are the actual protection. Silence it so it
     // doesn't read as a bug report waiting to happen.
     .MinimumLevel.Override("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", Serilog.Events.LogEventLevel.Error)
+    // At Information, EF Core logs every SQL statement and ASP.NET Core logs four
+    // lines per request on top of the one UseSerilogRequestLogging already writes -
+    // a first scan of a ~40k-file library produced a 137 MB log file in 40 minutes.
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
     .WriteTo.Console()
     .WriteTo.File(Path.Combine(paths.LogDirectory, "spacearr-.log"), rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7));
 

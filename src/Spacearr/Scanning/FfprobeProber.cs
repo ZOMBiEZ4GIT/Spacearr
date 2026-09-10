@@ -27,8 +27,14 @@ public sealed class FfprobeProber : IMediaProber
         try
         {
             process.Start();
-            var stdout = process.StandardOutput.ReadToEndAsync(timeout.Token);
-            var stderr = process.StandardError.ReadToEndAsync(timeout.Token);
+            // Process.Dispose does not close redirected streams once they've been read
+            // through StandardOutput/StandardError - it leaves them to the caller - so
+            // they must be disposed here or each probe leaks two pipe handles until a GC
+            // finalises them, which exhausts a 1024 fd limit on a large library.
+            using var stdoutReader = process.StandardOutput;
+            using var stderrReader = process.StandardError;
+            var stdout = stdoutReader.ReadToEndAsync(timeout.Token);
+            var stderr = stderrReader.ReadToEndAsync(timeout.Token);
             await process.WaitForExitAsync(timeout.Token);
             var output = await stdout;
             var error = await stderr;

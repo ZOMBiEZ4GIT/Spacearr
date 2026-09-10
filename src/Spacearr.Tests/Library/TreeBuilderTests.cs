@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using Spacearr.Data.Entities;
 using Spacearr.Library;
@@ -50,6 +51,22 @@ public class TreeBuilderTests
         tree.Children!.Count(c => c.Leaf is not null && !c.Name.StartsWith("Other")).Should().Be(10);
         tree.Children!.Single(c => c.Name.StartsWith("Other")).Name.Should().Be("Other (40 files)");
         tree.Children!.Where(c => !c.Name.StartsWith("Other")).Min(c => c.Bytes).Should().Be(41_000);
+    }
+
+    [Fact]
+    public void Unreadable_files_serialise_as_negative_heat_instead_of_nan()
+    {
+        // NaN heat (a file ffprobe couldn't read) used to reach the leaf verbatim, and
+        // System.Text.Json refuses to write NaN - one unreadable file 500'd /library/tree.
+        var rows = new[] { Row(1, "Readable", 100_000), Row(2, "Unreadable", 50_000), Row(3, "Tiny unreadable", 100) };
+        var tree = TreeBuilder.Build(rows, new[] { 0.4, double.NaN, double.NaN }, "heat", foldBelowBytes: 1_000);
+
+        var act = () => JsonSerializer.Serialize(tree, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        act.Should().NotThrow();
+        tree.Children!.Single(c => c.Name == "Unreadable").Leaf!.Heat.Should().Be(-1);
+        tree.Children!.Single(c => c.Name.StartsWith("Other")).Leaf!.Heat.Should().Be(-1);
+        tree.Children!.Single(c => c.Name == "Unreadable").Leaf!.Color.Should().Be(Heat.UnknownColor);
+        tree.Children!.Single(c => c.Name == "Readable").Leaf!.Heat.Should().Be(0.4);
     }
 
     [Fact]
