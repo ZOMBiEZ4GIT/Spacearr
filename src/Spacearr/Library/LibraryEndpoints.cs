@@ -52,7 +52,13 @@ public static class LibraryEndpoints
             if (order != "asc") scored = scored.Reverse();
             var list = scored.ToList();
             page = Math.Max(1, page); pageSize = Math.Clamp(pageSize, 1, 1000);
-            return Results.Ok(new PageResponse<LibraryItemResponse>(list.Skip((page - 1) * pageSize).Take(pageSize).ToArray(), list.Count, page, pageSize));
+            // Clamp page to the last real page before computing skip: an unclamped huge
+            // page (e.g. 2_000_000_000) times pageSize can overflow int, and Skip takes int.
+            var maxPage = Math.Max(1, (int)Math.Ceiling(list.Count / (double)pageSize));
+            if (page > maxPage) page = maxPage;
+            var skip = (long)(page - 1) * pageSize;
+            var items = list.Skip((int)Math.Min(skip, list.Count)).Take(pageSize).ToArray();
+            return Results.Ok(new PageResponse<LibraryItemResponse>(items, list.Count, page, pageSize));
         });
 
         group.MapGet("/tree", async (SpacearrDb db, ISettingsService settings, CancellationToken ct,
@@ -82,6 +88,10 @@ public static class LibraryEndpoints
 
         group.MapGet("/{itemId:int}", async (int itemId, SpacearrDb db, ISettingsService settings, IArrClientFactory factory, IMemoryCache cache, CancellationToken ct) =>
         {
+            // ItemId 0 (and negative ids) mean "unmatched loose file" in LibraryRow, not a
+            // real item - without this guard /library/0 would return whichever unmatched
+            // row happens to be first instead of a 404.
+            if (itemId <= 0) return Results.NotFound();
             var (rows, heat) = await Load(db, settings, new LibraryFilter(null, null, 0, null), null, ct);
             var index = rows.FindIndex(r => r.ItemId == itemId);
             if (index < 0) return Results.NotFound();

@@ -13,7 +13,23 @@ public sealed record LibraryRow(
     string? VideoCodec, int? BitDepth, string? HdrFormat, long? VideoBitrateBps, long? OverallBitrateBps, string? AudioSummary, string? ProbeError,
     double? Nbpp)
 {
-    public string? Resolution => Height is null ? null : Height >= 2000 ? "2160p" : Height >= 1000 ? "1080p" : Height >= 700 ? "720p" : Height >= 500 ? "576p" : "480p";
+    /// <summary>
+    /// Buckets on max(Height, Width * 9 / 16) rather than raw Height, so wide/cinema
+    /// masters (e.g. 1920x804, 3840x1600) that store a shorter-than-16:9 frame still
+    /// bucket by their effective 16:9-equivalent height instead of the raw pixel height.
+    /// </summary>
+    public string? Resolution
+    {
+        get
+        {
+            double? fromHeight = Height;
+            double? fromWidth = Width is null ? null : Width.Value * 9.0 / 16.0;
+            var effective = fromHeight is null ? fromWidth : fromWidth is null ? fromHeight : Math.Max(fromHeight.Value, fromWidth.Value);
+            if (effective is null) return null;
+            var e = effective.Value;
+            return e >= 2000 ? "2160p" : e >= 1300 ? "1440p" : e >= 1000 ? "1080p" : e >= 700 ? "720p" : e >= 500 ? "576p" : "480p";
+        }
+    }
 }
 
 public sealed record LibraryFilter(int? InstanceId, MediaKind? Kind, long MinBytes, string? Search);

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
@@ -25,6 +26,14 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
 
         var filtered = await client.GetFromJsonAsync<JsonElement>($"/api/v1/library?instanceId={instanceId}&search=M3");
         filtered.GetProperty("total").GetInt32().Should().Be(1);
+
+        // A wildly out-of-range page must not overflow the skip computation; it should
+        // clamp to a real page (or come back empty) rather than 500.
+        var overflow = await client.GetAsync($"/api/v1/library?instanceId={instanceId}&page=2000000000&pageSize=1000");
+        overflow.StatusCode.Should().Be(HttpStatusCode.OK);
+        var overflowBody = await overflow.Content.ReadFromJsonAsync<JsonElement>();
+        overflowBody.GetProperty("total").GetInt32().Should().Be(6);
+        overflowBody.GetProperty("items").GetArrayLength().Should().BeLessOrEqualTo(6);
     }
 
     [Fact]
@@ -50,5 +59,9 @@ public class LibraryEndpointTests : IClassFixture<ArrTestApp>
         profiles.Should().NotContain(p => p.GetProperty("id").GetInt32() == 5, "the current profile is excluded");
         var hd = profiles.Single(p => p.GetProperty("name").GetString() == "HD-1080p");
         hd.GetProperty("estimate").GetProperty("basis").GetString().Should().BeOneOf("library", "table", "unknown");
+
+        // Item id 0 means "unmatched loose file" internally, not a real item - it must 404.
+        var zero = await client.GetAsync("/api/v1/library/0");
+        zero.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

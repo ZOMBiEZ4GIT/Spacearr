@@ -82,6 +82,8 @@ public static class Heat
         if (string.IsNullOrEmpty(value)) return UnknownColor;
         var hash = 0;
         foreach (var c in value) hash = unchecked(hash * 31 + c);
-        return Palette[Math.Abs(hash) % Palette.Length];
+        // Math.Abs(int.MinValue) throws (no positive counterpart); masking off
+        // the sign bit is safe for every int, including int.MinValue.
+        return Palette[(hash & int.MaxValue) % Palette.Length];
     }
 }

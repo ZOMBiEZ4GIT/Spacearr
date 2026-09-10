@@ -9,12 +9,15 @@ public static class TreeBuilder
 {
     public static TreeNode Build(IReadOnlyList<LibraryRow> rows, double[] heat, string colorBy, long foldBelowBytes, int maxLeaves = 10000, ISet<int>? duplicateFileIds = null)
     {
-        var leaves = new List<(LibraryRow Row, double Heat)>(rows.Count);
-        for (var i = 0; i < rows.Count; i++) leaves.Add((rows[i], heat[i]));
+        // Indexed by position, not FileId: two rows (e.g. the same physical
+        // file matched by two arr instances) can share a FileId, and keying
+        // on that would make the leaf cap inexact.
+        var leaves = new List<(LibraryRow Row, double Heat, int Index)>(rows.Count);
+        for (var i = 0; i < rows.Count; i++) leaves.Add((rows[i], heat[i], i));
 
         // Global cap: fold the smallest beyond maxLeaves into per-group "Other"
         var keep = new HashSet<int>();
-        foreach (var (row, _) in leaves.OrderByDescending(l => l.Row.SizeBytes).Take(maxLeaves)) keep.Add(row.FileId);
+        foreach (var l in leaves.OrderByDescending(l => l.Row.SizeBytes).Take(maxLeaves)) keep.Add(l.Index);
 
         var top = new List<TreeNode>();
         foreach (var seriesGroup in leaves.Where(l => l.Row.Kind == MediaKind.Episode).GroupBy(l => l.Row.SeriesTitle ?? "Unknown series"))
@@ -36,17 +39,17 @@ public static class TreeBuilder
         return new TreeNode("Library", top.Sum(t => t.Bytes), top.OrderByDescending(t => t.Bytes).ToArray(), null);
     }
 
-    private static (List<(LibraryRow Row, double Heat)> Kept, List<(LibraryRow Row, double Heat)> Folded) Split(IEnumerable<(LibraryRow Row, double Heat)> group, HashSet<int> keep, long foldBelow)
+    private static (List<(LibraryRow Row, double Heat, int Index)> Kept, List<(LibraryRow Row, double Heat, int Index)> Folded) Split(IEnumerable<(LibraryRow Row, double Heat, int Index)> group, HashSet<int> keep, long foldBelow)
     {
-        var kept = new List<(LibraryRow, double)>(); var folded = new List<(LibraryRow, double)>();
-        foreach (var l in group) (l.Row.SizeBytes >= foldBelow && keep.Contains(l.Row.FileId) ? kept : folded).Add(l);
+        var kept = new List<(LibraryRow, double, int)>(); var folded = new List<(LibraryRow, double, int)>();
+        foreach (var l in group) (l.Row.SizeBytes >= foldBelow && keep.Contains(l.Index) ? kept : folded).Add(l);
         return (kept, folded);
     }
 
     private static TreeNode Leaf(string name, LibraryRow r, double heat, string colorBy, ISet<int>? dups) =>
         new(name, r.SizeBytes, null, new TreeLeaf(r.ItemId, r.FileId, heat, ColorFor(r, heat, colorBy, dups), r.PosterUrl, r.QualityName, r.VideoCodec, r.Resolution, r.InstanceId, r.InstanceName));
 
-    private static TreeNode Other(List<(LibraryRow Row, double Heat)> folded, string colorBy)
+    private static TreeNode Other(List<(LibraryRow Row, double Heat, int Index)> folded, string colorBy)
     {
         var bytes = folded.Sum(f => f.Row.SizeBytes);
         var known = folded.Where(f => !double.IsNaN(f.Heat)).ToList();
