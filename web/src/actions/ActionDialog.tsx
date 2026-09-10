@@ -64,15 +64,22 @@ export default function ActionDialog({ kind, itemId, profile, onClose, onDone }:
     target?.focus();
   }, [data, error, jobId, finished]);
 
+  // Synchronous latch: React's own re-render (which disables the button) is not synchronous, so
+  // without this a double-click can fire two executes before the first `disabled` update lands.
+  // Declared before the mount-only effect below so Escape/backdrop can gate on it too, covering
+  // the window between clicking confirm and the execute POST resolving into a jobId.
+  const confirmLatchRef = useRef(false);
+
   // Mount-only: the focus trap and the Escape handler. Reads `onClose`/`jobId` through refs so
   // it never has to re-subscribe (LibraryPage passes inline callbacks that get a new identity on
-  // every render). Escape and the backdrop click (below) are both gated on jobIdRef: once a job
-  // exists, dismissal must go through the Close button so a failure is never hidden mid-action.
+  // every render). Escape and the backdrop click (below) are both gated on jobIdRef and
+  // confirmLatchRef: once a job exists, or an execute POST is in flight, dismissal must go
+  // through the Close button so a failure is never hidden mid-action.
   useEffect(() => {
     const el = dialogRef.current;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (jobIdRef.current !== undefined) return;
+        if (jobIdRef.current !== undefined || confirmLatchRef.current) return;
         e.preventDefault();
         onCloseRef.current();
       }
@@ -86,10 +93,6 @@ export default function ActionDialog({ kind, itemId, profile, onClose, onDone }:
     };
     document.addEventListener('keydown', onKey); return () => document.removeEventListener('keydown', onKey);
   }, []);
-
-  // Synchronous latch: React's own re-render (which disables the button) is not synchronous, so
-  // without this a double-click can fire two executes before the first `disabled` update lands.
-  const confirmLatchRef = useRef(false);
 
   const confirm = async () => {
     if (!data || confirmLatchRef.current) return;
@@ -118,7 +121,7 @@ export default function ActionDialog({ kind, itemId, profile, onClose, onDone }:
   const label = data ? (kind === 'delete' ? `Delete ${formatBytes(data.bytesFreedNow)}` : `Replace, free ${formatBytes(data.bytesFreedNow)} now`) : kind === 'delete' ? 'Delete' : 'Replace';
 
   return (
-    <div className={s.backdrop} onMouseDown={(e) => { if (jobIdRef.current !== undefined) return; if (e.target === e.currentTarget) onClose(); }}>
+    <div className={s.backdrop} onMouseDown={(e) => { if (jobIdRef.current !== undefined || confirmLatchRef.current) return; if (e.target === e.currentTarget) onClose(); }}>
       <div className={s.dialog} role="dialog" aria-modal="true" aria-labelledby="action-title" tabIndex={-1} ref={dialogRef}>
         <h2 id="action-title">{kind === 'delete' ? 'Delete file' : `Replace with ${profile?.name ?? 'a smaller release'}`}</h2>
         {!data && !error && <p className="muted">{repreviewing ? 'Preview expired, refreshing…' : 'Checking with the arr app…'}</p>}

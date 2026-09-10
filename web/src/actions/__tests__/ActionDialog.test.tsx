@@ -54,4 +54,30 @@ describe('ActionDialog', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it('gates Escape and backdrop dismissal while the execute POST is in flight', async () => {
+    let resolveExecute!: (r: Response) => void;
+    const executePending = new Promise<Response>((resolve) => { resolveExecute = resolve; });
+    fetchMock.mockImplementation((url: string) => {
+      if (url.endsWith('/actions/preview')) return Promise.resolve(json({ request: { type: 'delete', itemId: 6 }, title: 'Show (2021)', instanceName: 'TV', instanceType: 'sonarr', bytesFreedNow: 2_000_000_000, estimate: null, warning: null, steps: [{ description: 'Delete the file through Sonarr', method: 'DELETE', path: '/y' }], confirmToken: 'tok3', expiresAt: '2026-09-10T12:10:00Z' }));
+      if (url.endsWith('/actions/execute')) return executePending;
+      return Promise.resolve(json({}, 404));
+    });
+    const qc = new QueryClient();
+    const onClose = vi.fn();
+    render(<QueryClientProvider client={qc}><ActionDialog kind="delete" itemId={6} onClose={onClose} onDone={() => {}} /></QueryClientProvider>);
+    await screen.findByText('Show (2021)');
+    const confirm = screen.getByRole('button', { name: /Delete/ });
+    await waitFor(() => expect(confirm).toBeEnabled(), { timeout: 3000 });
+    fireEvent.click(confirm);
+    // No jobId yet (execute hasn't resolved), but the synchronous latch set inside confirm()
+    // must already block both Escape and a backdrop click.
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+    const backdrop = screen.getByRole('dialog').parentElement as HTMLElement;
+    fireEvent.mouseDown(backdrop, { target: backdrop });
+    expect(onClose).not.toHaveBeenCalled();
+    resolveExecute(json({ jobId: 43 }, 202));
+    await screen.findByRole('status');
+  });
 });

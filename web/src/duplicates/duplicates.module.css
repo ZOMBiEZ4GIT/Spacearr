@@ -1,0 +1,8 @@
+.page { padding: var(--space-4); display: grid; gap: var(--space-3); }
+.head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+.group { display: grid; gap: 8px; }
+.groupHead { display: flex; justify-content: space-between; align-items: baseline; }
+.member { display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--ground); }
+.meta { font-size: var(--fs-sm); color: var(--muted); }
+.path { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--muted); word-break: break-all; }
+.waste { color: var(--danger); font-family: var(--font-mono); }
