@@ -97,10 +97,22 @@ if (app.Environment.IsEnvironment("Testing"))
 
 // Serves the React SPA for any route that isn't an API endpoint (so deep
 // links like /library/123 resolve to index.html and client-side routing can
-// take over), and a JSON 404 for unmatched /api paths instead of HTML.
+// take over), and a JSON 404 for unmatched /api paths instead of HTML. This
+// endpoint is AllowAnonymous so it can serve the SPA shell to a logged-out
+// visitor, but that must never leak into the API's auth contract: nothing
+// under /api may answer an anonymous caller with anything but 401, so an
+// unmatched /api path checks authentication itself before deciding between
+// a bare 401 (anonymous - matches every other API route) and a JSON 404
+// (authenticated - a real "no such route").
 app.MapFallback(async ctx =>
 {
-    if (ctx.Request.Path.StartsWithSegments("/api")) { ctx.Response.StatusCode = 404; await ctx.Response.WriteAsJsonAsync(new { error = "Not found" }); return; }
+    if (ctx.Request.Path.StartsWithSegments("/api"))
+    {
+        if (ctx.User?.Identity?.IsAuthenticated != true) { ctx.Response.StatusCode = 401; return; }
+        ctx.Response.StatusCode = 404;
+        await ctx.Response.WriteAsJsonAsync(new { error = "Not found" });
+        return;
+    }
     ctx.Response.ContentType = "text/html";
     await ctx.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot"), "index.html"));
 }).AllowAnonymous();

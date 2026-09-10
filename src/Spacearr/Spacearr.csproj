@@ -30,7 +30,19 @@
   <ItemGroup>
     <!-- The Web SDK already globs wwwroot/** into Content by default; Update (not
          Include) avoids MSBuild NETSDK1022 duplicate-item errors while still
-         forcing PreserveNewest so a rebuilt SPA is copied to the output dir. -->
+         forcing PreserveNewest so a rebuilt SPA is copied to the output dir. This
+         only covers files that already exist when the project is evaluated. -->
     <Content Update="wwwroot/**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- Item globs like the one above are captured once, at project evaluation time,
+       which happens before any target (including BuildWeb/EnsureWebPlaceholder) runs.
+       On a fresh clone wwwroot doesn't exist yet at evaluation time, so those files
+       would be silently missing from the Content set - and from the build/publish
+       output - without this: re-glob wwwroot after it's been generated, but before
+       AssignTargetPaths decides what gets copied/published. -->
+  <Target Name="IncludeBuiltWeb" AfterTargets="BuildWeb;EnsureWebPlaceholder" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <Content Include="wwwroot/**" Exclude="@(Content)" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 </Project>
