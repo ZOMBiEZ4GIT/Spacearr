@@ -17,6 +17,18 @@ public class SpaFallbackTests : IClassFixture<TestApp>
         response.Content.Headers.ContentType!.MediaType.Should().Be("text/html");
     }
 
+    // Without this, an intermediary or the browser could cache the shell itself and keep serving
+    // it - and the hashed asset filenames it references - after an upgraded container ships a new
+    // build under the same URL.
+    [Fact]
+    public async Task Fallback_shell_is_served_with_no_cache()
+    {
+        var client = _app.CreateClient();
+        var response = await client.GetAsync("/library/anything");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.CacheControl!.NoCache.Should().BeTrue();
+    }
+
     // Root_serves_index_without_authentication above doesn't actually prove the
     // pipeline order: "/" also matches the AllowAnonymous SPA fallback's
     // "{*path:nonfile}" pattern (no dot in the last segment), so it would still

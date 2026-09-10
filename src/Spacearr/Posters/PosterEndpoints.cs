@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Spacearr.Data;
@@ -33,7 +35,13 @@ public static class PosterEndpoints
                 return Results.NotFound();
             }
 
-            var cacheFile = Path.Combine(paths.PosterCacheDirectory, $"{item.ArrInstanceId}-{item.ExternalId}.jpg");
+            // Radarr/Sonarr cover URLs carry a `?lastWrite=...` query precisely so replaced
+            // artwork gets a new URL - folding a short hash of the full PosterUrl into the cache
+            // file name means a changed lastWrite produces a new file instead of being masked by
+            // the old one under the (instance, item) key alone. (Eviction of files for removed
+            // items/instances is a separate, deliberately unaddressed concern.)
+            var urlHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(item.PosterUrl)))[..12].ToLowerInvariant();
+            var cacheFile = Path.Combine(paths.PosterCacheDirectory, $"{item.ArrInstanceId}-{item.ExternalId}-{urlHash}.jpg");
             if (!File.Exists(cacheFile))
             {
                 // Unique per request so two concurrent misses for the same item never
@@ -83,7 +91,9 @@ public static class PosterEndpoints
                 {
                     // Only ever removes a leftover/aborted temp file - a completed fetch
                     // has already moved it to cacheFile by this point, so it no longer exists.
-                    if (File.Exists(tmp)) File.Delete(tmp);
+                    // A locked tmp file (AV scan, read-only volume) must not turn an endpoint
+                    // documented to return 404 on any failure into an unhandled 500.
+                    try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort cleanup only */ }
                 }
             }
             var info = new FileInfo(cacheFile);

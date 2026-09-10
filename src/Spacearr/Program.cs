@@ -116,6 +116,10 @@ app.MapFallback(async ctx =>
         return;
     }
     ctx.Response.ContentType = "text/html";
+    // The shell references hashed asset filenames from the build that produced it. Without this,
+    // an intermediary or the browser could cache index.html itself and keep serving it - and its
+    // now-stale asset references - after an upgraded container ships a new build under the same URL.
+    ctx.Response.Headers.CacheControl = "no-cache";
     await ctx.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot"), "index.html"));
 }).AllowAnonymous();
 
