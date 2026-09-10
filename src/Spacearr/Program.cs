@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configRoot = ConfigPaths.Resolve(builder.Configuration);
 var paths = new ConfigPaths(configRoot);
 builder.Services.AddSingleton(paths);
+builder.Services.AddSingleton<Spacearr.Infrastructure.ISecretProtector, Spacearr.Infrastructure.SecretProtector>();
 builder.Services.AddDbContext<SpacearrDb>(o =>
     o.UseSqlite($"Data Source={paths.DatabasePath};Cache=Shared"));
 
