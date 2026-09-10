@@ -8,6 +8,7 @@ using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
 using Spacearr.Jobs;
+using Spacearr.Library;
 using Spacearr.Scanning;
 using Spacearr.Settings;
 using Spacearr.System;
@@ -77,6 +78,7 @@ app.MapSettingsEndpoints();
 app.MapJobEndpoints();
 app.MapRootFolderEndpoints();
 app.MapInstanceEndpoints();
+app.MapLibraryEndpoints();
 
 if (app.Environment.IsEnvironment("Testing"))
 {
