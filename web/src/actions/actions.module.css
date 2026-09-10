@@ -1,0 +1,9 @@
+.backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: grid; place-items: center; z-index: 20; padding: var(--space-4); }
+.dialog { width: min(520px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-panel); padding: var(--space-4); display: grid; gap: var(--space-3); }
+.dialog h2 { margin: 0; font-size: var(--fs-xl); }
+.warn { background: var(--accent-soft); color: var(--accent-ink); border-left: 3px solid var(--warn); padding: 8px 10px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.big { font-family: var(--font-mono); font-size: var(--fs-xl); font-weight: 600; }
+.foot { display: flex; justify-content: flex-end; gap: var(--space-2); }
+.progress { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--accent); transition: width .2s; }

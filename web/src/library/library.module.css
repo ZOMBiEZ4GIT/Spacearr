@@ -6,7 +6,7 @@
 .page { display: grid; grid-template-rows: auto auto minmax(280px, 3fr) minmax(220px, 2fr); height: 100%; min-height: 0; }
 .detailCol { border-left: 1px solid var(--line); background: var(--surface); overflow: auto; min-height: 0; }
 .backdrop { display: none; }
-.toolbar { grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface); overflow-x: auto; }
+.toolbar { grid-row: 1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface); }
 .toolbar > * { flex: 0 0 auto; }
 /* The legend is the first thing allowed to lose room, and it stays on one line. */
 .legendWrap { flex: 0 1 auto; min-width: 0; overflow: hidden; }
@@ -27,6 +27,7 @@
 .table th > button { cursor: pointer; }
 .table th > button:hover { background: var(--surface-2); }
 .table td { padding: 0 10px; height: 40px; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+.table td:first-child, .table th:first-child { min-width: 180px; }
 .table tbody tr { cursor: pointer; }
 .table tbody tr:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .table tr:hover td { background: var(--surface-2); }
