@@ -115,7 +115,10 @@ public static class LibraryEndpoints
         app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
         {
             var (rows, heat) = await Load(db, settings, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
-            var heatByFile = rows.Select((r, i) => (r.FileId, heat[i])).ToDictionary(x => x.FileId, x => x.Item2);
+            // Two MediaItems (e.g. the same physical file matched on two arr instances)
+            // can share a FileId, so a plain ToDictionary would throw - group and keep
+            // the first heat value for each file instead.
+            var heatByFile = rows.Select((r, i) => (r.FileId, Heat: heat[i])).GroupBy(x => x.FileId).ToDictionary(g => g.Key, g => g.First().Heat);
             var groups = DuplicateFinder.Find(rows).Select(g => new DuplicateGroupResponse(
                 g.Key, g.Title, g.Members.Select(m => LibraryItemResponse.From(m, heatByFile[m.FileId])).ToArray(), g.WastedBytes,
                 g.Members.OrderByDescending(m => m.SizeBytes).First().ItemId, g.Members.OrderBy(m => m.SizeBytes).First().ItemId));

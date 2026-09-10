@@ -44,5 +44,7 @@ public static partial class DuplicateFinder
 
     public static string TitleFor(LibraryRow r) => r.Kind == MediaKind.Movie
         ? (r.Year is null ? r.Title : $"{r.Title} ({r.Year})")
-        : $"{r.SeriesTitle} S{r.SeasonNumber:00}E{string.Join("-E", (r.Episodes ?? "").Split(',').Select(e => int.TryParse(e, out var n) ? n.ToString("00") : e))}";
+        : string.IsNullOrEmpty(r.Episodes)
+            ? $"{r.SeriesTitle} S{r.SeasonNumber:00}"
+            : $"{r.SeriesTitle} S{r.SeasonNumber:00}E{string.Join("-E", r.Episodes.Split(',').Select(e => int.TryParse(e, out var n) ? n.ToString("00") : e))}";
 }
