@@ -28,7 +28,11 @@ public class ScanJobTests : IDisposable
             services.AddSingleton<IMediaProber>(_prober);
     }
 
-    public void Dispose() { _app.Dispose(); Directory.Delete(_root, true); }
+    public void Dispose()
+    {
+        _app.Dispose();
+        try { Directory.Delete(_root, true); } catch { /* best effort - a test may already have removed it */ }
+    }
 
     private void Make(string relative, int size)
     {
@@ -57,6 +61,12 @@ public class ScanJobTests : IDisposable
     {
         using var scope = _app.Services.CreateScope();
         return await scope.ServiceProvider.GetRequiredService<SpacearrDb>().MediaFiles.AsNoTracking().OrderBy(f => f.Path).ToListAsync();
+    }
+
+    private async Task<RootFolder> GetRoot()
+    {
+        using var scope = _app.Services.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<SpacearrDb>().RootFolders.AsNoTracking().SingleAsync();
     }
 
     [Fact]
@@ -103,5 +113,71 @@ public class ScanJobTests : IDisposable
         Make("a.mkv", 2_000_000);
         var s = await RunScan();
         s.FilesSeen.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Missing_root_this_run_does_not_delete_its_files_or_touch_LastScanAt()
+    {
+        await AddRoot();
+        Make("a.mkv", 2_000_000);
+        Make("b.mkv", 2_000_000);
+
+        var first = await RunScan();
+        first.FilesAdded.Should().Be(2);
+        var lastScanAt = (await GetRoot()).LastScanAt;
+        lastScanAt.Should().NotBeNull();
+
+        Directory.Delete(_root, true);
+
+        var second = await RunScan();
+        second.FilesRemoved.Should().Be(0);
+        second.Errors.Should().Contain(e => e.StartsWith("Root folder not found"));
+        (await Files()).Should().HaveCount(2);
+        (await GetRoot()).LastScanAt.Should().Be(lastScanAt);
+    }
+
+    [Fact]
+    public async Task Overlapping_roots_dedupe_the_same_file_instead_of_crashing()
+    {
+        using (var scope = _app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
+            db.RootFolders.Add(new RootFolder { Path = PathNormalizer.Normalize(_root) });
+            db.RootFolders.Add(new RootFolder { Path = PathNormalizer.Normalize(Path.Combine(_root, "sub")) });
+            await db.SaveChangesAsync();
+        }
+        Make("sub/x.mkv", 2_000_000);
+
+        var result = await RunScan();
+        result.FilesSeen.Should().Be(1);
+        (await Files()).Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task Non_probe_exceptions_are_recorded_per_file_without_aborting_the_scan()
+    {
+        await AddRoot();
+        Make("a.mkv", 2_000_000);
+        Make("bad.mkv", 2_000_000);
+        _prober.ThrowFor["bad.mkv"] = () => new IOException("disk read error");
+
+        var result = await RunScan();
+        result.FilesProbed.Should().Be(2);
+        var files = await Files();
+        files.Single(f => f.Path.EndsWith("bad.mkv")).ProbeError.Should().Be("disk read error");
+        files.Single(f => f.Path.EndsWith("a.mkv")).ProbeError.Should().BeNull();
+        files.Single(f => f.Path.EndsWith("a.mkv")).VideoCodec.Should().Be("h264");
+    }
+
+    [Fact]
+    public async Task Fallback_video_bitrate_is_computed_from_size_duration_and_audio_bitrate()
+    {
+        await AddRoot();
+        Make("a.mkv", 40_000_000);
+        _prober.Result = _ => new ProbeResult(100, 1920, 1080, 23.976, "h264", "High", 8, 8_000_000, null, "mkv", "AAC 2.0", 128_000, null);
+
+        await RunScan();
+        var file = (await Files()).Single();
+        file.VideoBitrateBps.Should().Be(40_000_000L * 8 / 100 - 128_000);
     }
 }
