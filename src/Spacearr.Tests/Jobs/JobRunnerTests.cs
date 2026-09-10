@@ -33,6 +33,21 @@ public class JobRunnerTests : IClassFixture<TestApp>
         public Task<JobSummary> RunAsync(JobContext ctx, CancellationToken ct) => throw new InvalidOperationException("boom");
     }
 
+    private sealed class SlowJob : IJob
+    {
+        // Action is unused by any other test in this file, so it never
+        // collides with the Scan/Enrich dedupe check or another test's job.
+        public JobType Type => JobType.Action;
+        public async Task<JobSummary> RunAsync(JobContext ctx, CancellationToken ct)
+        {
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+                await Task.Delay(50, ct);
+            }
+        }
+    }
+
     [Fact]
     public async Task Runs_job_records_status_summary_and_publishes_progress()
     {
@@ -82,6 +97,30 @@ public class JobRunnerTests : IClassFixture<TestApp>
         var second = await queue.EnqueueAsync(JobType.Scan, JobTrigger.Manual, _ => new CountingJob());
         second.Should().Be(first);
         await WaitForFinish(first);
+    }
+
+    [Fact]
+    public async Task Cancelling_a_running_job_marks_it_cancelled()
+    {
+        var queue = _app.Services.GetRequiredService<IJobQueue>();
+        var id = await queue.EnqueueAsync(JobType.Action, JobTrigger.Manual, _ => new SlowJob());
+
+        await WaitUntilRunning(queue, id);
+
+        queue.TryCancel(id).Should().BeTrue();
+        await WaitForFinish(id);
+
+        using var scope = _app.Services.CreateScope();
+        var job = await scope.ServiceProvider.GetRequiredService<SpacearrDb>().Jobs.SingleAsync(j => j.Id == id);
+        job.Status.Should().Be(JobStatus.Cancelled);
+    }
+
+    private static async Task WaitUntilRunning(IJobQueue queue, int id)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        while (queue.RunningJobId != id && DateTime.UtcNow < deadline)
+            await Task.Delay(10);
+        queue.RunningJobId.Should().Be(id);
     }
 
     private async Task WaitForFinish(int id)

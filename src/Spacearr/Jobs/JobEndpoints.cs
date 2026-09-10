@@ -22,8 +22,6 @@ public sealed record PageResponse<T>(T[] Items, int Total, int Page, int PageSiz
 
 public static class JobEndpoints
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-
     public static IEndpointRouteBuilder MapJobEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/v1").RequireAuthorization();
@@ -59,34 +57,41 @@ public static class JobEndpoints
             http.Response.Headers["X-Accel-Buffering"] = "no";
             await http.Response.Body.FlushAsync(ct);
 
-            using var keepaliveCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-
-            var keepalive = Task.Run(async () =>
-            {
-                while (!keepaliveCts.Token.IsCancellationRequested)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(15), keepaliveCts.Token);
-                    await http.Response.WriteAsync(": keepalive\n\n", keepaliveCts.Token);
-                    await http.Response.Body.FlushAsync(keepaliveCts.Token);
-                }
-            }, keepaliveCts.Token);
-
+            // Single writer against the response body: instead of a second
+            // background task racing the subscription loop for keepalive
+            // comments (which could interleave partial writes on the same
+            // stream), race one in-flight subscription read against a 15s
+            // timer inside this one loop. `next` is only replaced once its
+            // current value has actually been awaited, so at most one
+            // MoveNextAsync is ever in flight on the enumerator at a time.
+            await using var enumerator = hub.Subscribe(ct).GetAsyncEnumerator(ct);
+            var next = enumerator.MoveNextAsync().AsTask();
             try
             {
-                await foreach (var e in hub.Subscribe(ct))
+                while (true)
                 {
-                    await http.Response.WriteAsync($"event: {e.Kind}\ndata: {JsonSerializer.Serialize(e, Json)}\n\n", ct);
+                    var delay = Task.Delay(TimeSpan.FromSeconds(15), ct);
+                    var winner = await Task.WhenAny(next, delay);
+                    if (winner == delay)
+                    {
+                        await http.Response.WriteAsync(": keepalive\n\n", ct);
+                        await http.Response.Body.FlushAsync(ct);
+                        continue;
+                    }
+
+                    if (!await next) break; // subscription ended
+                    var e = enumerator.Current;
+                    await http.Response.WriteAsync($"event: {e.Kind}\ndata: {JsonSerializer.Serialize(e, JobJson.Options)}\n\n", ct);
                     await http.Response.Body.FlushAsync(ct);
+                    next = enumerator.MoveNextAsync().AsTask();
                 }
             }
             catch (OperationCanceledException) { }
             finally
             {
-                // Ensure the keepalive loop stops and is observed even if the
-                // client disconnected mid-write (so it can't fault silently
-                // after this handler returns and its response is disposed).
-                keepaliveCts.Cancel();
-                try { await keepalive; } catch (OperationCanceledException) { } catch (ObjectDisposedException) { } catch (IOException) { }
+                // Always observe the in-flight read before the enumerator is
+                // disposed, so a disconnect never leaves an unawaited task.
+                try { await next; } catch { /* channel closed or cancelled */ }
             }
         });
 
@@ -95,7 +100,7 @@ public static class JobEndpoints
 
     private static JobResponse ToResponse(Job j, IProgressHub hub) => new(
         j.Id, j.Type, j.Status, j.Trigger, j.QueuedAt, j.StartedAt, j.FinishedAt,
-        j.Summary is null ? null : JsonSerializer.Deserialize<JobSummary>(j.Summary, Json),
+        j.Summary is null ? null : JsonSerializer.Deserialize<JobSummary>(j.Summary, JobJson.Options),
         j.Error,
         j.Status == JobStatus.Running ? hub.LastFor(j.Id) : null);
 }
