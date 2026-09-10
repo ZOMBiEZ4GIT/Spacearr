@@ -8,6 +8,8 @@ TestResults/
 # Node
 web/node_modules/
 web/dist/
+web/test-results/
+web/playwright-report/
 src/Spacearr/wwwroot/
 
 # Spacearr runtime data (never commit a database or logs)
