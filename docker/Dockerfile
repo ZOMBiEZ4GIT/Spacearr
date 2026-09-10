@@ -18,7 +18,7 @@ COPY src/ src/
 COPY --from=web /src/Spacearr/wwwroot src/Spacearr/wwwroot
 RUN dotnet publish src/Spacearr/Spacearr.csproj -c Release -a $TARGETARCH -o /app -p:SkipWeb=true -p:UseAppHost=false -p:Version=$VERSION
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 LABEL org.opencontainers.image.title="Spacearr" \
       org.opencontainers.image.description="The cooler looking WinDirStat for your arr stack" \
       org.opencontainers.image.source="https://github.com/ZOMBiEZ4GIT/Spacearr" \
