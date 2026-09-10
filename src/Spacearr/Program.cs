@@ -3,6 +3,7 @@ using Serilog;
 using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
+using Spacearr.Settings;
 using Spacearr.System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<Spacearr.Auth.IUserService, Spacearr.Auth.UserService>();
+builder.Services.AddScoped<Spacearr.Settings.ISettingsService, Spacearr.Settings.SettingsService>();
 builder.Services.AddSingleton<Spacearr.Auth.LoginThrottle>();
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(o =>
@@ -81,6 +83,7 @@ app.UseAuthorization();
 app.UseSwagger(o => o.RouteTemplate = "api/docs/{documentName}/openapi.json");
 app.MapSystemEndpoints();
 app.MapAuthEndpoints();
+app.MapSettingsEndpoints();
 
 app.Run();
 
