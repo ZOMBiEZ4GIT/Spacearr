@@ -1,0 +1,16 @@
+services:
+  spacearr:
+    image: ghcr.io/zombiez4git/spacearr:latest
+    container_name: spacearr
+    ports:
+      - "8787:8787"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Etc/UTC
+    volumes:
+      - ./config:/config
+      # Mount your media with the SAME paths Radarr and Sonarr use, and no path mapping is needed:
+      - /path/to/media:/data:ro
+    restart: unless-stopped
