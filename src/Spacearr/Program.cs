@@ -73,6 +73,7 @@ app.MapSystemEndpoints();
 app.MapAuthEndpoints();
 app.MapSettingsEndpoints();
 app.MapJobEndpoints();
+app.MapRootFolderEndpoints();
 
 if (app.Environment.IsEnvironment("Testing"))
 {

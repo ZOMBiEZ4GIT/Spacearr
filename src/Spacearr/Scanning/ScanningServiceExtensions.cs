@@ -7,6 +7,7 @@ public static class ScanningServiceExtensions
     {
         services.AddSingleton<IToolLocator, ToolLocator>();
         services.AddSingleton<IMediaProber, FfprobeProber>();
+        services.AddSingleton<IFileDiscovery, FileDiscovery>();
         return services;
     }
 }
