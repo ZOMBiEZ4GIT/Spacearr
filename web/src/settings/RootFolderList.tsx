@@ -15,7 +15,11 @@ export default function RootFolderList() {
   const [check, setCheck] = useState<ValidatePath | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const onCheck = async () => { setError(null); setCheck(await validate.mutateAsync(path)); };
+  const onCheck = async () => {
+    setError(null);
+    try { setCheck(await validate.mutateAsync(path)); }
+    catch (err) { setError(err instanceof ApiError ? err.message : 'Could not check that folder.'); setCheck(null); }
+  };
   const onAdd = async () => {
     setError(null);
     try { await add.mutateAsync(path); setPath(''); setCheck(null); }

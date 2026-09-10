@@ -44,9 +44,12 @@ export default function FirstRunWizard() {
       {step === 3 && <>
         <p className="muted">The first scan reads every file with ffprobe. Large libraries take a while; you can close this page and watch progress in Activity.</p>
         {!jobId && <button className="btn btn-primary" onClick={async () => setJobId((await scan.mutateAsync()).jobId)} disabled={scan.isPending}>Start scan</button>}
-        {progress && progress.kind === 'progress' && <p>{progress.phase === 'probe' ? 'Reading files' : progress.phase === 'enrich' ? 'Matching titles' : 'Discovering'} <span className="mono">{progress.done.toLocaleString()} / {progress.total.toLocaleString()}</span></p>}
-        {progress && progress.kind === 'finished' && <p className={progress.status === 'succeeded' ? s.ok : s.bad}>{progress.status === 'succeeded' ? 'Scan complete.' : `Scan ${progress.status}: ${progress.detail ?? ''}`}</p>}
-        <div className={s.row}><Link className="btn btn-primary" to="/library">Open library</Link></div></>}
+        <div aria-live="polite">
+          {progress && progress.kind === 'progress' && <p>{progress.phase === 'probe' ? 'Reading files' : progress.phase === 'enrich' ? 'Matching titles' : 'Discovering'} <span className="mono">{progress.done.toLocaleString()} / {progress.total.toLocaleString()}</span></p>}
+          {progress && progress.kind === 'finished' && <p className={progress.status === 'succeeded' ? s.ok : s.bad}>{progress.status === 'succeeded' ? 'Scan complete.' : `Scan ${progress.status}: ${progress.detail ?? ''}`}</p>}
+        </div>
+        <div className={s.row}><Link className="btn btn-primary" to="/library">Open library</Link></div>
+        {jobId !== undefined && progress?.kind !== 'finished' && <p className="muted">The scan keeps running; the library fills in as it goes.</p>}</>}
     </main>
   );
 }

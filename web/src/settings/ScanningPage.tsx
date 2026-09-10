@@ -5,13 +5,25 @@ import RootFolderList from './RootFolderList';
 import ToolStatus from './ToolStatus';
 import s from './settings.module.css';
 
+const parseExtensions = (text: string) => text.split(',').map((x) => x.trim()).filter(Boolean);
+
 export default function ScanningPage() {
   const settings = useSettings();
   const save = useSaveSettings();
   const [form, setForm] = useState<AppSettings | null>(null);
-  useEffect(() => { if (settings.data && !form) setForm(settings.data); }, [settings.data, form]);
+  const [extensionsText, setExtensionsText] = useState('');
+  useEffect(() => {
+    if (settings.data && !form) { setForm(settings.data); setExtensionsText(settings.data.extensions.join(', ')); }
+  }, [settings.data, form]);
   if (!form) return <div className={s.page}><p className="muted">Loading…</p></div>;
   const set = <K extends keyof AppSettings>(k: K, v: AppSettings[K]) => setForm({ ...form, [k]: v });
+  const commitExtensions = () => set('extensions', parseExtensions(extensionsText));
+  const onSave = () => {
+    const extensions = parseExtensions(extensionsText);
+    const next = { ...form, extensions };
+    setForm(next);
+    save.mutate(next);
+  };
   return (
     <div className={s.page}>
       <h1>Scanning</h1>
@@ -22,7 +34,9 @@ export default function ScanningPage() {
           <select id="scan-interval" value={form.scanIntervalHours} onChange={(e) => set('scanIntervalHours', Number(e.target.value))}>
             <option value={0}>Off (manual only)</option><option value={1}>1 hour</option><option value={3}>3 hours</option><option value={6}>6 hours</option><option value={12}>12 hours</option><option value={24}>24 hours</option>
           </select></div>
-        <div className="field"><label htmlFor="scan-ext">File extensions</label><input id="scan-ext" value={form.extensions.join(', ')} onChange={(e) => set('extensions', e.target.value.split(',').map((x) => x.trim()).filter(Boolean))} /></div>
+        <div className="field"><label htmlFor="scan-ext">File extensions</label>
+          <input id="scan-ext" value={extensionsText} onChange={(e) => setExtensionsText(e.target.value)} onBlur={commitExtensions} />
+          <span className="hint">Comma-separated, e.g. .mkv, .mp4</span></div>
       </section>
       <section className={`card ${s.grid}`}>
         <h2>Heat</h2>
@@ -31,7 +45,7 @@ export default function ScanningPage() {
       </section>
       <section className={`card ${s.grid}`}><h2>Tools</h2><ToolStatus ffprobePath={form.ffprobePath ?? ''} mediainfoPath={form.mediainfoPath ?? ''} onChange={(k, v) => set(k, v || null)} /></section>
       <div className={s.row}>
-        <button className="btn btn-primary" onClick={() => save.mutate(form)} disabled={save.isPending}>Save</button>
+        <button className="btn btn-primary" onClick={onSave} disabled={save.isPending}>Save</button>
         {save.isSuccess && <span className={s.ok}>Saved</span>}
         {save.isError && <span className={s.bad} role="alert">{(save.error as Error).message}</span>}
       </div>

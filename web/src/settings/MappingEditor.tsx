@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAddMapping, useDeleteMapping, useSuggestMappings } from '../api/hooks';
 import type { Instance, MappingSuggestion } from '../api/types';
+import { ApiError } from '../api/client';
 import s from './settings.module.css';
 
 export default function MappingEditor({ instance }: { instance: Instance }) {
@@ -10,7 +11,20 @@ export default function MappingEditor({ instance }: { instance: Instance }) {
   const [remote, setRemote] = useState('');
   const [local, setLocal] = useState('');
   const [suggestions, setSuggestions] = useState<MappingSuggestion[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const total = instance.matched + instance.unmatched;
+
+  const onSuggest = async () => {
+    setError(null);
+    try { setSuggestions(await suggest.mutateAsync(instance.id)); }
+    catch (err) { setError(err instanceof ApiError ? err.message : 'Could not fetch suggestions.'); }
+  };
+
+  const onAdd = async (remotePrefix: string, localPrefix: string, onSuccess?: () => void) => {
+    setError(null);
+    try { await add.mutateAsync({ id: instance.id, remotePrefix, localPrefix }); onSuccess?.(); }
+    catch (err) { setError(err instanceof ApiError ? err.message : 'Could not add the mapping.'); }
+  };
 
   return (
     <div className={s.grid}>
@@ -25,20 +39,21 @@ export default function MappingEditor({ instance }: { instance: Instance }) {
               <td><button className="btn" onClick={() => del.mutate({ id: instance.id, mappingId: m.id })}>Remove</button></td></tr>))}</tbody></table>
       )}
       <div className={s.row}>
-        <button className="btn" onClick={async () => setSuggestions(await suggest.mutateAsync(instance.id))} disabled={suggest.isPending}>Suggest mappings</button>
+        <button className="btn" onClick={onSuggest} disabled={suggest.isPending}>Suggest mappings</button>
         {suggestions?.length === 0 && <span className="muted">No suggestions: the paths already match, or add a library folder first.</span>}
       </div>
       {suggestions && suggestions.length > 0 && (
         <table className={s.table}><tbody>{suggestions.map((sg) => (
           <tr key={sg.remotePrefix + sg.localPrefix}><td className={s.mono}>{sg.remotePrefix}</td><td className={s.mono}>{sg.localPrefix}</td>
             <td><span className="chip">{sg.confidence === 'high' ? 'likely' : 'possible'}</span></td>
-            <td><button className="btn" onClick={() => add.mutate({ id: instance.id, remotePrefix: sg.remotePrefix, localPrefix: sg.localPrefix })}>Add</button></td></tr>))}</tbody></table>
+            <td><button className="btn" onClick={() => onAdd(sg.remotePrefix, sg.localPrefix)}>Add</button></td></tr>))}</tbody></table>
       )}
-      <form className={s.row} onSubmit={(e) => { e.preventDefault(); add.mutate({ id: instance.id, remotePrefix: remote, localPrefix: local }, { onSuccess: () => { setRemote(''); setLocal(''); } }); }}>
+      <form className={s.row} onSubmit={(e) => { e.preventDefault(); onAdd(remote, local, () => { setRemote(''); setLocal(''); }); }}>
         <div className="field"><label htmlFor={`map-remote-${instance.id}`}>{instance.type === 'radarr' ? 'Radarr' : 'Sonarr'} path</label><input id={`map-remote-${instance.id}`} value={remote} onChange={(e) => setRemote(e.target.value)} placeholder="/data/movies" /></div>
         <div className="field"><label htmlFor={`map-local-${instance.id}`}>Spacearr path</label><input id={`map-local-${instance.id}`} value={local} onChange={(e) => setLocal(e.target.value)} placeholder="/media/movies" /></div>
         <button className="btn" disabled={!remote || !local || add.isPending} style={{ alignSelf: 'end' }}>Add mapping</button>
       </form>
+      {error && <p className="error" role="alert">{error}</p>}
     </div>
   );
 }

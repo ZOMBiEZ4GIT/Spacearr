@@ -6,9 +6,8 @@
 .row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
 .cardHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
 .badge { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 1px 6px; border-radius: 3px; }
-.radarr { background: #3b2f10; color: #f0c26a; }
-.sonarr { background: #0f2f3b; color: #7fd3f2; }
-:global([data-theme="light"]) .radarr, :global(:root:not([data-theme="dark"])) .radarr { background: #F6ECD6; color: #7A4F06; }
+.radarr { background: var(--badge-radarr-bg); color: var(--badge-radarr-ink); }
+.sonarr { background: var(--badge-sonarr-bg); color: var(--badge-sonarr-ink); }
 .ok { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--danger); }
 .stepper { display: flex; gap: var(--space-3); font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--space-4); }
 .stepOn { color: var(--ink); font-weight: 600; }
