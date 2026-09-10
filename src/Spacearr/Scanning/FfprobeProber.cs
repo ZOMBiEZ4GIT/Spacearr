@@ -20,6 +20,7 @@ public sealed class FfprobeProber : IMediaProber
             RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true,
         };
         foreach (var a in new[] { "-v", "error", "-print_format", "json", "-show_format", "-show_streams", path }) psi.ArgumentList.Add(a);
+        ct.ThrowIfCancellationRequested();
         using var process = new Process { StartInfo = psi };
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeout.CancelAfter(TimeSpan.FromSeconds(60));
@@ -34,11 +35,17 @@ public sealed class FfprobeProber : IMediaProber
             if (process.ExitCode != 0) throw new ProbeException($"ffprobe exit {process.ExitCode}: {error.Trim()}");
             return FfprobeParser.Parse(output);
         }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
-            try { process.Kill(true); } catch { }
+            TryKill(process);
+            if (ct.IsCancellationRequested) throw; // caller cancelled: propagate as-is
             throw new ProbeException("ffprobe timed out after 60 s");
         }
         catch (FormatException ex) { throw new ProbeException(ex.Message, ex); }
+    }
+
+    private static void TryKill(Process p)
+    {
+        try { if (!p.HasExited) p.Kill(true); } catch { }
     }
 }
