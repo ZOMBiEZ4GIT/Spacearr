@@ -9,6 +9,10 @@ let source: EventSource | null = null;
 let backoff = 1000;
 let stopped = true;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+// True while onerror's 401 probe is in flight: during that fetch neither `source` nor
+// `reconnectTimer` is set, so without this a concurrent startEvents() would open a second
+// EventSource that the stale flow's later reconnect would then orphan.
+let probing = false;
 
 function emit() { listeners.forEach((l) => l()); }
 
@@ -16,13 +20,14 @@ export function startEvents(qc: QueryClient) {
   stopped = false;
   // Guard the window between onerror nulling `source` and the reconnect timer firing:
   // if either a source is already open or a reconnect is already scheduled, do nothing.
-  if (source || reconnectTimer) return;
+  if (source || reconnectTimer || probing) return;
   const scheduleReconnect = () => {
     reconnectTimer = setTimeout(() => { reconnectTimer = null; connect(); }, backoff);
     backoff = Math.min(backoff * 2, 30_000);
   };
   const connect = () => {
     if (stopped) return;
+    source?.close();
     source = new EventSource('/api/v1/events');
     source.addEventListener('progress', (e) => {
       const ev = JSON.parse((e as MessageEvent).data) as ProgressEvent;
@@ -59,8 +64,10 @@ export function startEvents(qc: QueryClient) {
       // fetch - a cheap, already-authenticated endpoint - before scheduling a reconnect: a confirmed
       // 401 means the session is gone, so dispatch the same 'spacearr:unauthorized' event client.ts
       // uses (the app's existing handler takes it from there) and stop, instead of looping.
+      probing = true;
       fetch('/api/v1/auth/me', { credentials: 'same-origin' })
         .then((res) => {
+          probing = false;
           if (stopped) return;
           if (res.status === 401) {
             window.dispatchEvent(new CustomEvent('spacearr:unauthorized', { detail: { path: '/api/v1/events' } }));
@@ -69,7 +76,7 @@ export function startEvents(qc: QueryClient) {
           }
           scheduleReconnect();
         })
-        .catch(() => { if (!stopped) scheduleReconnect(); });
+        .catch(() => { probing = false; if (!stopped) scheduleReconnect(); });
     };
   };
   connect();
@@ -77,6 +84,7 @@ export function startEvents(qc: QueryClient) {
 
 export function stopEvents() {
   stopped = true;
+  probing = false;
   if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
   source?.close(); source = null;
 }
