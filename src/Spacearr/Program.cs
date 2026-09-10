@@ -3,6 +3,7 @@ using Serilog;
 using Spacearr.Auth;
 using Spacearr.Data;
 using Spacearr.Infrastructure;
+using Spacearr.Jobs;
 using Spacearr.Settings;
 using Spacearr.System;
 
@@ -58,6 +59,13 @@ builder.Services.AddAuthorization(o =>
     o.FallbackPolicy = o.DefaultPolicy;
 });
 
+builder.Services.AddSingleton<Spacearr.Infrastructure.IClock, Spacearr.Infrastructure.SystemClock>();
+builder.Services.AddSingleton<Spacearr.Jobs.IProgressHub, Spacearr.Jobs.ProgressHub>();
+builder.Services.AddSingleton<Spacearr.Jobs.IJobQueue, Spacearr.Jobs.JobQueue>();
+builder.Services.AddSingleton<Spacearr.Jobs.IJobFactories, Spacearr.Jobs.JobFactories>();
+builder.Services.AddHostedService<Spacearr.Jobs.JobRunner>();
+builder.Services.AddHostedService<Spacearr.Jobs.ScanScheduler>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -75,6 +83,10 @@ using (var scope = app.Services.CreateScope())
     if (stored is null) db.Settings.Add(new Spacearr.Data.Entities.Setting { Key = "schema.appVersion", Value = appVersion.ToString(3) });
     else stored.Value = appVersion.ToString(3);
     await db.SaveChangesAsync();
+
+    var stale = await db.Jobs.Where(j => j.Status == Spacearr.Data.Entities.JobStatus.Running || j.Status == Spacearr.Data.Entities.JobStatus.Queued).ToListAsync();
+    foreach (var s in stale) { s.Status = Spacearr.Data.Entities.JobStatus.Failed; s.Error = "Interrupted by restart"; s.FinishedAt = DateTime.UtcNow; }
+    if (stale.Count > 0) await db.SaveChangesAsync();
 }
 
 app.UseSerilogRequestLogging();
@@ -84,6 +96,7 @@ app.UseSwagger(o => o.RouteTemplate = "api/docs/{documentName}/openapi.json");
 app.MapSystemEndpoints();
 app.MapAuthEndpoints();
 app.MapSettingsEndpoints();
+app.MapJobEndpoints();
 
 app.Run();
 
