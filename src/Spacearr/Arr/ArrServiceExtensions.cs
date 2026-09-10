@@ -6,6 +6,7 @@ public static class ArrServiceExtensions
     {
         services.AddHttpClient("arr", c => c.Timeout = TimeSpan.FromSeconds(30));
         services.AddSingleton<IArrClientFactory, ArrClientFactory>();
+        services.AddMemoryCache();
         return services;
     }
 }
