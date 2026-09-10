@@ -1,3 +1,4 @@
+using System.Net;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,5 +67,29 @@ public class EnrichJobTests : IClassFixture<ArrTestApp>
         var (_, _, errors) = await job.RunAsync(new JobContext(0, JobType.Enrich, scope.ServiceProvider, _app.Services.GetRequiredService<IProgressHub>()), CancellationToken.None);
         errors.Should().ContainSingle(e => e.Contains("S") && e.Contains("API key"));
         (await db.ArrInstances.AsNoTracking().SingleAsync(i => i.Id == inst.Id)).LastSyncError.Should().Contain("API key");
+    }
+
+    [Fact]
+    public async Task Failed_call_after_items_fetched_leaves_no_partial_upsert()
+    {
+        // Dedicated app/DB rather than the shared fixture, so remapping this
+        // route can't affect the other tests in this class.
+        using var app = new ArrTestApp();
+        app.Arr.Map("GET", "/api/v3/qualityprofile", "{}", HttpStatusCode.InternalServerError);
+
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SpacearrDb>();
+        var secrets = scope.ServiceProvider.GetRequiredService<ISecretProtector>();
+        var inst = new ArrInstance { Type = ArrType.Radarr, Name = "R2", BaseUrl = "http://radarr:7878", ApiKeyEncrypted = secrets.Protect("secret"), CreatedAt = DateTime.UtcNow };
+        db.ArrInstances.Add(inst);
+        await db.SaveChangesAsync();
+
+        var job = scope.ServiceProvider.GetRequiredService<EnrichJob>();
+        var ctx = new JobContext(0, JobType.Enrich, scope.ServiceProvider, app.Services.GetRequiredService<IProgressHub>());
+        var (_, _, errors) = await job.RunAsync(ctx, CancellationToken.None);
+
+        errors.Should().ContainSingle(e => e.StartsWith("R2:"));
+        (await db.ArrInstances.AsNoTracking().SingleAsync(i => i.Id == inst.Id)).LastSyncError.Should().NotBeNull();
+        (await db.MediaItems.AsNoTracking().Where(i => i.ArrInstanceId == inst.Id).ToListAsync()).Should().BeEmpty();
     }
 }
