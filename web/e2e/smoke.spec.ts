@@ -34,6 +34,21 @@ test('first run to first treemap', async ({ page }) => {
   await expect(treemap).toBeVisible();
   await expect(treemap).toHaveAttribute('aria-label', /2 blocks/);
 
+  // The Kind filter sends the camelCase value the API writes (?kind=episode). Case-sensitive
+  // enum binding once made both buttons a 400, and useTree's placeholderData then quietly kept
+  // showing the previous tree - so check the response as well as the block count.
+  const kind = page.getByRole('group', { name: 'Kind' });
+  const treeFor = (k: string) => page.waitForResponse((r) => r.url().includes('/api/v1/library/tree') && r.url().includes(`kind=${k}`));
+  const tv = treeFor('episode');
+  await kind.getByRole('button', { name: 'TV' }).click();
+  expect((await tv).status()).toBe(200);
+  await expect(page.getByRole('img', { name: /Treemap of Library/ })).toHaveAttribute('aria-label', /\b0 blocks/);
+  const movies = treeFor('movie');
+  await kind.getByRole('button', { name: 'Movies' }).click();
+  expect((await movies).status()).toBe(200);
+  await expect(page.getByRole('img', { name: /Treemap of Library/ })).toHaveAttribute('aria-label', /2 blocks/);
+  await kind.getByRole('button', { name: 'All' }).click();
+
   await page.getByRole('row', { name: /Bravo/ }).click();
   await expect(page.getByRole('region', { name: 'Details' })).toContainText('Bravo (2021)');
   await page.getByRole('button', { name: /HD-1080p/ }).click();

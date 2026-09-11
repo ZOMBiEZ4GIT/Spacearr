@@ -63,8 +63,12 @@ public class FfprobeProberTests
             var before = HandleCount();
 
             // Hold the GC off for the loop: a collection would run the finalisers that
-            // eventually close leaked pipes and let a leaking prober pass by luck.
-            var noGc = GC.TryStartNoGCRegion(64 * 1024 * 1024);
+            // eventually close leaked pipes and let a leaking prober pass by luck. If the
+            // runtime won't grant the region (a small Server GC budget, say) the test still
+            // runs - it can then only pass by luck, never fail by it.
+            bool noGc;
+            try { noGc = GC.TryStartNoGCRegion(64 * 1024 * 1024); }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentOutOfRangeException) { noGc = false; }
             const int probes = 40;
             int delta;
             try

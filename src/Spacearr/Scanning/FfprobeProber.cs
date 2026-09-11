@@ -24,15 +24,18 @@ public sealed class FfprobeProber : IMediaProber
         using var process = new Process { StartInfo = psi };
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeout.CancelAfter(TimeSpan.FromSeconds(60));
+        // Process.Dispose does not close redirected streams once they've been read
+        // through StandardOutput/StandardError - it leaves them to the caller - so they
+        // must be disposed here or each probe leaks two pipe handles until a GC
+        // finalises them, which exhausts a 1024 fd limit on a large library. They're
+        // closed in `finally`, not with `using` inside the try: that would dispose them
+        // before `catch` kills a timed-out ffprobe, failing its pending reads first.
+        StreamReader? stdoutReader = null, stderrReader = null;
         try
         {
             process.Start();
-            // Process.Dispose does not close redirected streams once they've been read
-            // through StandardOutput/StandardError - it leaves them to the caller - so
-            // they must be disposed here or each probe leaks two pipe handles until a GC
-            // finalises them, which exhausts a 1024 fd limit on a large library.
-            using var stdoutReader = process.StandardOutput;
-            using var stderrReader = process.StandardError;
+            stdoutReader = process.StandardOutput;
+            stderrReader = process.StandardError;
             var stdout = stdoutReader.ReadToEndAsync(timeout.Token);
             var stderr = stderrReader.ReadToEndAsync(timeout.Token);
             await process.WaitForExitAsync(timeout.Token);
@@ -48,6 +51,11 @@ public sealed class FfprobeProber : IMediaProber
             throw new ProbeException("ffprobe timed out after 60 s");
         }
         catch (FormatException ex) { throw new ProbeException(ex.Message, ex); }
+        finally
+        {
+            stdoutReader?.Dispose();
+            stderrReader?.Dispose();
+        }
     }
 
     private static void TryKill(Process p)
