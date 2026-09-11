@@ -4,6 +4,12 @@ using Spacearr.Scanning;
 
 namespace Spacearr.Tests.Scanning;
 
+// Handle counts are process-wide, so the leak test must not share the process with
+// other test classes opening files and sockets in parallel.
+[CollectionDefinition(nameof(FfprobeProberTests), DisableParallelization = true)]
+public sealed class FfprobeProberCollection { }
+
+[Collection(nameof(FfprobeProberTests))]
 public class FfprobeProberTests
 {
     private sealed class FixedTools : IToolLocator
@@ -37,6 +43,53 @@ public class FfprobeProberTests
             r.DurationSeconds.Should().BeApproximately(2, 0.2);
         }
         finally { File.Delete(file); }
+    }
+
+    [Fact]
+    public async Task Repeated_probes_do_not_leak_pipe_handles()
+    {
+        var (ffprobe, ffmpeg) = ResolveTools();
+        if (ffprobe is null || ffmpeg is null) return; // gated: tool not installed on this machine
+
+        // Process.Dispose deliberately leaves StandardOutput/StandardError open once the
+        // caller has touched them, so an undisposed reader leaks two pipe handles per
+        // probe until a GC finalises them. On a real library that hit the 1024 fd soft
+        // limit inside a few hundred probes and every later probe failed with EMFILE.
+        var file = await GenerateSampleFileAsync(ffmpeg);
+        try
+        {
+            var prober = new FfprobeProber(new FixedTools { Ffprobe = ffprobe });
+            await prober.ProbeAsync(file, CancellationToken.None); // warm up lazily-opened handles
+            var before = HandleCount();
+
+            // Hold the GC off for the loop: a collection would run the finalisers that
+            // eventually close leaked pipes and let a leaking prober pass by luck. If the
+            // runtime won't grant the region (a small Server GC budget, say) the test still
+            // runs - it can then only pass by luck, never fail by it.
+            bool noGc;
+            try { noGc = GC.TryStartNoGCRegion(64 * 1024 * 1024); }
+            catch (Exception ex) when (ex is InvalidOperationException or ArgumentOutOfRangeException) { noGc = false; }
+            const int probes = 40;
+            int delta;
+            try
+            {
+                for (var i = 0; i < probes; i++) await prober.ProbeAsync(file, CancellationToken.None);
+                delta = HandleCount() - before;
+            }
+            finally
+            {
+                if (noGc && System.Runtime.GCSettings.LatencyMode == System.Runtime.GCLatencyMode.NoGCRegion) GC.EndNoGCRegion();
+            }
+
+            delta.Should().BeLessThan(probes, "each probe must release its stdout/stderr pipes when it returns, not when the GC gets to them");
+        }
+        finally { File.Delete(file); }
+    }
+
+    private static int HandleCount()
+    {
+        using var self = Process.GetCurrentProcess();
+        return self.HandleCount;
     }
 
     [Fact]

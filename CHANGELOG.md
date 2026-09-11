@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the fork's history remains in git.
 
+## [Unreleased]
+
+### Fixed
+
+- Scanning a large library no longer fails most probes with "No file descriptors available". Each ffprobe run leaked its stdout/stderr pipes until a garbage collection, so under Docker's default 1024 open-file limit a ~40k-file library had 97% of its files marked unreadable. The pipes are now closed when each probe returns.
+- The treemap no longer returns a 500 when a file ffprobe couldn't read gets its own block. Unreadable heat is sent as `-1`, the same as the library list, instead of `NaN`, which can't be written as JSON.
+- The Movies / TV filter on the Library and Duplicates pages works. `?kind=movie` returned 400 because enum query binding was case-sensitive while the API writes `movie`/`episode`.
+- Logs are a fraction of the size. EF Core SQL, per-request ASP.NET Core pipeline messages and per-call HttpClient messages now log at Warning; the one-line request summary is unchanged.
+
 ## [0.1.0] - 2026-09-11
 
 ### Added

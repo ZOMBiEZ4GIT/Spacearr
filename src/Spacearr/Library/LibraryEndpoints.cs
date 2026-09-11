@@ -35,6 +35,21 @@ public sealed record LibraryStats(long TotalBytes, int FileCount, int ItemCount,
     InstanceBucket[] ByInstance, Bucket[] ByQuality, Bucket[] ByCodec, Bucket[] ByResolution, int[] HeatHistogram,
     LibraryItemResponse[] Largest, LibraryItemResponse[] Hottest);
 
+/// <summary>
+/// The ?kind= query value. Minimal APIs bind a bare enum with a case-sensitive
+/// Enum.TryParse, but responses serialise MediaKind camelCase ("movie") and the web
+/// app sends that back - so parse case-insensitively here. Unknown values stay a 400.
+/// </summary>
+public readonly record struct KindQuery(MediaKind Value)
+{
+    public static bool TryParse(string? s, out KindQuery result)
+    {
+        var ok = Enum.TryParse<MediaKind>(s, ignoreCase: true, out var kind) && Enum.IsDefined(kind);
+        result = new KindQuery(kind);
+        return ok;
+    }
+}
+
 public static class LibraryEndpoints
 {
     public static IEndpointRouteBuilder MapLibraryEndpoints(this IEndpointRouteBuilder app)
@@ -42,9 +57,9 @@ public static class LibraryEndpoints
         var group = app.MapGroup("/api/v1/library").RequireAuthorization();
 
         group.MapGet("/", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct,
-            int? instanceId, MediaKind? kind, long minBytes = 0, string? search = null, string sort = "size", string order = "desc", int page = 1, int pageSize = 100, string? heatMode = null) =>
+            int? instanceId, KindQuery? kind, long minBytes = 0, string? search = null, string sort = "size", string order = "desc", int page = 1, int pageSize = 100, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, minBytes, search), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind?.Value, minBytes, search), heatMode, ct);
             var scored = rows.Select((r, i) => LibraryItemResponse.From(r, heat[i]));
             scored = sort switch
             {
@@ -66,18 +81,18 @@ public static class LibraryEndpoints
         });
 
         group.MapGet("/tree", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct,
-            int? instanceId, MediaKind? kind, long minBytes = 0, string colorBy = "heat", string? heatMode = null) =>
+            int? instanceId, KindQuery? kind, long minBytes = 0, string colorBy = "heat", string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind?.Value, 0, null), heatMode, ct);
             ISet<int>? dups = colorBy == "duplicates" ? DuplicateFinder.Find(rows).SelectMany(g => g.Members).Select(m => m.FileId).ToHashSet() : null;
             var total = rows.Sum(r => r.SizeBytes);
             var fold = Math.Max(minBytes, total / 4000); // never more than ~4000 visible leaves at the top level
             return Results.Ok(TreeBuilder.Build(rows, heat, colorBy, fold, 10000, dups));
         });
 
-        group.MapGet("/stats", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
+        group.MapGet("/stats", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, KindQuery? kind, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind?.Value, 0, null), heatMode, ct);
             var scored = rows.Select((r, i) => LibraryItemResponse.From(r, heat[i])).ToList();
             Bucket[] By(Func<LibraryRow, string?> key) => rows.GroupBy(r => key(r) ?? "Unknown").Select(g => new Bucket(g.Key, g.Sum(r => r.SizeBytes), g.Count())).OrderByDescending(b => b.Bytes).ToArray();
             var histogram = new int[10];
@@ -115,9 +130,9 @@ public static class LibraryEndpoints
             return Results.Ok(new LibraryDetailResponse(item, profiles));
         });
 
-        app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, MediaKind? kind, string? heatMode = null) =>
+        app.MapGet("/api/v1/duplicates", async (SpacearrDb db, ISettingsService settings, IMemoryCache cache, ILibraryCacheVersion version, CancellationToken ct, int? instanceId, KindQuery? kind, string? heatMode = null) =>
         {
-            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind, 0, null), heatMode, ct);
+            var (rows, heat) = await Load(db, settings, cache, version, new LibraryFilter(instanceId, kind?.Value, 0, null), heatMode, ct);
             // Two MediaItems (e.g. the same physical file matched on two arr instances)
             // can share a FileId, so a plain ToDictionary would throw - group and keep
             // the first heat value for each file instead.
