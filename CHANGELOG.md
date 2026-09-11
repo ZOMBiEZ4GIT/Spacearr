@@ -4,7 +4,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the fork's history remains in git.
 
-## [Unreleased]
+## [0.1.1] - 2026-09-11
 
 ### Fixed
 
@@ -52,4 +52,5 @@ Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the f
 - The poster cache under `/config/posters` is never pruned in v1.
 - The image is about 385 MB.
 
+[0.1.1]: https://github.com/ZOMBiEZ4GIT/Spacearr/releases/tag/v0.1.1
 [0.1.0]: https://github.com/ZOMBiEZ4GIT/Spacearr/releases/tag/v0.1.0
