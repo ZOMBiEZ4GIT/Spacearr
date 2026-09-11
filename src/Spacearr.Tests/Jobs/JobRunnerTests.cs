@@ -141,9 +141,15 @@ public class JobRunnerTests : IClassFixture<TestApp>
         job.Status.Should().Be(JobStatus.Cancelled);
     }
 
+    // 30 s, not 10: on a loaded runner (a 2-CPU CI box, or a host mid-rescan) nine
+    // WebApplicationFactory hosts start in parallel and a job that needs ~50 ms of CPU
+    // can wait far longer than that for a slice. A busy machine should read as slow,
+    // not red - the assertions below still catch a job that never finishes.
+    private static readonly TimeSpan Deadline = TimeSpan.FromSeconds(30);
+
     private static async Task WaitUntilRunning(IJobQueue queue, int id)
     {
-        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var deadline = DateTime.UtcNow + Deadline;
         while (queue.RunningJobId != id && DateTime.UtcNow < deadline)
             await Task.Delay(10);
         queue.RunningJobId.Should().Be(id);
@@ -151,14 +157,18 @@ public class JobRunnerTests : IClassFixture<TestApp>
 
     private async Task WaitForFinish(int id)
     {
-        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var queue = _app.Services.GetRequiredService<IJobQueue>();
+        var deadline = DateTime.UtcNow + Deadline;
         while (DateTime.UtcNow < deadline)
         {
+            // Ask the queue first: while the job is the running one there is nothing to
+            // read from the database yet, so don't spend a SQLite round-trip on it.
+            if (queue.RunningJobId == id) { await Task.Delay(25); continue; }
             using var scope = _app.Services.CreateScope();
             var job = await scope.ServiceProvider.GetRequiredService<SpacearrDb>().Jobs.AsNoTracking().SingleAsync(j => j.Id == id);
             if (job.Status is JobStatus.Succeeded or JobStatus.Failed or JobStatus.Cancelled) return;
             await Task.Delay(25);
         }
-        throw new TimeoutException($"job {id} did not finish");
+        throw new TimeoutException($"job {id} did not finish within {Deadline.TotalSeconds:0} s");
     }
 }
