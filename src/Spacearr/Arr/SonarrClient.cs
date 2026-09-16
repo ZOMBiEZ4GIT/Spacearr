@@ -7,7 +7,7 @@ namespace Spacearr.Arr;
 public sealed class SonarrClient : IArrClient
 {
     private readonly ArrHttp _http;
-    public SonarrClient(HttpClient http, string apiKey) => _http = new ArrHttp(http, apiKey);
+    public SonarrClient(HttpClient http, string apiKey, ArrTimeouts? timeouts = null) => _http = new ArrHttp(http, apiKey, timeouts);
     public ArrType Type => ArrType.Sonarr;
 
     public async Task<ArrStatus> GetStatusAsync(CancellationToken ct)
@@ -27,16 +27,16 @@ public sealed class SonarrClient : IArrClient
 
     public async Task<IReadOnlyList<ArrItem>> GetItemsAsync(CancellationToken ct)
     {
-        var series = ArrHttp.Array(await _http.GetAsync("/api/v3/series", ct), "series");
+        var series = ArrHttp.Array(await _http.GetBulkAsync("/api/v3/series", ct), "series");
         // A large Sonarr library means two round trips per series; doing them four at a
         // time keeps a sync from being one long serial stall without hammering the app.
         var bag = new ConcurrentBag<ArrItem>();
         await Parallel.ForEachAsync(series, new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = ct }, async (s, token) =>
         {
             var seriesId = ArrHttp.Int(s!["id"]) ?? 0;
-            var files = ArrHttp.Array(await _http.GetAsync($"/api/v3/episodefile?seriesId={seriesId}", token), "episode files");
+            var files = ArrHttp.Array(await _http.GetBulkAsync($"/api/v3/episodefile?seriesId={seriesId}", token), "episode files");
             if (files.Count == 0) return;
-            var episodes = ArrHttp.Array(await _http.GetAsync($"/api/v3/episode?seriesId={seriesId}", token), "episodes")
+            var episodes = ArrHttp.Array(await _http.GetBulkAsync($"/api/v3/episode?seriesId={seriesId}", token), "episodes")
                 .Select(e => e!.AsObject()).Where(e => (ArrHttp.Int(e["episodeFileId"]) ?? 0) > 0)
                 .GroupBy(e => ArrHttp.Int(e["episodeFileId"])!.Value)
                 .ToDictionary(g => g.Key, g => g.OrderBy(e => ArrHttp.Int(e["episodeNumber"])).ToList());

@@ -7,6 +7,7 @@ namespace Spacearr.Tests.Arr;
 public sealed class FakeArrHandler : HttpMessageHandler
 {
     private readonly Dictionary<string, Func<HttpRequestMessage, (HttpStatusCode Status, string Json, string ContentType)>> _routes = new();
+    private readonly Dictionary<string, TimeSpan> _delays = new();
     public List<(HttpMethod Method, string Path, string? Body)> Calls { get; } = new();
     public string? RequiredApiKey { get; set; } = "secret";
 
@@ -26,6 +27,13 @@ public sealed class FakeArrHandler : HttpMessageHandler
         return this;
     }
 
+    /// <summary>Answers this route only after <paramref name="delay"/>, for timeout tests.</summary>
+    public FakeArrHandler MapSlow(string method, string pathAndQuery, string json, TimeSpan delay, string? host = null)
+    {
+        _delays[Key(method, host, pathAndQuery)] = delay;
+        return Map(method, pathAndQuery, json, host: host);
+    }
+
     public FakeArrHandler MapFixture(string method, string pathAndQuery, string fixture) => Map(method, pathAndQuery, Fixture(fixture));
 
     private static string Key(string method, string? host, string pathAndQuery) => $"{method} {host ?? "*"} {pathAndQuery}";
@@ -38,6 +46,9 @@ public sealed class FakeArrHandler : HttpMessageHandler
         var provided = request.Headers.TryGetValues("X-Api-Key", out var keys) ? keys.FirstOrDefault() : null;
         if (RequiredApiKey is not null && provided != RequiredApiKey)
             return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+        if (_delays.TryGetValue(Key(request.Method.Method, request.RequestUri.Host, path), out var delay) ||
+            _delays.TryGetValue(Key(request.Method.Method, null, path), out delay))
+            await Task.Delay(delay, ct);
         if (_routes.TryGetValue(Key(request.Method.Method, request.RequestUri.Host, path), out var handler) ||
             _routes.TryGetValue(Key(request.Method.Method, null, path), out handler))
         {

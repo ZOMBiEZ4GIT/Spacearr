@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 Spacearr began as a Radarr fork; 0.1.0 is the first standalone release — the fork's history remains in git.
 
+## [Unreleased]
+
+### Fixed
+
+- A first sync of a large library no longer fails with "Timed out talking to …". Arr requests now carry a per-request timeout: 30 seconds for the interactive calls (connection test, profiles, actions) and 10 minutes for the whole-library listings a sync makes. Right after a scan of a ~40k-file library, Sonarr's `/api/v3/series` took 67–92 seconds against 0.2 seconds idle, because probing had evicted its SQLite pages from the page cache — so under the old flat 30-second client timeout, every first scan on a large library finished with the whole TV library unmatched until the next scheduled scan.
+
 ## [0.1.1] - 2026-09-11
 
 ### Fixed

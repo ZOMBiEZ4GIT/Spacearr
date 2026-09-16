@@ -5,17 +5,39 @@ using System.Text.Json.Nodes;
 
 namespace Spacearr.Arr;
 
+/// <summary>
+/// How long a single arr request may take. <paramref name="Request"/> covers the
+/// interactive calls - a connection test, a profile list, an action - where a hung arr
+/// should fail fast. <paramref name="Bulk"/> covers the whole-library listings a sync
+/// makes, which are legitimately slow on a large library: right after a scan of ~40k
+/// files, Sonarr's /api/v3/series took 67-92 s against 0.2 s idle, because probing had
+/// evicted its SQLite pages from the page cache. At 30 s flat, every first sync on a
+/// large library failed and the user's TV library stayed unmatched until the next scan.
+/// 10 minutes, not 5: the slowest /series seen on that box was 209 s, when Sonarr was
+/// blocked on something of its own, and a first sync is worth waiting out.
+/// </summary>
+public sealed record ArrTimeouts(TimeSpan Request, TimeSpan Bulk)
+{
+    public static readonly ArrTimeouts Default = new(TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(10));
+}
+
 internal sealed class ArrHttp
 {
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly HttpClient _http;
     private readonly string _apiKey;
+    private readonly ArrTimeouts _timeouts;
 
-    public ArrHttp(HttpClient http, string apiKey) { _http = http; _apiKey = apiKey; }
+    public ArrHttp(HttpClient http, string apiKey, ArrTimeouts? timeouts = null) { _http = http; _apiKey = apiKey; _timeouts = timeouts ?? ArrTimeouts.Default; }
 
-    public async Task<JsonNode> GetAsync(string path, CancellationToken ct)
+    /// <summary>A whole-library listing, on the longer <see cref="ArrTimeouts.Bulk"/> budget.</summary>
+    public Task<JsonNode> GetBulkAsync(string path, CancellationToken ct) => GetAsync(path, ct, _timeouts.Bulk);
+
+    public Task<JsonNode> GetAsync(string path, CancellationToken ct) => GetAsync(path, ct, _timeouts.Request);
+
+    private async Task<JsonNode> GetAsync(string path, CancellationToken ct, TimeSpan timeout)
     {
-        using var response = await SendAsync(HttpMethod.Get, path, null, ct);
+        using var response = await SendAsync(HttpMethod.Get, path, null, ct, timeout);
         var text = await response.Content.ReadAsStringAsync(ct);
         JsonNode? node;
         // A 200 that isn't JSON at all (a login page, a reverse proxy's HTML error,
@@ -35,19 +57,24 @@ internal sealed class ArrHttp
 
     public async Task SendJsonAsync(HttpMethod method, string path, JsonNode? body, CancellationToken ct)
     {
-        using var _ = await SendAsync(method, path, body, ct);
+        using var _ = await SendAsync(method, path, body, ct, _timeouts.Request);
     }
 
-    private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, JsonNode? body, CancellationToken ct)
+    private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, JsonNode? body, CancellationToken ct, TimeSpan timeout)
     {
         using var request = new HttpRequestMessage(method, path.TrimStart('/'));
         request.Headers.Add("X-Api-Key", _apiKey);
         request.Headers.Accept.ParseAdd("application/json");
         if (body is not null) request.Content = new StringContent(body.ToJsonString(Json), Encoding.UTF8, "application/json");
         HttpResponseMessage response;
-        try { response = await _http.SendAsync(request, ct); }
+        // The timeout is per request, not on the HttpClient: a sync's whole-library
+        // listings get a far longer budget than the interactive calls (see ArrTimeouts).
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(timeout);
+        try { response = await _http.SendAsync(request, cts.Token); }
         catch (HttpRequestException ex) { throw new ArrException(null, $"Could not reach {_http.BaseAddress}: {ex.Message}. Inside Docker, use the container name rather than localhost.", ex); }
-        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested) { throw new ArrException(null, $"Timed out talking to {_http.BaseAddress}", ex); }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; } // caller cancelled (job stopped): propagate as-is
+        catch (TaskCanceledException ex) { throw new ArrException(null, $"Timed out talking to {_http.BaseAddress} after {timeout.TotalSeconds:0} s", ex); }
         if (response.StatusCode == HttpStatusCode.Unauthorized) { response.Dispose(); throw new ArrException(HttpStatusCode.Unauthorized, "Unauthorized: check the API key"); }
         if (!response.IsSuccessStatusCode)
         {
