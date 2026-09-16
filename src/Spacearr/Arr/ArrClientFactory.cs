@@ -14,8 +14,9 @@ public sealed class ArrClientFactory : IArrClientFactory
 {
     private readonly IHttpClientFactory _httpFactory;
     private readonly ISecretProtector _secrets;
+    private readonly ArrTimeouts _timeouts;
 
-    public ArrClientFactory(IHttpClientFactory httpFactory, ISecretProtector secrets) { _httpFactory = httpFactory; _secrets = secrets; }
+    public ArrClientFactory(IHttpClientFactory httpFactory, ISecretProtector secrets, ArrTimeouts? timeouts = null) { _httpFactory = httpFactory; _secrets = secrets; _timeouts = timeouts ?? ArrTimeouts.Default; }
 
     public IArrClient Create(ArrInstance instance) => Create(instance.Type, instance.BaseUrl, Unprotect(instance.ApiKeyEncrypted));
 
@@ -27,7 +28,7 @@ public sealed class ArrClientFactory : IArrClientFactory
         // rather than escaping as a 500 from whichever endpoint happened to call us.
         try { http.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"); }
         catch (UriFormatException ex) { throw new ArrException(null, "The stored URL for this connection is invalid. Edit the connection and enter a full URL.", ex); }
-        return type == ArrType.Radarr ? new RadarrClient(http, apiKey) : new SonarrClient(http, apiKey);
+        return type == ArrType.Radarr ? new RadarrClient(http, apiKey, _timeouts) : new SonarrClient(http, apiKey, _timeouts);
     }
 
     private string Unprotect(string encrypted)

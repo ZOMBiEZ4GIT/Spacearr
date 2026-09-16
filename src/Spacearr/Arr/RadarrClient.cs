@@ -6,7 +6,7 @@ namespace Spacearr.Arr;
 public sealed class RadarrClient : IArrClient
 {
     private readonly ArrHttp _http;
-    public RadarrClient(HttpClient http, string apiKey) => _http = new ArrHttp(http, apiKey);
+    public RadarrClient(HttpClient http, string apiKey, ArrTimeouts? timeouts = null) => _http = new ArrHttp(http, apiKey, timeouts);
     public ArrType Type => ArrType.Radarr;
 
     public async Task<ArrStatus> GetStatusAsync(CancellationToken ct)
@@ -26,7 +26,7 @@ public sealed class RadarrClient : IArrClient
 
     public async Task<IReadOnlyList<ArrItem>> GetItemsAsync(CancellationToken ct)
     {
-        var movies = ArrHttp.Array(await _http.GetAsync("/api/v3/movie", ct), "movies");
+        var movies = ArrHttp.Array(await _http.GetBulkAsync("/api/v3/movie", ct), "movies");
         var items = new List<ArrItem>();
         foreach (var m in movies)
         {
