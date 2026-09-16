@@ -90,9 +90,9 @@ public class ArrTimeoutTests
     }
 
     [Fact]
-    public void Defaults_are_30_seconds_per_request_and_5_minutes_for_a_sync()
+    public void Defaults_are_30_seconds_per_request_and_10_minutes_for_a_sync()
     {
         ArrTimeouts.Default.Request.Should().Be(TimeSpan.FromSeconds(30));
-        ArrTimeouts.Default.Bulk.Should().Be(TimeSpan.FromMinutes(5));
+        ArrTimeouts.Default.Bulk.Should().Be(TimeSpan.FromMinutes(10));
     }
 }

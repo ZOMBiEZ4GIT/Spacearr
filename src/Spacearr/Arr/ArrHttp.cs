@@ -13,10 +13,12 @@ namespace Spacearr.Arr;
 /// files, Sonarr's /api/v3/series took 67-92 s against 0.2 s idle, because probing had
 /// evicted its SQLite pages from the page cache. At 30 s flat, every first sync on a
 /// large library failed and the user's TV library stayed unmatched until the next scan.
+/// 10 minutes, not 5: the slowest /series seen on that box was 209 s, when Sonarr was
+/// blocked on something of its own, and a first sync is worth waiting out.
 /// </summary>
 public sealed record ArrTimeouts(TimeSpan Request, TimeSpan Bulk)
 {
-    public static readonly ArrTimeouts Default = new(TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(5));
+    public static readonly ArrTimeouts Default = new(TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(10));
 }
 
 internal sealed class ArrHttp
